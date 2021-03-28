@@ -1,0 +1,822 @@
+﻿<Window x:Class="WPFPages.Views.EditDb"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d"
+        Title="Database Editing Window - " 
+		Height="610" Width="700"
+		MinHeight="610" MinWidth="700"
+		Loaded="WindowLoaded"
+		Closing="CheckClosing">
+	
+	<!--Outer grid-->
+	<Grid>
+		<Grid.RowDefinitions>
+			<RowDefinition Height="*"/>
+			<RowDefinition Height="35"/>
+		</Grid.RowDefinitions>
+
+	<!--#region Inner grid for Bank/Details-->
+	<Grid  x:Name="BankEditGrid"
+			   Grid.Row="0"
+			   DataContext="BankAccountObs"
+		   Visibility="Visible">
+			<Grid.RowDefinitions>
+				<RowDefinition Height="5"/>
+				<RowDefinition Height="35"/>
+				<RowDefinition Height="35"/>
+				<RowDefinition Height="35"/>
+				<RowDefinition Height="35"/>
+				<RowDefinition Height="35"/>
+				<RowDefinition Height="35"/>
+				<RowDefinition Height="35"/>
+				<RowDefinition Height="35"/>
+				<RowDefinition Height="*"/>
+				<RowDefinition Height="5"/>
+			</Grid.RowDefinitions>
+			<Grid.ColumnDefinitions>
+				<ColumnDefinition Width="15"/>
+				<ColumnDefinition Width="80"/>
+				<ColumnDefinition Width="120"/>
+				<ColumnDefinition Width="15"/>
+				<ColumnDefinition Width="*"/>
+				<ColumnDefinition Width="5"/>
+			</Grid.ColumnDefinitions>
+
+	<!--#region Bank TextBLOCKS-->
+			<TextBlock Text="Bank #"
+					   Grid.Row="2"
+					   Grid.Column="1"
+					   Width="80"
+					   HorizontalAlignment="left"
+					   VerticalAlignment="Center"/>
+			<TextBlock Text="Customer #"
+					   Grid.Row="3"
+					   Grid.Column="1"
+					   Width="80"
+					   HorizontalAlignment="left"
+					   VerticalAlignment="Center"/>
+			<TextBlock Text="A/c Type"
+					   Grid.Row="4"
+					   Grid.Column="1"
+					   Width="65"
+					   HorizontalAlignment="left"
+					   VerticalAlignment="Center"/>
+			<TextBlock Text="Balance"
+					   Grid.Row="5"
+					   Grid.Column="1"
+					   Width="80"
+					   HorizontalAlignment="left"
+					   VerticalAlignment="Center"/>
+			<TextBlock Text="Interest %"
+					   Grid.Row="6"
+					   Grid.Column="1"
+					   Width="80"
+					   HorizontalAlignment="left"
+					   VerticalAlignment="Center"/>
+			<TextBlock Text="Date Opened"
+					   Grid.Row="7"
+					   Grid.Column="1"
+					   Width="80"
+					   HorizontalAlignment="left"
+					   VerticalAlignment="Center"/>
+			<TextBlock Text="Date /Closed"
+					   Grid.Row="8"
+					   Grid.Column="1"
+					   Width="80"
+					   HorizontalAlignment="left"
+					   VerticalAlignment="Center"/>
+	<!--#endregion Bank Textboxes-->
+
+	<!--#region Bank TEXTBOXES-->
+			<TextBox Name="BanknoEdit" 
+					 Grid.Row="2"
+					 Grid.Column="2"
+					 Margin="3,3,3,3"	
+					 Height="25"
+					 IsEnabled="True"
+					 Background="{StaticResource Gray3}"
+					 HorizontalContentAlignment="Center"
+					 VerticalContentAlignment="Center"
+					 Text="{Binding BankNo, UpdateSourceTrigger=LostFocus, Mode=TwoWay}" TextChanged="BanknoEdit_TextChanged"/>
+
+			<TextBox x:Name="CustnonoEdit" 
+					 Grid.Row="3"
+					 Grid.Column="2"
+					 Margin="1"				 
+					 Height="25"
+					 IsEnabled="True"
+					 IsReadOnly="False"
+					 Background="{StaticResource Gray3}"
+					 Foreground="{StaticResource Black0}"
+					 HorizontalContentAlignment="Center"
+					 VerticalContentAlignment="Center"
+					 Visibility="Visible"
+					Text="{Binding Path=CustNo, UpdateSourceTrigger=LostFocus, Mode=TwoWay}" TextChanged="CustnonoEdit_TextChanged"/>
+
+			<TextBox x:Name="ActypeEdit" 
+					 Grid.Row="4"
+					 Grid.Column="2"
+					 Margin="1"				 
+					 Height="25"
+					 IsEnabled="True"
+					 IsReadOnly="False"
+					 Background="{StaticResource Gray3}"
+					 Foreground="{StaticResource Black0}"
+					 HorizontalContentAlignment="Center"
+					 VerticalContentAlignment="Center"
+					 Visibility="Visible"
+					Text="{Binding AcType, UpdateSourceTrigger=LostFocus, Mode=TwoWay}" TextChanged="CustnonoEdit_TextChanged"/>
+
+
+			<TextBox Name="BalanceEdit" 
+					 Grid.Row="5"
+					 Grid.Column="2"
+					 Margin="3,3,3,3"				 
+					 Height="25"
+					 Width="75"
+					 IsEnabled="True"
+					 Background="{StaticResource Gray3}"
+					 HorizontalAlignment="Left"
+					 HorizontalContentAlignment="Center"
+					 VerticalContentAlignment="Center"
+					 IsTabStop="True"
+					 Text="{Binding Balance, UpdateSourceTrigger=LostFocus, Mode=TwoWay}" TextChanged="BalanceEdit_TextChanged"/>
+			<TextBox Name="IntRateEdit" 
+					 Grid.Row="6"
+					 Grid.Column="2"
+					 Margin="3,3,3,3"	
+					 Height="25"
+					 Width="35"
+					 IsEnabled="True"
+					 Background="{StaticResource Gray3}"
+					 HorizontalAlignment="Left"
+					 HorizontalContentAlignment="Center"
+					 IsReadOnly="false"
+					 VerticalContentAlignment="Center"
+					Text="{Binding IntRate, UpdateSourceTrigger=LostFocus, Mode=TwoWay}" TextChanged="IntRateEdit_TextChanged"/>
+			<TextBox Name="OpenDateEdit" 
+					 Grid.Row="7"
+					 Grid.Column="2"
+					 Margin="3,3,3,3"				 
+					 Height="25"
+					 Width="75"
+					 IsEnabled="True"
+					 Background="{StaticResource Gray3}"
+					 HorizontalAlignment="Left"
+					 HorizontalContentAlignment="Center"
+					 VerticalContentAlignment="Center"
+					 Text="{Binding ODate, UpdateSourceTrigger=LostFocus, Mode=TwoWay, StringFormat='dd/MM/yyyy'}" TextChanged="OpenDateEdit_TextChanged"/>
+			<TextBox Name="CloseDateEdit" 
+					 Grid.Row="8"
+					 Grid.Column="2"
+					 Margin="3,3,3,3"				 
+					 Height="25"
+					 Width="75"
+					 HorizontalAlignment="Left"
+					 IsEnabled="True"
+					 Background="{StaticResource Gray3}"
+					 HorizontalContentAlignment="Center"
+					 VerticalContentAlignment="Center"
+					 Text="{Binding CDate, UpdateSourceTrigger=LostFocus, Mode=TwoWay, StringFormat='dd/MM/yyyy'}" TextChanged="CloseDateEdit_TextChanged"/>
+	<!--#endregion Bank TEXTBOXES-->
+
+			<DataGrid x:Name="DataGrid1"
+			  Grid.Row="1"
+			  Grid.Column="4"
+			  Grid.RowSpan="16"
+				VerticalAlignment="Stretch"
+				HorizontalAlignment="Stretch"
+				IsReadOnly="False"
+				SelectionMode="Single"
+				SelectionUnit="FullRow" 
+				AutoGenerateColumns="False"
+				SelectionChanged="DataGrid1_SelectionChanged"
+				  >
+				<DataGrid.Resources>
+					<SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightBrushKey}" Color="DarkGray"/>
+				</DataGrid.Resources>
+
+				<DataGrid.Columns >
+					<DataGridTemplateColumn Header="Id" Width="40"
+									    SortMemberPath="Id" >
+						<DataGridTemplateColumn.CellTemplate >
+							<DataTemplate >
+								<TextBlock 
+									Text="{Binding Id}"
+									HorizontalAlignment="Center"
+									VerticalAlignment="Top"/>
+							</DataTemplate >
+						</DataGridTemplateColumn.CellTemplate>
+					</DataGridTemplateColumn >
+
+					<DataGridTextColumn Header="Bank #" Width="80" 
+								    SortMemberPath="BankNo"
+									Binding ="{Binding BankNo, 
+									Mode=TwoWay, 
+									UpdateSourceTrigger=LostFocus}"
+									>
+					</DataGridTextColumn>
+
+					<DataGridTextColumn x:Name="Custno" Header="Customer #" Binding="{Binding CustNo, 
+									Mode=TwoWay, 
+									UpdateSourceTrigger=PropertyChanged}">
+					</DataGridTextColumn>
+
+
+					<DataGridTextColumn Header="Type" Width="40" 
+								    SortMemberPath="AcType"
+									Binding="{Binding AcType, 
+									Mode=TwoWay, 
+									UpdateSourceTrigger=LostFocus}"/>
+
+					<DataGridTextColumn Header="Balance" Width="90" 
+									SortMemberPath="Balance"									
+									Binding="{Binding Balance, 
+									Mode=TwoWay, 
+									UpdateSourceTrigger=LostFocus,
+									StringFormat='£ ##,###,###.00'}"/>
+
+					<DataGridTemplateColumn Header="IntRate" Width="50">
+						<DataGridTemplateColumn.CellTemplate>
+							<DataTemplate>
+								<TextBlock Text="{Binding IntRate, StringFormat='#.##', Mode=TwoWay, 
+									UpdateSourceTrigger=LostFocus}" 										   
+								   HorizontalAlignment="Center"
+										   VerticalAlignment="Top"/>
+							</DataTemplate>
+						</DataGridTemplateColumn.CellTemplate>
+						<DataGridTemplateColumn.CellEditingTemplate>
+							<DataTemplate>
+								<TextBox Text="{Binding IntRate}"/>
+							</DataTemplate>
+						</DataGridTemplateColumn.CellEditingTemplate>
+					</DataGridTemplateColumn>
+
+					<DataGridTextColumn Header="Interest" Width="60" 
+									SortMemberPath="IntRate"
+									Binding="{Binding IntRate, Mode=TwoWay, 
+									UpdateSourceTrigger=LostFocus,
+									StringFormat='0.00'}"/>
+					<!--CellStyle="{StaticResource CenterText}"-->
+
+					<!--the next 2 show 2 ways to format a date - 1 a Converter the other a direct Format string-->
+					<DataGridTemplateColumn Header="Open Date" Width="80" SortMemberPath="ODate">
+						<DataGridTemplateColumn.CellTemplate>
+							<DataTemplate>
+								<TextBlock Text="{Binding ODate, Mode=TwoWay, 
+									UpdateSourceTrigger=LostFocus}"
+ 									HorizontalAlignment="Center"
+									VerticalAlignment="Top"/>
+							</DataTemplate>
+						</DataGridTemplateColumn.CellTemplate>
+						<DataGridTemplateColumn.CellEditingTemplate>
+							<DataTemplate>
+								<DatePicker SelectedDate="{Binding Path=ODate, 
+									Mode=TwoWay, 
+									UpdateSourceTrigger=PropertyChanged}">
+								</DatePicker>
+							</DataTemplate>
+						</DataGridTemplateColumn.CellEditingTemplate>
+					</DataGridTemplateColumn>
+
+					<DataGridTemplateColumn Header="Close Date" Width="80" SortMemberPath="CDate">
+						<DataGridTemplateColumn.CellTemplate>
+							<DataTemplate>
+								<TextBlock Text="{Binding Path=CDate, 
+									StringFormat='dd/MM/yyyy'}"
+									HorizontalAlignment="Center"
+									VerticalAlignment="Top"/>
+							</DataTemplate>
+						</DataGridTemplateColumn.CellTemplate>
+						<DataGridTemplateColumn.CellEditingTemplate>
+							<DataTemplate>
+								<DatePicker SelectedDate="{Binding Path=CDate, 
+									Mode=TwoWay, 
+									UpdateSourceTrigger=PropertyChanged}"/>
+							</DataTemplate>
+						</DataGridTemplateColumn.CellEditingTemplate>
+					</DataGridTemplateColumn>
+
+				</DataGrid.Columns>
+
+			</DataGrid>
+		</Grid>
+	<!--#endregion Inner grid for Bank/Details-->
+
+	<!--#region Customer Grid setup-->
+
+		<Grid  x:Name="CustomerEditGrid"
+			  Grid.Row="0"
+			   Visibility="Collapsed"
+			   DataContext="BankAccountObs">
+			<Grid.RowDefinitions>
+				<RowDefinition Height="5"/>
+				<RowDefinition Height="35"/>
+				<RowDefinition Height="35"/>
+				<RowDefinition Height="35"/>
+				<RowDefinition Height="35"/>
+				<RowDefinition Height="35"/>
+				<RowDefinition Height="35"/>
+				<RowDefinition Height="35"/>
+				<RowDefinition Height="35"/>
+				<RowDefinition Height="35"/>
+				<RowDefinition Height="35"/>
+				<RowDefinition Height="35"/>
+				<RowDefinition Height="35"/>
+				<RowDefinition Height="35"/>
+				<RowDefinition Height="35"/>
+				<RowDefinition Height="35"/>
+				<RowDefinition Height="*"/>
+				<RowDefinition Height="5"/>
+			</Grid.RowDefinitions>
+			<Grid.ColumnDefinitions>
+				<ColumnDefinition Width="15"/>
+				<ColumnDefinition Width="80"/>
+				<ColumnDefinition Width="120"/>
+				<ColumnDefinition Width="15"/>
+				<ColumnDefinition Width="*"/>
+				<ColumnDefinition Width="5"/>
+			</Grid.ColumnDefinitions>
+	<!--#endregion Grid setup-->
+
+	<!--#region Customer Text Columns-->
+			<TextBlock Text="Bank #"
+				   Grid.Row="1"
+				   Grid.Column="1"
+				   Width="80"
+				   HorizontalAlignment="left"
+				   VerticalAlignment="Center"/>
+			<TextBlock Text="Customer #"
+				   Grid.Row="2"
+				   Grid.Column="1"
+				   Width="80"
+				   HorizontalAlignment="left"
+				   VerticalAlignment="Center"/>
+			<TextBlock Text="A/c Type"
+				   Grid.Row="3"
+				   Grid.Column="1"
+				   Width="80"
+				   HorizontalAlignment="left"
+				   VerticalAlignment="Center"/>
+			<TextBlock Text="First Name"
+				   Grid.Row="4"
+				   Grid.Column="1"
+				   Width="80"
+				   HorizontalAlignment="left"
+				   VerticalAlignment="Center"/>
+			<TextBlock Text="Last Name"
+				   Grid.Row="5"
+				   Grid.Column="1"
+				   Width="80"
+				   HorizontalAlignment="left"
+				   VerticalAlignment="Center"/>
+			<TextBlock Text="Address 1"
+				   Grid.Row="6"
+				   Grid.Column="1"
+				   Width="80"
+				   HorizontalAlignment="left"
+				   VerticalAlignment="Center"/>
+			<TextBlock Text="Address 2"
+				   Grid.Row="7"
+				   Grid.Column="1"
+				   Width="80"
+				   HorizontalAlignment="left"
+				   VerticalAlignment="Center"/>
+			<TextBlock Text="Town"
+				   Grid.Row="8"
+				   Grid.Column="1"
+				   Width="80"
+				   HorizontalAlignment="left"
+				   VerticalAlignment="Center"/>
+			<TextBlock Text="County"
+				   Grid.Row="9"
+				   Grid.Column="1"
+				   Width="80"
+				   HorizontalAlignment="left"
+				   VerticalAlignment="Center"/>
+
+			<TextBlock Text="Post Code"
+				   Grid.Row="10"
+				   Grid.Column="1"
+				   Width="80"
+				   HorizontalAlignment="left"
+				   VerticalAlignment="Center"/>
+
+			<TextBlock Text="Phone"
+				   Grid.Row="11"
+				   Grid.Column="1"
+				   Width="80"
+				   HorizontalAlignment="left"
+				   VerticalAlignment="Center"/>
+
+			<TextBlock Text="Mobile"
+				   Grid.Row="12"
+				   Grid.Column="1"
+				   Width="80"
+				   HorizontalAlignment="left"
+				   VerticalAlignment="Center"/>
+			<TextBlock Text="DOB"
+				   Grid.Row="13"
+				   Grid.Column="1"
+				   Width="80"
+				   HorizontalAlignment="left"
+				   VerticalAlignment="Center"/>
+			<TextBlock Text="Open Date"
+				   Grid.Row="14"
+				   Grid.Column="1"
+				   Width="80"
+				   HorizontalAlignment="left"
+				   VerticalAlignment="Center"/>
+			<TextBlock Text="Close Date"
+				   Grid.Row="15"
+				   Grid.Column="1"
+				   Width="80"
+				   HorizontalAlignment="left"
+				   VerticalAlignment="Center"/>
+	<!--#endregion Customer Text Columns-->
+
+	<!--#region Customer TextBOX column setup-->
+			<TextBox Name="BanknoEdit2" 
+				 Grid.Row="1"
+				 Grid.Column="2"
+				 Margin="3,3,3,3"	
+				 Height="25"
+				 IsEnabled="True"
+				 Background="{StaticResource Gray3}"
+				 HorizontalContentAlignment="Center"
+				 VerticalContentAlignment="Center"
+				 Text="{Binding BankNo, UpdateSourceTrigger=LostFocus, Mode=TwoWay}" TextChanged="BanknoEdit_TextChanged"/>
+
+			<TextBox x:Name="CustnonoEdit2" 
+				 Grid.Row="2"
+				 Grid.Column="2"
+				 Margin="1"				 
+				 Height="25"
+				 IsEnabled="True"
+				 IsReadOnly="False"
+				 Background="{StaticResource Gray3}"
+				 Foreground="{StaticResource Black0}"
+				 HorizontalContentAlignment="Center"
+				 VerticalContentAlignment="Center"
+				 Visibility="Visible"
+				Text="{Binding CustNo, UpdateSourceTrigger=LostFocus, Mode=TwoWay}" TextChanged="CustnonoEdit_TextChanged"/>
+
+			<TextBox x:Name="AcType2" 
+				 Grid.Row="3"
+				 Grid.Column="2"
+				 Margin="1"				 
+				 Height="25"
+					 Width="25"
+				 IsEnabled="True"
+				 IsReadOnly="False"
+				 Background="{StaticResource Gray3}"
+				 Foreground="{StaticResource Black0}"
+				 HorizontalAlignment="Left"
+				 HorizontalContentAlignment="Center"
+				 VerticalContentAlignment="Center"
+				 Visibility="Visible"
+				Text="{Binding AcType, UpdateSourceTrigger=LostFocus, Mode=TwoWay}" TextChanged="CustnonoEdit_TextChanged"/>
+
+			<TextBox x:Name="Firstname2" 
+				 Grid.Row="4"
+				 Grid.Column="2"
+				 Margin="1"				 
+				 Height="25"
+				 IsEnabled="True"
+				 IsReadOnly="False"
+				 Background="{StaticResource Gray3}"
+				 Foreground="{StaticResource Black0}"
+				 HorizontalContentAlignment="Center"
+				 VerticalContentAlignment="Center"
+				 Visibility="Visible"
+				Text="{Binding FName, UpdateSourceTrigger=LostFocus, Mode=TwoWay}" TextChanged="CustnonoEdit_TextChanged"/>
+
+			<TextBox x:Name="Lastname2" 
+				 Grid.Row="5"
+				 Grid.Column="2"
+				 Margin="1"				 
+				 Height="25"
+				 IsEnabled="True"
+				 IsReadOnly="False"
+				 Background="{StaticResource Gray3}"
+				 Foreground="{StaticResource Black0}"
+				 HorizontalContentAlignment="Center"
+				 VerticalContentAlignment="Center"
+				 Visibility="Visible"
+				Text="{Binding LName, UpdateSourceTrigger=LostFocus, Mode=TwoWay}" TextChanged="CustnonoEdit_TextChanged"/>
+
+			<TextBox x:Name="addr1" 
+				 Grid.Row="6"
+				 Grid.Column="2"
+				 Margin="1"				 
+				 Height="25"
+				 IsEnabled="True"
+				 IsReadOnly="False"
+				 Background="{StaticResource Gray3}"
+				 Foreground="{StaticResource Black0}"
+				 HorizontalContentAlignment="Center"
+				 VerticalContentAlignment="Center"
+				 Visibility="Visible"
+				Text="{Binding Addr1, UpdateSourceTrigger=LostFocus, Mode=TwoWay}" TextChanged="CustnonoEdit_TextChanged"/>
+
+			<TextBox x:Name="addr2" 
+				 Grid.Row="7"
+				 Grid.Column="2"
+				 Margin="1"				 
+				 Height="25"
+				 IsEnabled="True"
+				 IsReadOnly="False"
+				 Background="{StaticResource Gray3}"
+				 Foreground="{StaticResource Black0}"
+				 HorizontalContentAlignment="Center"
+				 VerticalContentAlignment="Center"
+				 Visibility="Visible"
+				Text="{Binding Addr2, UpdateSourceTrigger=LostFocus, Mode=TwoWay}" TextChanged="CustnonoEdit_TextChanged"/>
+
+			<TextBox x:Name="town" 
+				 Grid.Row="8"
+				 Grid.Column="2"
+				 Margin="1"				 
+				 Height="25"
+				 IsEnabled="True"
+				 IsReadOnly="False"
+				 Background="{StaticResource Gray3}"
+				 Foreground="{StaticResource Black0}"
+				 HorizontalContentAlignment="Center"
+				 VerticalContentAlignment="Center"
+				 Visibility="Visible"
+				Text="{Binding Town, UpdateSourceTrigger=LostFocus, Mode=TwoWay}" TextChanged="CustnonoEdit_TextChanged"/>
+
+			<TextBox x:Name="County2" 
+				 Grid.Row="9"
+				 Grid.Column="2"
+				 Margin="1"				 
+				 Height="25"
+				 IsEnabled="True"
+				 IsReadOnly="False"
+				 Background="{StaticResource Gray3}"
+				 Foreground="{StaticResource Black0}"
+				 HorizontalContentAlignment="Center"
+				 VerticalContentAlignment="Center"
+				 Visibility="Visible"
+				Text="{Binding County, UpdateSourceTrigger=LostFocus, Mode=TwoWay}" TextChanged="CustnonoEdit_TextChanged"/>
+
+			<TextBox x:Name="pcode2" 
+				 Grid.Row="10"
+				 Grid.Column="2"
+				 Margin="1"				 
+				 Height="25"
+				 IsEnabled="True"
+				 IsReadOnly="False"
+				 Background="{StaticResource Gray3}"
+				 Foreground="{StaticResource Black0}"
+				 HorizontalContentAlignment="Center"
+				 VerticalContentAlignment="Center"
+				 Visibility="Visible"
+				Text="{Binding PCode, UpdateSourceTrigger=LostFocus, Mode=TwoWay}" TextChanged="CustnonoEdit_TextChanged"/>
+
+			<TextBox x:Name="phone2" 
+				 Grid.Row="11"
+				 Grid.Column="2"
+				 Margin="1"				 
+				 Height="25"
+				 IsEnabled="True"
+				 IsReadOnly="False"
+				 Background="{StaticResource Gray3}"
+				 Foreground="{StaticResource Black0}"
+				 HorizontalContentAlignment="Center"
+				 VerticalContentAlignment="Center"
+				 Visibility="Visible"
+				Text="{Binding Phone, UpdateSourceTrigger=LostFocus, Mode=TwoWay}" TextChanged="CustnonoEdit_TextChanged"/>
+
+
+			<TextBox Name="mobile2" 
+				 Grid.Row="12"
+				 Grid.Column="2"
+				 Margin="1"				 
+				 Height="25"
+				 Width="75"
+				 IsEnabled="True"
+				 Background="{StaticResource Gray3}"
+				 HorizontalAlignment="Left"
+				 HorizontalContentAlignment="Center"
+				 VerticalContentAlignment="Center"
+				 Text="{Binding Mobile, UpdateSourceTrigger=LostFocus, Mode=TwoWay, StringFormat='dd/MM/yyyy'}" TextChanged="OpenDateEdit_TextChanged"/>
+			<TextBox Name="dob2" 
+				 Grid.Row="13"
+				 Grid.Column="2"
+				 Margin="1"				 
+				 Height="25"
+				 Width="75"
+				 HorizontalAlignment="Left"
+				 IsEnabled="True"
+				 Background="{StaticResource Gray3}"
+				 HorizontalContentAlignment="Center"
+				 VerticalContentAlignment="Center"
+				 Text="{Binding Dob, UpdateSourceTrigger=LostFocus, Mode=TwoWay, StringFormat='dd/MM/yyyy'}" TextChanged="CloseDateEdit_TextChanged"/>
+
+			<TextBox Name="openDateEdit2" 
+				 Grid.Row="14"
+				 Grid.Column="2"
+				 Margin="1"				 
+				 Height="25"
+				 Width="75"
+				 HorizontalAlignment="Left"
+				 IsEnabled="True"
+				 Background="{StaticResource Gray3}"
+				 HorizontalContentAlignment="Center"
+				 VerticalContentAlignment="Center"
+				 Text="{Binding ODate, UpdateSourceTrigger=LostFocus, Mode=TwoWay, StringFormat='dd/MM/yyyy'}" TextChanged="CloseDateEdit_TextChanged"/>
+			<TextBox Name="CloseDateEdit2" 
+				 Grid.Row="15"
+				 Grid.Column="2"
+				 Margin="1"				 
+				 Height="25"
+				 Width="75"
+				 HorizontalAlignment="Left"
+				 IsEnabled="True"
+				 Background="{StaticResource Gray3}"
+				 HorizontalContentAlignment="Center"
+				 VerticalContentAlignment="Center"
+				 Text="{Binding CDate, UpdateSourceTrigger=LostFocus, Mode=TwoWay, StringFormat='dd/MM/yyyy'}" TextChanged="CloseDateEdit_TextChanged"/>
+			<!--#endregion Customer Text column setup-->
+			
+		<DataGrid x:Name="DataGrid2"
+			  Grid.Row="1"
+			  Grid.Column="4"
+			  Grid.RowSpan="16"
+				VerticalAlignment="Stretch"
+				HorizontalAlignment="Stretch"
+				IsReadOnly="False"
+				SelectionMode="Single"
+				SelectionUnit="FullRow" 
+				AutoGenerateColumns="False"
+				SelectionChanged="DataGrid2_SelectionChanged"
+				  >
+				<DataGrid.Resources>
+					<SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightBrushKey}" Color="DarkGray"/>
+				</DataGrid.Resources>
+
+				<DataGrid.Columns >
+					<DataGridTemplateColumn Header="Id" Width="40"
+									    SortMemberPath="Id" >
+						<DataGridTemplateColumn.CellTemplate >
+							<DataTemplate >
+								<TextBlock 
+									Text="{Binding Id}"
+									HorizontalAlignment="Center"
+									VerticalAlignment="Top"/>
+							</DataTemplate >
+						</DataGridTemplateColumn.CellTemplate>
+					</DataGridTemplateColumn >
+
+					<DataGridTextColumn Header="Bank #" Width="80" 
+								    SortMemberPath="BankNo"
+									Binding ="{Binding BankNo, 
+									Mode=TwoWay, 
+									UpdateSourceTrigger=LostFocus}"
+									>
+					</DataGridTextColumn>
+
+					<DataGridTextColumn Header="Customer #" Binding="{Binding CustNo, 
+									Mode=TwoWay, 
+									UpdateSourceTrigger=PropertyChanged}">
+					</DataGridTextColumn>
+					<DataGridTextColumn Header="A/c Type#" Binding="{Binding AcType, 
+									Mode=TwoWay, 
+									UpdateSourceTrigger=PropertyChanged}">
+					</DataGridTextColumn>
+					<DataGridTextColumn Header="First Name" Binding="{Binding FName, 
+									Mode=TwoWay, 
+									UpdateSourceTrigger=PropertyChanged}">
+					</DataGridTextColumn>
+					<DataGridTextColumn Header="Last Name" Binding="{Binding LName, 
+									Mode=TwoWay, 
+									UpdateSourceTrigger=PropertyChanged}">
+					</DataGridTextColumn>
+					<DataGridTextColumn Header="Address 1" Binding="{Binding Addr1, 
+									Mode=TwoWay, 
+									UpdateSourceTrigger=PropertyChanged}">
+					</DataGridTextColumn>
+					<DataGridTextColumn Header="Address 2" Binding="{Binding Addr2, 
+									Mode=TwoWay, 
+									UpdateSourceTrigger=PropertyChanged}">
+					</DataGridTextColumn>
+					<DataGridTextColumn Header="Town" Binding="{Binding Town, 
+									Mode=TwoWay, 
+									UpdateSourceTrigger=PropertyChanged}">
+					</DataGridTextColumn>
+					<DataGridTextColumn Header="County" Binding="{Binding County, 
+									Mode=TwoWay, 
+									UpdateSourceTrigger=PropertyChanged}">
+					</DataGridTextColumn>
+					<DataGridTextColumn Header="Post code" Binding="{Binding PCode, 
+									Mode=TwoWay, 
+									UpdateSourceTrigger=PropertyChanged}">
+					</DataGridTextColumn>
+					<DataGridTextColumn Header="Phone #" Binding="{Binding Phone, 
+									Mode=TwoWay, 
+									UpdateSourceTrigger=PropertyChanged}">
+					</DataGridTextColumn>
+					<DataGridTextColumn Header="Mobile #" Binding="{Binding Mobile, 
+									Mode=TwoWay, 
+									UpdateSourceTrigger=PropertyChanged}">
+					</DataGridTextColumn>
+
+					<!--the next 3 show 2 ways to format a date - 1 a Converter the other a direct Format string-->
+					<DataGridTemplateColumn Header="D.o.B" Width="80" SortMemberPath="DOB">
+						<DataGridTemplateColumn.CellTemplate>
+							<DataTemplate>
+								<TextBlock Text="{Binding Dob, Mode=TwoWay, 
+									UpdateSourceTrigger=LostFocus,
+									StringFormat='dd/MM/yyyy'}" 									
+ 									HorizontalAlignment="Center"
+									VerticalAlignment="Top"/>
+							</DataTemplate>
+						</DataGridTemplateColumn.CellTemplate>
+						<DataGridTemplateColumn.CellEditingTemplate>
+							<DataTemplate>
+								<DatePicker SelectedDate="{Binding Path=Dob, 
+									Mode=TwoWay, 
+									UpdateSourceTrigger=PropertyChanged}">
+								</DatePicker>
+							</DataTemplate>
+						</DataGridTemplateColumn.CellEditingTemplate>
+					</DataGridTemplateColumn>
+
+					<DataGridTemplateColumn Header="Open Date" Width="80" SortMemberPath="ODate">
+						<DataGridTemplateColumn.CellTemplate>
+							<DataTemplate>
+								<TextBlock Text="{Binding ODate, Mode=TwoWay, 
+									UpdateSourceTrigger=LostFocus,
+									StringFormat='dd/MM/yyyy'}" 									
+								   HorizontalAlignment="Center"
+									VerticalAlignment="Top"/>
+							</DataTemplate>
+						</DataGridTemplateColumn.CellTemplate>
+						<DataGridTemplateColumn.CellEditingTemplate>
+							<DataTemplate>
+								<DatePicker SelectedDate="{Binding Path=ODate, 
+									Mode=TwoWay, 
+									UpdateSourceTrigger=PropertyChanged}">
+								</DatePicker>
+							</DataTemplate>
+						</DataGridTemplateColumn.CellEditingTemplate>
+					</DataGridTemplateColumn>
+
+					<DataGridTemplateColumn Header="Close Date" Width="80" SortMemberPath="CDate">
+						<DataGridTemplateColumn.CellTemplate>
+							<DataTemplate>
+								<TextBlock Text="{Binding Path=CDate, 
+									StringFormat='dd/MM/yyyy'}"
+									HorizontalAlignment="Center"
+									VerticalAlignment="Top"/>
+							</DataTemplate>
+						</DataGridTemplateColumn.CellTemplate>
+						<DataGridTemplateColumn.CellEditingTemplate>
+							<DataTemplate>
+								<DatePicker SelectedDate="{Binding Path=CDate, 
+									Mode=TwoWay, 
+									UpdateSourceTrigger=PropertyChanged}"/>
+							</DataTemplate>
+						</DataGridTemplateColumn.CellEditingTemplate>
+					</DataGridTemplateColumn>
+
+				</DataGrid.Columns>
+
+			</DataGrid>
+
+		</Grid>
+		<WrapPanel Grid.Row="1" Orientation="Horizontal">
+			<Button Name="Cancelbtn"
+				Content="Cancel"
+					Click="Cancel_Click"
+					Grid.Row="1"
+					Grid.Column="1"
+					Height="25"
+					Width="70"
+					Margin="5"
+					VerticalAlignment="Bottom"
+					Background="{StaticResource HeaderBrushBlue}"	
+					Foreground="White"
+					Template="{StaticResource HorizontalGradientTemplateBlue}"/>
+			<Button Name="Savebtn"
+				Content="Save"
+					Click="SaveData_Click"
+					Grid.Row="1"
+					Grid.Column="2"
+					Height="25"
+					Width="70"
+					Margin="5"
+					VerticalAlignment="Bottom"
+					Background="{StaticResource HeaderBrushBlue}"	
+					Foreground="White"
+					Template="{StaticResource HorizontalGradientTemplateBlue}">
+			</Button>
+		</WrapPanel>
+
+	<!--END - Outer grid-->
+	</Grid>
+</Window>
