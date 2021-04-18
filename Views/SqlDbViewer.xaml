@@ -425,6 +425,7 @@
 					RowHeight="27"
 					SelectedCellsChanged="BankGrid_SelectedCellsChanged"
 					SelectedItem="{Binding Selected}"
+					SelectedIndex="{Binding SelectedBankAccount}"
 					SelectionChanged="ItemsView_OnSelectionChanged"
 					SelectionUnit="FullRow"
 					TabIndex="1"	

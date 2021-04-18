@@ -268,7 +268,7 @@ namespace WPFPages
 						}
 					}
 				}
-					MainWindow.DbSelectorOpen.Show ();
+				MainWindow.DbSelectorOpen.Show ();
 				Mouse.OverrideCursor = Cursors.Arrow;
 				return;
 			}

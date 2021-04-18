@@ -9,6 +9,30 @@
 		MinHeight="610" MinWidth="700"
 		Loaded="WindowLoaded"
 		Closing="CheckClosing">
+
+	<!-- 
+	#pragma MVVM TODO
+	
+	MVVM stuff
+	In MainWindowResources.xaml -->
+	<!-- This template explains how to render the list of commands 
+	on the left side in the main window (the 'Control Panel' area). -->
+	<Window.Resources>
+		<DataTemplate x:Key="CommandsTemplate">
+			<ItemsControl ItemsSource="{Binding Path=Commands}">
+				<ItemsControl.ItemTemplate>
+					<DataTemplate>
+						<TextBlock Margin="2,6"> 
+                    <Hyperlink Command="{Binding Path=Command}"> 
+                    <TextBlock Text="{Binding Path=DisplayName}" /> 
+                    </Hyperlink> 
+                </TextBlock>
+					</DataTemplate>
+				</ItemsControl.ItemTemplate>
+			</ItemsControl>
+		</DataTemplate>
+	</Window.Resources>
+	
 	
 	<!--Outer grid-->
 	<Grid>
@@ -17,11 +41,14 @@
 			<RowDefinition Height="35"/>
 		</Grid.RowDefinitions>
 
-	<!--#region Inner grid for Bank/Details-->
-	<Grid  x:Name="BankEditGrid"
-			   Grid.Row="0"
-			   DataContext="BankAccountObs"
-		   Visibility="Visible">
+		<!--#region Inner grid for Bank/Details-->
+		<Grid  x:Name="BankEditGrid"
+			Grid.Row="0"
+			PreviewKeyDown="BankEditGrid_KeyDown"
+			Visibility="Visible" 
+		 SourceUpdated="BankEditGrid_SourceUpdated" 
+		 TargetUpdated="BankEditGrid_TargetUpdated" 
+		 TextInput="BankEditGrid_TextInput">
 			<Grid.RowDefinitions>
 				<RowDefinition Height="5"/>
 				<RowDefinition Height="35"/>
@@ -44,7 +71,7 @@
 				<ColumnDefinition Width="5"/>
 			</Grid.ColumnDefinitions>
 
-	<!--#region Bank TextBLOCKS-->
+			<!--#region Bank TextBLOCKS-->
 			<TextBlock Text="Bank #"
 					   Grid.Row="2"
 					   Grid.Column="1"
@@ -87,9 +114,9 @@
 					   Width="80"
 					   HorizontalAlignment="left"
 					   VerticalAlignment="Center"/>
-	<!--#endregion Bank Textboxes-->
+			<!--#endregion Bank Textboxes-->
 
-	<!--#region Bank TEXTBOXES-->
+			<!--#region Bank TEXTBOXES-->
 			<TextBox Name="BanknoEdit" 
 					 Grid.Row="2"
 					 Grid.Column="2"
@@ -101,7 +128,7 @@
 					 VerticalContentAlignment="Center"
 					 Text="{Binding BankNo, UpdateSourceTrigger=LostFocus, Mode=TwoWay}" TextChanged="BanknoEdit_TextChanged"/>
 
-			<TextBox x:Name="CustnonoEdit" 
+			<TextBox x:Name="CustnoEdit" 
 					 Grid.Row="3"
 					 Grid.Column="2"
 					 Margin="1"				 
@@ -113,7 +140,7 @@
 					 HorizontalContentAlignment="Center"
 					 VerticalContentAlignment="Center"
 					 Visibility="Visible"
-					Text="{Binding Path=CustNo, UpdateSourceTrigger=LostFocus, Mode=TwoWay}" TextChanged="CustnonoEdit_TextChanged"/>
+					Text="{Binding Path=CustNo, UpdateSourceTrigger=LostFocus, Mode=TwoWay}" TextChanged="CustnoEdit_TextChanged"/>
 
 			<TextBox x:Name="ActypeEdit" 
 					 Grid.Row="4"
@@ -127,7 +154,8 @@
 					 HorizontalContentAlignment="Center"
 					 VerticalContentAlignment="Center"
 					 Visibility="Visible"
-					Text="{Binding AcType, UpdateSourceTrigger=LostFocus, Mode=TwoWay}" TextChanged="CustnonoEdit_TextChanged"/>
+					Text="{Binding AcType, UpdateSourceTrigger=LostFocus, Mode=TwoWay}" 
+				   />
 
 
 			<TextBox Name="BalanceEdit" 
@@ -180,7 +208,7 @@
 					 HorizontalContentAlignment="Center"
 					 VerticalContentAlignment="Center"
 					 Text="{Binding CDate, UpdateSourceTrigger=LostFocus, Mode=TwoWay, StringFormat='dd/MM/yyyy'}" TextChanged="CloseDateEdit_TextChanged"/>
-	<!--#endregion Bank TEXTBOXES-->
+			<!--#endregion Bank TEXTBOXES-->
 
 			<DataGrid x:Name="DataGrid1"
 			  Grid.Row="1"
@@ -192,10 +220,10 @@
 				SelectionMode="Single"
 				SelectionUnit="FullRow" 
 				AutoGenerateColumns="False"
-				SelectionChanged="DataGrid1_SelectionChanged"
+				SelectionChanged="DataGrid1_SelectionChanged" CellEditEnding="DataGrid1_CellEditEnding" RowEditEnding="DataGrid1_RowEditEnding"
 				  >
 				<DataGrid.Resources>
-					<SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightBrushKey}" Color="DarkGray"/>
+					<SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightBrushKey}" Color="LightBlue"/>
 				</DataGrid.Resources>
 
 				<DataGrid.Columns >
@@ -226,6 +254,7 @@
 
 
 					<DataGridTextColumn Header="Type" Width="40" 
+								  
 								    SortMemberPath="AcType"
 									Binding="{Binding AcType, 
 									Mode=TwoWay, 
@@ -249,7 +278,8 @@
 						</DataGridTemplateColumn.CellTemplate>
 						<DataGridTemplateColumn.CellEditingTemplate>
 							<DataTemplate>
-								<TextBox Text="{Binding IntRate}"/>
+								<TextBox Text="{Binding IntRate, UpdateSourceTrigger=LostFocus}"
+									  />
 							</DataTemplate>
 						</DataGridTemplateColumn.CellEditingTemplate>
 					</DataGridTemplateColumn>
@@ -303,9 +333,9 @@
 
 			</DataGrid>
 		</Grid>
-	<!--#endregion Inner grid for Bank/Details-->
+		<!--#endregion Inner grid for Bank/Details-->
 
-	<!--#region Customer Grid setup-->
+		<!--#region Customer Grid setup-->
 
 		<Grid  x:Name="CustomerEditGrid"
 			  Grid.Row="0"
@@ -339,9 +369,9 @@
 				<ColumnDefinition Width="*"/>
 				<ColumnDefinition Width="5"/>
 			</Grid.ColumnDefinitions>
-	<!--#endregion Grid setup-->
+			<!--#endregion Grid setup-->
 
-	<!--#region Customer Text Columns-->
+			<!--#region Customer Text Columns-->
 			<TextBlock Text="Bank #"
 				   Grid.Row="1"
 				   Grid.Column="1"
@@ -435,9 +465,9 @@
 				   Width="80"
 				   HorizontalAlignment="left"
 				   VerticalAlignment="Center"/>
-	<!--#endregion Customer Text Columns-->
+			<!--#endregion Customer Text Columns-->
 
-	<!--#region Customer TextBOX column setup-->
+			<!--#region Customer TextBOX column setup-->
 			<TextBox Name="BanknoEdit2" 
 				 Grid.Row="1"
 				 Grid.Column="2"
@@ -449,7 +479,7 @@
 				 VerticalContentAlignment="Center"
 				 Text="{Binding BankNo, UpdateSourceTrigger=LostFocus, Mode=TwoWay}" TextChanged="BanknoEdit_TextChanged"/>
 
-			<TextBox x:Name="CustnonoEdit2" 
+			<TextBox x:Name="CustnoEdit2" 
 				 Grid.Row="2"
 				 Grid.Column="2"
 				 Margin="1"				 
@@ -461,7 +491,7 @@
 				 HorizontalContentAlignment="Center"
 				 VerticalContentAlignment="Center"
 				 Visibility="Visible"
-				Text="{Binding CustNo, UpdateSourceTrigger=LostFocus, Mode=TwoWay}" TextChanged="CustnonoEdit_TextChanged"/>
+				Text="{Binding CustNo, UpdateSourceTrigger=LostFocus, Mode=TwoWay}" TextChanged="CustnoEdit_TextChanged"/>
 
 			<TextBox x:Name="AcType2" 
 				 Grid.Row="3"
@@ -477,7 +507,7 @@
 				 HorizontalContentAlignment="Center"
 				 VerticalContentAlignment="Center"
 				 Visibility="Visible"
-				Text="{Binding AcType, UpdateSourceTrigger=LostFocus, Mode=TwoWay}" TextChanged="CustnonoEdit_TextChanged"/>
+				Text="{Binding AcType, UpdateSourceTrigger=LostFocus, Mode=TwoWay}" TextChanged="AcTypeEdit_TextChanged"/>
 
 			<TextBox x:Name="Firstname2" 
 				 Grid.Row="4"
@@ -491,7 +521,7 @@
 				 HorizontalContentAlignment="Center"
 				 VerticalContentAlignment="Center"
 				 Visibility="Visible"
-				Text="{Binding FName, UpdateSourceTrigger=LostFocus, Mode=TwoWay}" TextChanged="CustnonoEdit_TextChanged"/>
+				Text="{Binding FName, UpdateSourceTrigger=LostFocus, Mode=TwoWay}" TextChanged="FirstNameEdit_TextChanged"/>
 
 			<TextBox x:Name="Lastname2" 
 				 Grid.Row="5"
@@ -505,7 +535,7 @@
 				 HorizontalContentAlignment="Center"
 				 VerticalContentAlignment="Center"
 				 Visibility="Visible"
-				Text="{Binding LName, UpdateSourceTrigger=LostFocus, Mode=TwoWay}" TextChanged="CustnonoEdit_TextChanged"/>
+				Text="{Binding LName, UpdateSourceTrigger=LostFocus, Mode=TwoWay}" TextChanged="LastNameEdit_TextChanged"/>
 
 			<TextBox x:Name="addr1" 
 				 Grid.Row="6"
@@ -519,7 +549,7 @@
 				 HorizontalContentAlignment="Center"
 				 VerticalContentAlignment="Center"
 				 Visibility="Visible"
-				Text="{Binding Addr1, UpdateSourceTrigger=LostFocus, Mode=TwoWay}" TextChanged="CustnonoEdit_TextChanged"/>
+				Text="{Binding Addr1, UpdateSourceTrigger=LostFocus, Mode=TwoWay}" TextChanged="Addr1Edit_TextChanged"/>
 
 			<TextBox x:Name="addr2" 
 				 Grid.Row="7"
@@ -533,7 +563,7 @@
 				 HorizontalContentAlignment="Center"
 				 VerticalContentAlignment="Center"
 				 Visibility="Visible"
-				Text="{Binding Addr2, UpdateSourceTrigger=LostFocus, Mode=TwoWay}" TextChanged="CustnonoEdit_TextChanged"/>
+				Text="{Binding Addr2, UpdateSourceTrigger=LostFocus, Mode=TwoWay}" TextChanged="Addr2Edit_TextChanged"/>
 
 			<TextBox x:Name="town" 
 				 Grid.Row="8"
@@ -547,7 +577,7 @@
 				 HorizontalContentAlignment="Center"
 				 VerticalContentAlignment="Center"
 				 Visibility="Visible"
-				Text="{Binding Town, UpdateSourceTrigger=LostFocus, Mode=TwoWay}" TextChanged="CustnonoEdit_TextChanged"/>
+				Text="{Binding Town, UpdateSourceTrigger=LostFocus, Mode=TwoWay}" TextChanged="TownEdit_TextChanged"/>
 
 			<TextBox x:Name="County2" 
 				 Grid.Row="9"
@@ -561,7 +591,7 @@
 				 HorizontalContentAlignment="Center"
 				 VerticalContentAlignment="Center"
 				 Visibility="Visible"
-				Text="{Binding County, UpdateSourceTrigger=LostFocus, Mode=TwoWay}" TextChanged="CustnonoEdit_TextChanged"/>
+				Text="{Binding County, UpdateSourceTrigger=LostFocus, Mode=TwoWay}" TextChanged="CountyEdit_TextChanged"/>
 
 			<TextBox x:Name="pcode2" 
 				 Grid.Row="10"
@@ -575,7 +605,7 @@
 				 HorizontalContentAlignment="Center"
 				 VerticalContentAlignment="Center"
 				 Visibility="Visible"
-				Text="{Binding PCode, UpdateSourceTrigger=LostFocus, Mode=TwoWay}" TextChanged="CustnonoEdit_TextChanged"/>
+				Text="{Binding PCode, UpdateSourceTrigger=LostFocus, Mode=TwoWay}" TextChanged="PcodeEdit_TextChanged"/>
 
 			<TextBox x:Name="phone2" 
 				 Grid.Row="11"
@@ -589,7 +619,7 @@
 				 HorizontalContentAlignment="Center"
 				 VerticalContentAlignment="Center"
 				 Visibility="Visible"
-				Text="{Binding Phone, UpdateSourceTrigger=LostFocus, Mode=TwoWay}" TextChanged="CustnonoEdit_TextChanged"/>
+				Text="{Binding Phone, UpdateSourceTrigger=LostFocus, Mode=TwoWay}" TextChanged="PhoneEdit_TextChanged"/>
 
 
 			<TextBox Name="mobile2" 
@@ -603,7 +633,7 @@
 				 HorizontalAlignment="Left"
 				 HorizontalContentAlignment="Center"
 				 VerticalContentAlignment="Center"
-				 Text="{Binding Mobile, UpdateSourceTrigger=LostFocus, Mode=TwoWay, StringFormat='dd/MM/yyyy'}" TextChanged="OpenDateEdit_TextChanged"/>
+				 Text="{Binding Mobile, UpdateSourceTrigger=LostFocus, Mode=TwoWay, StringFormat='dd/MM/yyyy'}" TextChanged="MobileEdit_TextChanged"/>
 			<TextBox Name="dob2" 
 				 Grid.Row="13"
 				 Grid.Column="2"
@@ -615,7 +645,7 @@
 				 Background="{StaticResource Gray3}"
 				 HorizontalContentAlignment="Center"
 				 VerticalContentAlignment="Center"
-				 Text="{Binding Dob, UpdateSourceTrigger=LostFocus, Mode=TwoWay, StringFormat='dd/MM/yyyy'}" TextChanged="CloseDateEdit_TextChanged"/>
+				 Text="{Binding Dob, UpdateSourceTrigger=LostFocus, Mode=TwoWay, StringFormat='dd/MM/yyyy'}" TextChanged="DobEdit_TextChanged"/>
 
 			<TextBox Name="openDateEdit2" 
 				 Grid.Row="14"
@@ -628,7 +658,7 @@
 				 Background="{StaticResource Gray3}"
 				 HorizontalContentAlignment="Center"
 				 VerticalContentAlignment="Center"
-				 Text="{Binding ODate, UpdateSourceTrigger=LostFocus, Mode=TwoWay, StringFormat='dd/MM/yyyy'}" TextChanged="CloseDateEdit_TextChanged"/>
+				 Text="{Binding ODate, UpdateSourceTrigger=LostFocus, Mode=TwoWay, StringFormat='dd/MM/yyyy'}" TextChanged="OpenDateEdit_TextChanged"/>
 			<TextBox Name="CloseDateEdit2" 
 				 Grid.Row="15"
 				 Grid.Column="2"
@@ -642,8 +672,8 @@
 				 VerticalContentAlignment="Center"
 				 Text="{Binding CDate, UpdateSourceTrigger=LostFocus, Mode=TwoWay, StringFormat='dd/MM/yyyy'}" TextChanged="CloseDateEdit_TextChanged"/>
 			<!--#endregion Customer Text column setup-->
-			
-		<DataGrid x:Name="DataGrid2"
+
+			<DataGrid x:Name="DataGrid2"
 			  Grid.Row="1"
 			  Grid.Column="4"
 			  Grid.RowSpan="16"
@@ -817,6 +847,6 @@
 			</Button>
 		</WrapPanel>
 
-	<!--END - Outer grid-->
+		<!--END - Outer grid-->
 	</Grid>
 </Window>

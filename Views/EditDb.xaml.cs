@@ -5,14 +5,11 @@ using System.ComponentModel;
 using System.Data;
 using System.Data.SqlClient;
 using System.Windows.Controls;
-using System.Windows.Controls.Primitives;
 using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using WPFPages.DataSources;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement;
-
+using WPFPages.ViewModels;
 
 namespace WPFPages.Views
 {
@@ -34,45 +31,11 @@ namespace WPFPages.Views
 		bool bDirty = false;
 		//		bool testing = false;
 		public newtester nt = null;
+		public BankAccountViewModel Bank;
 
 		public EditDb ()
 		{
 			int x = 0;
-		}
-		/// <summary>
-		///  this is called by an ~Event triggered by SqlDBViewer changing it's SelectedIndex
-		///  so we can update to match
-		/// </summary>
-		/// <param name="selectedRow"></param>
-		/// <param name="caller"></param>
-		public void resetEditDbindex (int selectedRow, DataGrid caller)
-		{
-			int x = 0;
-			x = selectedRow;
-			//			CurrentDb = caller;
-
-			//			if (CurrentDb == "") return;
-			// use our Global Grid pointer for access
-			if (caller.Name == "BankGrid")
-			{
-				Console.WriteLine ($"resetEditDbindex(52) in EditDb - Called - Current index = {DataGrid1.SelectedIndex} received row change of {x} from SqlDbViewer() for {caller.CurrentItem}");
-				if (DataGrid1.SelectedIndex != x)
-				{
-					if (DataGrid1.SelectedIndex + 10 < DataGrid1.Items.Count)
-						SelectRowByIndex (DataGrid1, x );
-					else
-						SelectRowByIndex (DataGrid1, x);
-				}
-			}
-			else
-			{
-				Console.WriteLine ($"resetEditDbindex(56) in EditDb Called - Current index = {DataGrid2.SelectedIndex} received row change of {x} from SqlDbViewer() for {caller.CurrentItem}");
-				if (DataGrid2.SelectedIndex != x)
-				{
-					DataGrid2.SelectedIndex = x;
-					SelectRowByIndex (DataGrid2, DataGrid2.SelectedIndex);
-				}
-			}
 		}
 
 		/// <summary>
@@ -230,11 +193,11 @@ namespace WPFPages.Views
 
 		}
 		#region OLbservable declarations
-		private ObservableCollection<BankAccount> _bankaccountCollection;
-		private ObservableCollection<Customer> _customeraccountCollection;
-		private ObservableCollection<SecAccounts> _detailsaccountCollection;
+		public ObservableCollection<BankAccountViewModel> _bankaccountCollection;
+		public ObservableCollection<Customer> _customeraccountCollection;
+		public ObservableCollection<SecAccounts> _detailsaccountCollection;
 
-		public ObservableCollection<BankAccount> BankAccountCollection
+		public ObservableCollection<BankAccountViewModel> BankAccountCollection
 		{
 			get { return _bankaccountCollection; }
 			set { _bankaccountCollection = value; OnPropertyChanged ("_bankaccountCollection"); }
@@ -260,10 +223,10 @@ namespace WPFPages.Views
 				CustomerEditGrid.Visibility = Visibility.Collapsed;
 				DataGrid1.Visibility = Visibility.Visible;
 				DataGrid2.Visibility = Visibility.Collapsed;
-				BankAccountCollection = new ObservableCollection<BankAccount> ();
-				LoadSqlData ("Select * from BankAccount ", dt, "BANKACCOUNT");
-				// use this or the next one
-				DataGrid1.ItemsSource = BankAccountCollection;
+
+				// got our SQL data - working 29/3/21
+				DataGrid1.ItemsSource = BankAccountViewModel.BankAccountObs;
+				BankEditGrid.DataContext = BankAccountViewModel.BankAccountObs;
 				//DataGrid1.ItemsSource = sqldbv.BankAccountObs;
 				this.Title += " Bank Accounts Db";
 				DataGrid1.SelectedIndex = CurrentIndex;
@@ -271,7 +234,8 @@ namespace WPFPages.Views
 
 				//to get it to scroll the record into view we have to go thru this palaver....
 				// But it does work, but only puts it on bottom row of viewer
-				SelectRowByIndex (DataGrid1, CurrentIndex);
+
+				DataGridNavigation.SelectRowByIndex (DataGrid1, CurrentIndex, -1);
 				// set up our windows dragging
 				this.MouseDown += delegate { DoDragMove (); };
 				CurrentGrid = DataGrid1;
@@ -298,7 +262,7 @@ namespace WPFPages.Views
 
 				//to get it to scroll the record into view we have to go thru this palaver....
 				// But it does work, but only puts it on bottom row of viewer
-				SelectRowByIndex (DataGrid2, CurrentIndex);
+				DataGridNavigation.SelectRowByIndex (DataGrid2, CurrentIndex, -1);
 				this.MouseDown += delegate { DoDragMove (); };
 				CurrentGrid = DataGrid2;
 				//Setup the Event handler to notify EditDb viewer of index changes
@@ -323,7 +287,7 @@ namespace WPFPages.Views
 
 				//to get it to scroll the record into view we have to go thru this palaver....
 				// But it does work, but only puts it on bottom row of viewer
-				SelectRowByIndex (DataGrid1, CurrentIndex);
+				DataGridNavigation.SelectRowByIndex (DataGrid1, CurrentIndex, -1);
 				this.MouseDown += delegate { DoDragMove (); };
 				CurrentGrid = DataGrid1;
 				//Setup the Event handler to notify EditDb viewer of index changes
@@ -336,97 +300,13 @@ namespace WPFPages.Views
 		}
 
 
-		#region DataGrid positioning code
-		public static void SelectRowByIndex (DataGrid dataGrid, int rowIndex)
-		{
-			if (!dataGrid.SelectionUnit.Equals (DataGridSelectionUnit.FullRow))
-			{
-				Console.WriteLine ("The SelectionUnit of the DataGrid must be set to FullRow.");
-				return;
-			}
-
-			if (dataGrid.Items.Count == 0)
-				return;
-			if (rowIndex < 0 || rowIndex > (dataGrid.Items.Count - 1))
-			{
-				Console.WriteLine (string.Format ("Positioning error - {0} is an invalid row index.", rowIndex));
-				return;
-			}
-			//Crashes if the grid is set to sibgle selecton only
-			//			dataGrid.SelectedItems.Clear ();
-			/* set the SelectedItem property */
-			object item = dataGrid.Items[rowIndex]; // = Product X
-			dataGrid.SelectedItem = item;
-
-			DataGridRow row = dataGrid.ItemContainerGenerator.ContainerFromIndex (rowIndex) as DataGridRow;
-			if (row == null)
-			{
-				/* bring the data item (Product object) into view
-				 * in case it has been virtualized away */
-				dataGrid.ScrollIntoView (item);
-				row = dataGrid.ItemContainerGenerator.ContainerFromIndex (rowIndex) as DataGridRow;
-			}
-			//DataGridCell cell = GetCell (dataGrid, row, 2);
-			//if (cell != null)
-			//	cell.Focus ();
-			//TODO: Retrieve and focus a DataGridCell object
-		}
-		public static DataGridCell GetCell (DataGrid dataGrid, DataGridRow rowContainer, int column)
-		{
-			if (rowContainer != null)
-			{
-				DataGridCellsPresenter presenter = FindVisualChild<DataGridCellsPresenter> (rowContainer);
-				if (presenter == null)
-				{
-					/* if the row has been virtualized away, call its ApplyTemplate() method 
-					 * to build its visual tree in order for the DataGridCellsPresenter
-					 * and the DataGridCells to be created */
-					rowContainer.ApplyTemplate ();
-					presenter = FindVisualChild<DataGridCellsPresenter> (rowContainer);
-				}
-				if (presenter != null)
-				{
-					DataGridCell cell = presenter.ItemContainerGenerator.ContainerFromIndex (column) as DataGridCell;
-					if (cell == null)
-					{
-						/* bring the column into view
-						 * in case it has been virtualized away */
-						dataGrid.ScrollIntoView (rowContainer, dataGrid.Columns[column]);
-						cell = presenter.ItemContainerGenerator.ContainerFromIndex (column) as DataGridCell;
-					}
-					return cell;
-				}
-			}
-			return null;
-		}
-
-		public static T FindVisualChild<T> (DependencyObject obj) where T : DependencyObject
-		{
-			for (int i = 0; i < VisualTreeHelper.GetChildrenCount (obj); i++)
-			{
-				DependencyObject child = VisualTreeHelper.GetChild (obj, i);
-				if (child != null && child is T)
-					return (T)child;
-				else
-				{
-					T childOfChild = FindVisualChild<T> (child);
-					if (childOfChild != null)
-						return childOfChild;
-				}
-			}
-			return null;
-		}
-
-		//******************************************** end of row selection code ****************************//
-		#endregion DataGrid positioning code
-
 		private void SaveData_Click (object sender, RoutedEventArgs e)
 		{
 
 			bDirty = false;
 			sqldbv.EditDbClosing ();
-			sqldbv = null;
 			Close ();
+			sqldbv = null;
 		}
 
 		private void Cancel_Click (object sender, RoutedEventArgs e)
@@ -462,7 +342,7 @@ namespace WPFPages.Views
 					//load the SQL data into our OC named bankaccounts
 					if (CallerType == "BANKACCOUNT")
 					{
-						if (!LoadBankCollection (dt))
+						if (! BankAccountViewModel.LoadBankAccountIntoList (BankAccountViewModel.BankList, dt))
 							return false;
 					}
 					else if (CallerType == "CUSTOMER")
@@ -507,7 +387,7 @@ namespace WPFPages.Views
 			//This DOES access BankAccount.cs
 			for (int i = 0; i < dtBank.Rows.Count; ++i)
 			{
-				BankAccountCollection.Add (new BankAccount
+				BankAccountCollection.Add (new BankAccountViewModel
 				{
 					Id = Convert.ToInt32 (dtBank.Rows[i][0]),
 					BankNo = dtBank.Rows[i][1].ToString (),
@@ -608,60 +488,16 @@ namespace WPFPages.Views
 
 		#endregion
 
-		/// <summary>
-		/// Receives the notification from the main db viewer that a selection has been changed
-		/// and sends it to that same viewer when changed in this window
-		/// so both windows update the current row simaltaneously.
-		/// </summary>
-		public void DataGrid1_SelectionChanged (object sender, SelectionChangedEventArgs e)
-		{
-			if (sqldbv == null) return;
-
-			//We have to check which type of bank account we are working with
-			if (CurrentDb == "BANKACCOUNT" || CurrentDb == "DETAILS")
-			{
-				if (nt != null)
-				{
-					Console.WriteLine ($"EditDb (609) Index changed to {DataGrid1.SelectedIndex}, CurrentDb = {CurrentDb}");
-					nt.EditDbTriggerEvent (DataGrid1.SelectedIndex, DataGrid1);
-				}
-			}
-			else if (CurrentDb == "CUSTOMER")
-			{
-				if (nt != null)
-				{
-					Console.WriteLine ($"EditDb (617) Index changed to {DataGrid2.SelectedIndex}, CurrentDb = {CurrentDb}");
-					nt.EditDbTriggerEvent (DataGrid2.SelectedIndex, DataGrid2);
-				}
-			}
-
-#pragma TODO
-			//This is where we SHOULD be updating the textboxes ???
-		}
 
 		private void DataGrid2_SelectionChanged (object sender, SelectionChangedEventArgs e)
 		{
-			//			SelectRowByIndex (DataGrid2, DataGrid2.SelectedIndex);
+			//			DataGridNavigation.SelectRowByIndex (DataGrid2, DataGrid2.SelectedIndex, -1);
 			if (sqldbv == null) return;
 			sqldbv.CustomerGrid.SelectedIndex = DataGrid2.SelectedIndex;
 #pragma TODO
 			//This is where we SHOULD be updating the textboxes ???
 		}
 
-		#region check for changes to text boxes
-		private void BanknoEdit_TextChanged (object sender, TextChangedEventArgs e)
-		{ bDirty = true; }
-		private void CustnonoEdit_TextChanged (object sender, TextChangedEventArgs e)
-		{ bDirty = true; }
-		private void BalanceEdit_TextChanged (object sender, TextChangedEventArgs e)
-		{ bDirty = true; }
-		private void IntRateEdit_TextChanged (object sender, TextChangedEventArgs e)
-		{ bDirty = true; }
-		private void OpenDateEdit_TextChanged (object sender, TextChangedEventArgs e)
-		{ bDirty = true; }
-		private void CloseDateEdit_TextChanged (object sender, TextChangedEventArgs e)
-		{ bDirty = true; }
-		#endregion check for changes to text boxes
 
 		private void CheckClosing (object sender, CancelEventArgs e)
 		{
@@ -690,6 +526,160 @@ namespace WPFPages.Views
 			{
 				return;
 			}
+		}
+
+		/// <summary>
+		///  this is called by an ~Event triggered by SqlDBViewer changing it's SelectedIndex
+		///  so we can update to match
+		/// </summary>
+		/// <param name="selectedRow"></param>
+		/// <param name="caller"></param>
+		public void resetEditDbindex (int selectedRow, DataGrid caller)
+		{
+			int x = 0;
+			x = selectedRow;
+			//			CurrentDb = caller;
+
+			//			if (CurrentDb == "") return;
+			// use our Global Grid pointer for access
+			if (caller.Name == "BankGrid")
+			{
+				Console.WriteLine ($"resetEditDbindex(52) in EditDb - Called - Current index = {DataGrid1.SelectedIndex} received row change of {x} from SqlDbViewer() for {caller.CurrentItem}");
+				if (DataGrid1.SelectedIndex != x)
+				{
+					if (DataGrid1.SelectedIndex + 10 < DataGrid1.Items.Count)
+						DataGridNavigation.SelectRowByIndex (DataGrid1, x, -1);
+					else
+						DataGridNavigation.SelectRowByIndex (DataGrid1, x, -1);
+				}
+			}
+			else
+			{
+				Console.WriteLine ($"resetEditDbindex(56) in EditDb Called - Current index = {DataGrid2.SelectedIndex} received row change of {x} from SqlDbViewer() for {caller.CurrentItem}");
+				if (DataGrid2.SelectedIndex != x)
+				{
+					DataGrid2.SelectedIndex = x;
+					DataGridNavigation.SelectRowByIndex (DataGrid2, DataGrid2.SelectedIndex, -1);
+				}
+			}
+		}
+
+		#region check for changes to text boxes
+		private void BanknoEdit_TextChanged (object sender, TextChangedEventArgs e)
+		{ bDirty = true; }
+		private void CustnoEdit_TextChanged (object sender, TextChangedEventArgs e)
+		{ bDirty = true; }
+		private void BalanceEdit_TextChanged (object sender, TextChangedEventArgs e)
+		{ bDirty = true; }
+		private void IntRateEdit_TextChanged (object sender, TextChangedEventArgs e)
+		{ bDirty = true; }
+		private void OpenDateEdit_TextChanged (object sender, TextChangedEventArgs e)
+		{ bDirty = true; }
+		private void CloseDateEdit_TextChanged (object sender, TextChangedEventArgs e)
+		{ bDirty = true; }
+		private void AcTypeEdit_TextChanged (object sender, TextChangedEventArgs e)
+		{
+			//			BindingExpression be = ActypeEdit.GetBindingExpression (TextBox.TextProperty);
+			//			be.UpdateSource ();
+			//			e.Handled = false;
+			DataGrid1.UpdateLayout ();
+		}
+		private void FirstNameEdit_TextChanged (object sender, TextChangedEventArgs e)
+		{ bDirty = true; }
+		private void LastNameEdit_TextChanged (object sender, TextChangedEventArgs e)
+		{ bDirty = true; }
+		private void Addr1Edit_TextChanged (object sender, TextChangedEventArgs e)
+		{ bDirty = true; }
+		private void Addr2Edit_TextChanged (object sender, TextChangedEventArgs e)
+		{ bDirty = true; }
+		private void TownEdit_TextChanged (object sender, TextChangedEventArgs e)
+		{ bDirty = true; }
+		private void CountyEdit_TextChanged (object sender, TextChangedEventArgs e)
+		{ bDirty = true; }
+		private void PcodeEdit_TextChanged (object sender, TextChangedEventArgs e)
+		{ bDirty = true; }
+		private void PhoneEdit_TextChanged (object sender, TextChangedEventArgs e)
+		{ bDirty = true; }
+		private void MobileEdit_TextChanged (object sender, TextChangedEventArgs e)
+		{ bDirty = true; }
+		private void DobEdit_TextChanged (object sender, TextChangedEventArgs e)
+		{ bDirty = true; }
+		#endregion check for changes to text boxes
+		private void BankEditGrid_KeyDown (object sender, KeyEventArgs e)
+		{
+			//Stop Enter key making it move selection
+			//			if(e.Key == Key.Enter)
+			//				e.Handled = true;
+		}
+
+		private void BankEditGrid_SourceUpdated (object sender, DataTransferEventArgs e)
+		{
+			int x = 0;
+		}
+
+		private void BankEditGrid_TargetUpdated (object sender, DataTransferEventArgs e)
+		{
+			int x = 0;
+		}
+
+		private void BankEditGrid_TextInput (object sender, TextCompositionEventArgs e)
+		{
+			int x = 0;
+		}
+
+		private void DataGrid1_CellEditEnding (object sender, DataGridCellEditEndingEventArgs e)
+		{
+
+		}
+
+		private void DataGrid1_RowEditEnding (object sender, DataGridRowEditEndingEventArgs e)
+		{
+
+		}
+
+		/// <summary>
+		/// Receives the notification from the main db viewer that a selection has been changed
+		/// and sends it to that same viewer when changed in this window
+		/// so both windows update the current row simaltaneously.
+		/// </summary>
+		public void DataGrid1_SelectionChanged (object sender, SelectionChangedEventArgs e)
+		{
+			BankAccountViewModel objItemToEdit = DataGrid1.SelectedItem as BankAccountViewModel;
+
+			DataGrid dg = (DataGrid)sender;
+			DataRowView SelRow = dg.SelectedItem as DataRowView;
+			if (SelRow != null)
+			{
+
+			}
+			if (sqldbv == null) return;
+			//We have to check which type of bank account we are working with
+			if (CurrentDb == "BANKACCOUNT" || CurrentDb == "DETAILS")
+			{
+				if (nt != null)
+				{
+					Console.WriteLine ($"EditDb (609) Index changed to {DataGrid1.SelectedIndex}, CurrentDb = {CurrentDb}");
+					nt.EditDbTriggerEvent (DataGrid1.SelectedIndex, DataGrid1);
+				}
+			}
+			else if (CurrentDb == "CUSTOMER")
+			{
+				if (nt != null)
+				{
+					Console.WriteLine ($"EditDb (617) Index changed to {DataGrid2.SelectedIndex}, CurrentDb = {CurrentDb}");
+					nt.EditDbTriggerEvent (DataGrid2.SelectedIndex, DataGrid2);
+				}
+			}
+
+#pragma TODO
+			//This is where we SHOULD be updating the textboxes ???
+		}
+
+		
+
+		private void Intrate_Changed (object sender, TextChangedEventArgs e)
+		{
+			int x = 0;
 		}
 	}
 }

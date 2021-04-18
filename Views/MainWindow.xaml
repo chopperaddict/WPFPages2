@@ -15,6 +15,7 @@
 
 	<Grid Grid.Background ="Black">
 		<Grid.RowDefinitions>
+			<RowDefinition Height="15"/>
 			<RowDefinition Height="55"/>
 			<RowDefinition Height="*"/>
 		</Grid.RowDefinitions>
@@ -36,6 +37,20 @@
 				<ColumnDefinition Width="10"/>
 			</Grid.ColumnDefinitions>
 
+			<!--#region MVVM STUFF-->
+			<!--#Pragma MVVM TODO-->
+			<!-- In MainWindow.xaml -->
+			<Menu Grid.Row="0" Grid.Column="0">
+				<MenuItem Header="_File">
+					<MenuItem Header="_Exit" 
+                    Command="{Binding Path=CloseCommand}" />
+				</MenuItem>
+				<MenuItem Header="_Edit" />
+				<MenuItem Header="_Options" />
+				<MenuItem Header="_Help" />
+			</Menu>
+
+			<!--#endregion MVVM STUFF-->
 			<!--Top Button bar
 			We need this as I want the button b\ar to STAY at 
 			the left whenever thewindow is resized wider-->

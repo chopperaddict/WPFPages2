@@ -63,6 +63,7 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Behaviours\DataGridBehaviour.cs" />
+    <Compile Include="Commands\RelayCommand.cs" />
     <Compile Include="DataSources\Bankaccount.cs" />
     <Compile Include="Converters\DateOnlyConverter.cs" />
     <Compile Include="Converters\SalaryConvertor.cs" />
@@ -75,6 +76,11 @@
     <Compile Include="SQLDbSupport.cs" />
     <Compile Include="Utils.cs" />
     <Compile Include="ViewModels\BankAccountViewModel.cs" />
+    <Compile Include="ViewModels\CommandViewModel.cs" />
+    <Compile Include="ViewModels\CustomerViewModel.cs" />
+    <Compile Include="ViewModels\MainWindowViewModel.cs" />
+    <Compile Include="ViewModels\ViewModelBase.cs" />
+    <Compile Include="Views\DataGridNavigation.cs" />
     <Compile Include="Views\DbSelector.xaml.cs">
       <DependentUpon>DbSelector.xaml</DependentUpon>
     </Compile>
