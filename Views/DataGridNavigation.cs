@@ -2,6 +2,7 @@
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
+using System.Windows.Data;
 using System.Windows.Media;
 
 namespace WPFPages.Views
@@ -9,24 +10,99 @@ namespace WPFPages.Views
 	public static class DataGridNavigation
 	{
 		#region DataGrid positioning code
+
+		//public static void SelectRowByIndex (DataGrid dataGrid, int rowIndex, int GetCellindex)
+		//{
+		//	if (!dataGrid.SelectionUnit.Equals (DataGridSelectionUnit.FullRow))
+		//	//Add dbselector call in here somewhere
+		//	{
+		//		Console.WriteLine ("The SelectionUnit of the DataGrid must be set to FullRow.");
+		//		return;
+		//	}
+
+		//	if (dataGrid.Items.Count == 0)
+		//		return;
+		//	if (rowIndex < 0 || rowIndex > (dataGrid.Items.Count - 1))
+		//	{
+		//		Console.WriteLine (string.Format ("Positioning error - {0} is an invalid row index.", rowIndex));
+		//		return;
+		//	}
+		//	//Crashes if the grid is set to single selecton only
+		//	/* set the SelectedItem property */
+		//	object item = dataGrid.Items[rowIndex]; // = Product X
+		//	dataGrid.SelectedItem = item;
+
+		//	DataGridRow row = dataGrid.ItemContainerGenerator.ContainerFromIndex (rowIndex) as DataGridRow;
+		//	if (row == null)
+		//	{
+		//		/* bring the data item (Product object) into view
+		//		 * in case it has been virtualized away */
+		//		dataGrid.ScrollIntoView (item);
+
+		//		//if dataGrid = "DataGrid1" we are handling EditDb DataGrid
+		//		// else it is "BankGrid" or CustomerGrid or DetailsGrid in SQLDbViewer
+		//		row = dataGrid.ItemContainerGenerator.ContainerFromIndex (rowIndex) as DataGridRow;
+
+		//	}
+		//	if (GetCellindex != -1)
+		//	{
+		//		DataGridCell cell = GetCell (dataGrid, row, GetCellindex);
+		//		if (cell != null)
+		//			cell.Focus ();
+		//		//				TODO: Retrieve and focus a DataGridCell object
+		//	}
+		//}
+		//public static DataGridCell GetCell (DataGrid dataGrid, DataGridRow rowContainer, int column)
+		//{
+		//	if (rowContainer != null)
+		//	{
+		//		DataGridCellsPresenter presenter = FindVisualChild<DataGridCellsPresenter> (rowContainer);
+		//		if (presenter == null)
+		//		{
+		//			/* if the row has been virtualized away, call its ApplyTemplate() method 
+		//			 * to build its visual tree in order for the DataGridCellsPresenter
+		//			 * and the DataGridCells to be created */
+		//			rowContainer.ApplyTemplate ();
+		//			presenter = FindVisualChild<DataGridCellsPresenter> (rowContainer);
+		//		}
+		//		if (presenter != null)
+		//		{
+		//			DataGridCell cell = presenter.ItemContainerGenerator.ContainerFromIndex (column) as DataGridCell;
+		//			if (cell == null)
+		//			{
+		//				/* bring the column into view
+		//				 * in case it has been virtualized away */
+		//				dataGrid.ScrollIntoView (rowContainer, dataGrid.Columns[column]);
+		//				cell = presenter.ItemContainerGenerator.ContainerFromIndex (column) as DataGridCell;
+		//			}
+		//			return cell;
+		//		}
+		//	}
+		//	return null;
+		//}
+
 		public static void SelectRowByIndex (DataGrid dataGrid, int rowIndex, int GetCellindex)
 		{
+			DataGrid caller = null;
+			DataGrid slaveGrid = null;
 			if (!dataGrid.SelectionUnit.Equals (DataGridSelectionUnit.FullRow))
 			{
 				Console.WriteLine ("The SelectionUnit of the DataGrid must be set to FullRow.");
 				return;
 			}
-
-			if (dataGrid.Items.Count == 0)
-				return;
+			//			if(dataGrid == MainWindow.DgControl.CurrentSqlGrid)
+			//			dataGrid = MainWindow.DgControl.SelChangeCallerGrid;
+			Console.WriteLine ($"SelectRowByIndex: Caller = {dataGrid.Name}, RowToFind = {rowIndex}");
+			if (dataGrid == null) return;
+			caller = dataGrid;
+			if (dataGrid.Items.Count == 0) return;
 			if (rowIndex < 0 || rowIndex > (dataGrid.Items.Count - 1))
 			{
-				Console.WriteLine (string.Format ("Positioning error - {0} is an invalid row index.", rowIndex));
-				return;
+				Console.WriteLine (string.Format ("Positioning error - {0} is an invalid row index.", rowIndex)); return;
 			}
 			//Crashes if the grid is set to single selecton only
 			/* set the SelectedItem property */
-			object item = dataGrid.Items[rowIndex]; // = Product X
+			object item = dataGrid.Items[rowIndex];
 			dataGrid.SelectedItem = item;
 
 			DataGridRow row = dataGrid.ItemContainerGenerator.ContainerFromIndex (rowIndex) as DataGridRow;
@@ -38,7 +114,7 @@ namespace WPFPages.Views
 
 				//if dataGrid = "DataGrid1" we are handling EditDb DataGrid
 				// else it is "BankGrid" or CustomerGrid or DetailsGrid in SQLDbViewer
-				row = dataGrid.ItemContainerGenerator.ContainerFromIndex (rowIndex) as DataGridRow;
+				//row = dataGrid.ItemContainerGenerator.ContainerFromIndex (rowIndex) as DataGridRow;
 
 			}
 			if (GetCellindex != -1)
@@ -48,6 +124,10 @@ namespace WPFPages.Views
 					cell.Focus ();
 				//				TODO: Retrieve and focus a DataGridCell object
 			}
+			dataGrid.SelectedItem = dataGrid.SelectedIndex;
+			dataGrid.ScrollIntoView (dataGrid.SelectedItem);
+			//clear flag again
+			//			MainWindow.DgControl.SelChangeCallerGrid = null;
 		}
 		public static DataGridCell GetCell (DataGrid dataGrid, DataGridRow rowContainer, int column)
 		{

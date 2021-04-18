@@ -3,15 +3,17 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:WPFPages.Views" d:DataContext="{d:DesignInstance Type=local:DetailsObs}"
+        xmlns:local="clr-namespace:WPFPages.Views" 
 		mc:Ignorable="d"
-        Title="DbViewer" Height="425" Width="600"
-	   MinWidth="600" MaxWidth="850"
-	   MinHeight="335" MaxHeight="510"
+        Title="DbViewer" Height="335" Width="600"
+	   MinWidth="680" MaxWidth="850"
+	   MinHeight="375" MaxHeight="510"
 		Margin="33,3,3,3"
 		Topmost="false"
-	   WindowStartupLocation="CenterScreen" Closing="Window_Closing">
-	
+	   WindowStartupLocation="Manual"
+	  Top="700"  Left="1200"
+	  Closing="Window_Closing" KeyDown="Window_KeyDown">
+
 	<Window.Resources>
 
 		<!--<Style x:Key="FocusVisualStyle1">
@@ -87,7 +89,7 @@
 			<Setter Property="HorizontalContentAlignment" Value="Stretch"/>
 			<Setter Property="Width" Value="{Binding Path=Width, ElementName=ViewersList}"/>
 			<!--Remove focus rectangle-->
-			<!--<Setter Property="FocusVisualStyle" Value="{x:Null}"/>-->
+			<Setter Property="FocusVisualStyle" Value="{x:Null}"/>
 			<Setter Property="Template">
 				<Setter.Value>
 					<ControlTemplate TargetType="ListBoxItem">
@@ -127,6 +129,7 @@
 									<Setter TargetName="_Border" Property="Control.Foreground" Value="{StaticResource Red0}"/>
 									<Setter TargetName="_Border" Property="Background" Value="{StaticResource White2}"/>
 									<Setter Property="FontSize" Value="14"/>
+									<Setter Property="FontWeight" Value="DemiBold"/>
 								</MultiTrigger.Setters>
 							</MultiTrigger>
 						</ControlTemplate.Triggers>
@@ -148,7 +151,7 @@
 			<Setter Property="FontSize" Value="14"/>
 			<Setter Property="HorizontalContentAlignment" Value="Stretch"/>
 			<Setter Property="Width" Value="{Binding Path=Width, ElementName=ViewersList}"/>
-			<!--<Setter Property="FocusVisualStyle" Value="{x:Null}"/>-->
+			<Setter Property="FocusVisualStyle" Value="{x:Null}"/>
 			<Setter Property="Template">
 				<Setter.Value>
 					<ControlTemplate TargetType="ListBoxItem">
@@ -192,6 +195,7 @@
 									<Setter TargetName="_Border" Property="Background" Value="{StaticResource White2}"/>
 									<Setter TargetName="_Border" Property="Control.Foreground" Value="{StaticResource Red0}"/>
 									<Setter Property="FontSize" Value="14"/>
+									<Setter Property="FontWeight" Value="DemiBold"/>
 								</MultiTrigger.Setters>
 							</MultiTrigger>
 						</ControlTemplate.Triggers>
@@ -227,25 +231,7 @@
 			</Setter>
 		</Style>
 
-		<Storyboard x:Key="Storyboard2">
-			<DoubleAnimationUsingKeyFrames Storyboard.TargetProperty=
-				"(UIElement.RenderTransform).(TransformGroup.Children)[3].(TranslateTransform.X)" 
-				Storyboard.TargetName="wrapPanel">
-				<EasingDoubleKeyFrame KeyTime="0:0:0.6" Value="352.667"/>
-			</DoubleAnimationUsingKeyFrames>
-			<DoubleAnimationUsingKeyFrames Storyboard.TargetProperty=
-				"(UIElement.RenderTransform).(TransformGroup.Children)[3].(TranslateTransform.Y)" 
-				Storyboard.TargetName="wrapPanel">
-				<EasingDoubleKeyFrame KeyTime="0:0:0.6" Value="2.333"/>
-			</DoubleAnimationUsingKeyFrames>
-		</Storyboard>
-
 	</Window.Resources>
-	<Window.Triggers>
-		<EventTrigger RoutedEvent="FrameworkElement.Loaded">
-			<BeginStoryboard Storyboard="{StaticResource Storyboard2}"/>
-		</EventTrigger>
-	</Window.Triggers>
 
 
 	<Grid 
@@ -256,7 +242,7 @@
 			<RowDefinition Height="83"/>
 			<RowDefinition Height="45"/>
 			<RowDefinition Height="*"/>
-			<RowDefinition Height="40"/>
+			<RowDefinition Height="50"/>
 			<RowDefinition Height="15"/>
 		</Grid.RowDefinitions>
 		<Grid.ColumnDefinitions>
@@ -290,10 +276,11 @@
     		Style="{StaticResource _styletest}"
 			IsTabStop="True"
 			TabIndex="0">
-			<!--This makes the selected row visible when window looses focus - works on any grid--><!--
+			<!--This makes the selected row visible when window looses focus - works on any grid-->
+			
 			<ListBox.Resources>
 				<SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightBrushKey}" Color="#96A3FB"/>
-			</ListBox.Resources>-->
+			</ListBox.Resources>
 
 			<ListBoxItem Content="Bank Accounts" Width="{Binding Path=sqlSelector.Width}" 
 					   IsTabStop="false" IsSelected="true"
@@ -304,156 +291,142 @@
 						 Style="{StaticResource _ListBoxItemStyle1}"/>
 		</ListBox>
 
-		<WrapPanel x:Name="wrapPanel" Orientation="Horizontal"
+		<Grid  x:Name="Grid2" 
 			Grid.Row="2" 
-			Grid.Column="1"
-			HorizontalAlignment="Left"	
-			VerticalAlignment="Top"
-			Width="210" 
-			Height="45"
-			Margin="0,5,0,0">
-			<WrapPanel.RenderTransform>
-				<TransformGroup>
-					<ScaleTransform/>
-					<SkewTransform/>
-					<RotateTransform/>
-					<TranslateTransform/>
-				</TransformGroup>
-			</WrapPanel.RenderTransform>
-			<!--<WrapPanel x:Name="ButtonAnimation"
-				Orientation="Horizontal"
-					 Width="176"
-					 Margin="0,-5"
-					 HorizontalAlignment="Left"	
-			 VerticalAlignment="Center">-->
-
+			Grid.Column="1" Margin="3.5,4,0,7"
+			>
 			<Button x:Name="CancelBtn"
 				Content="Close" 
 				Click="Cancel_Click"
 				Width="68"
-				Height="30"
-				Margin="0,0,0,0" 
+				  HorizontalAlignment="Right"
 				FontSize="14"
 				Background="{StaticResource HeaderBrushBlue}"	
 				Foreground="White"
 				Template="{StaticResource HorizontalGradientTemplateBlue}"
 				IsTabStop="True"
-				TabIndex="1" RenderTransformOrigin="0.5,0.5" >
-			</Button>
-
+				TabIndex="1" 
+				  RenderTransformOrigin="0.221,8.8" 
+				  Height="30" Margin="230.5,0,260,4" 
+				  />
+			<Button x:Name="MultiViewer"
+				   Content="Open MultiViewer" 
+				   Click="MultiViewer_Click"
+				   Width="120"
+				  Height="30"
+				  HorizontalAlignment="Right"
+				   FontSize="14" 
+				   Background="{StaticResource HeaderBrushBlue}"	
+				   Foreground="White"
+				   Template="{StaticResource HorizontalGradientTemplateBlue}" 
+				   IsTabStop="True"
+				   TabIndex="2" Margin="0,0,131.5,4" />
 			<Button x:Name="SelectBtn"
 				Content="Open Db Viewer" 
 				Click="sqlselectorbtn_Select"
-				Width="120"
-				Height="30"
-				Margin="13,0,0,0" 
+				  HorizontalAlignment="Right"
+			Width="120"
 				FontSize="14" 
 				Background="{StaticResource HeaderBrushBlue}"	
 				Foreground="White"
 				Template="{StaticResource HorizontalGradientTemplateBlue}" 
 				IsTabStop="True"
-				TabIndex="2" RenderTransformOrigin="-0.103,0.567">
-				<Button.RenderTransform>
-					<TransformGroup>
-						<ScaleTransform/>
-						<SkewTransform/>
-						<RotateTransform/>
-						<TranslateTransform/>
-					</TransformGroup>
-				</Button.RenderTransform>
-			</Button>
-		</WrapPanel>
+				TabIndex="2" RenderTransformOrigin="-0.208,2.5" Height="30" Margin="0,0,1.5,4" />
+		</Grid>
 
 		<!--List of (Lower) currently open viewers-->
 		<ListBox x:Name="ViewersList"
-			Grid.Row="3"
-			Grid.Column="1"
 			BorderBrush="Black"
 			BorderThickness="1"
 			Focusable="True" 
 			MinHeight="100"					
+			GotFocus="Viewerslist_Focused"
+			Grid.Row="3"
+			Grid.Column="1"
 			Loaded="OnWindowLoaded"
-			VerticalAlignment="Stretch"	
-			VerticalContentAlignment="Stretch"
 			HorizontalAlignment="stretch" 
 			HorizontalContentAlignment="Stretch"
 			IsTabStop="True"
-			TabIndex="3"
-			Style="{StaticResource _styletest}"
 			ItemContainerStyle="{DynamicResource _ListBoxItemStyle2}"
- 			MouseDoubleClick="ViewersList_Select" 
-			MouseUp="ViewersList_Select"
+			MouseDoubleClick="ViewersList_Select" 
+			TabIndex="3"
 			PreviewKeyDown="IsEnterKey"
-			GotFocus="Viewerslist_Focused"
+			Style="{StaticResource _styletest}"
+			VerticalAlignment="Stretch"	
+			VerticalContentAlignment="Stretch"
+			Visibility="Visible"
 			>
+			<!--MouseUp="ViewersList_Select"-->
 
-			<ListBoxItem x:Name="ListboxItem" Content="Currently Open Viewers" 
-					   HorizontalContentAlignment="Stretch"						
-						 FontWeight="SemiBold"
-					   IsTabStop="false"
-					   IsEnabled ="false"
-						 Style="{StaticResource _ListBoxItemStyle2}"/>
+			<ListBoxItem  Content="Currently Open Viewers" 
+				HorizontalContentAlignment="Stretch"						
+				FontWeight="SemiBold"
+				IsTabStop="false"
+				IsEnabled ="false"
+	  			Style="{StaticResource _ListBoxItemStyle2}"/>
+
 			<!--The lastline above allows me to set the listbox 
 				items exactly as I want them - See Style in Resources above-->
 		</ListBox>
-		<Button x:Name="ViewerDeleteAll"
-			Content="Close All Viewers" 
-			Margin="0,7.5,0,2.5" 
-			FontSize="14" RenderTransformOrigin="1.029,0.733" 
-			Foreground="White"
-			Background="{StaticResource HeaderBrushBlue}"	
-			Template="{StaticResource HorizontalGradientTemplateBlue}"	
-			Style="{StaticResource dimbutton}"
-			Grid.Column="1" 
-			Click="DeleteAllViewers_Click"
-			Grid.Row="4" 
-			IsTabStop="True"
-			IsEnabled="false"
-			TabIndex="5" HorizontalAlignment="Left" Width="199.5"
-			VerticalAlignment="Stretch"/>
 
-		<Button x:Name="ViewerDelete"
-			Content="Close Selected Viewer" 
-			Height="30"
-			Margin="206.833,7.5,155.667,2.5" 
-			FontSize="14" RenderTransformOrigin="1.029,0.733" 
-			Foreground="White"
-			Background="{StaticResource HeaderBrushBlue}"	
-			Template="{StaticResource HorizontalGradientTemplateBlue}"					 
-			Style="{StaticResource dimbutton}"
-			Grid.Column="1" 
-			Click="DeleteViewer_Click"
-			Grid.Row="4" 
-			IsTabStop="True"
-			IsEnabled="false"
-			TabIndex="5"/>
+		<Grid 
+			  Grid.Row="4"
+			  Grid.Column="1" 
+			HorizontalAlignment="Right"
+			VerticalAlignment="Bottom"
+			Height="45"
+			Width="550"
+		>
+			<Button x:Name="SelectViewerBtn"
+				Background="{StaticResource HeaderBrushBlue}"	
+				Click="SelectViewer_Click"
+				Content="Select"
+				FontSize="14"
+				Foreground="White"
+				Grid.Column="0"
+				Grid.Row="0"
+				Height="30"
+				HorizontalAlignment="Right" 
+				IsEnabled="True"
+				IsTabStop="True"
+				Margin="0,0.5,-1,-0.5"
+				Style="{StaticResource dimbutton}" 
+				TabIndex="4" 
+				Template="{StaticResource HorizontalGradientTemplateBlue}"		
+				Width="110"
+				   />
 
-		<Button x:Name="SelectViewerBtn"
-			Content="Select" 
-			Grid.Row="4"
-			Click="SelectViewer_Click"
-			Width="110"
-			Margin="0,6.333,8.667,3.667" 
-			FontSize="14" RenderTransformOrigin="1.029,0.733" 
+			<Button x:Name="ViewerDelete"
+				  Grid.Row="0"
+				  Grid.Column="0"
+			  Height="30"
+			Content="Close Selected Viewer"
+			FontSize="14" 
 			Foreground="White"
 			Background="{StaticResource HeaderBrushBlue}"	
 			Template="{StaticResource HorizontalGradientTemplateBlue}"		
 			Style="{StaticResource dimbutton}"
-			Grid.Column="1" 
-			HorizontalAlignment="Right" 
+			Click="DeleteViewer_Click"
 			IsTabStop="True"
-			TabIndex="4" >
-			<!--FocusVisualStyle="{DynamicResource FocusVisualStyle1}"-->
-			
-			<Button.RenderTransform>
-				<TransformGroup>
-					<ScaleTransform/>
-					<SkewTransform/>
-					<RotateTransform/>
-					<TranslateTransform/>
-				</TransformGroup>
-			</Button.RenderTransform>
-		</Button>
+			IsEnabled="true"
+			TabIndex="5" Margin="286,0.5,116,-0.5"
+			  />
 
+			<Button x:Name="ViewerDeleteAll"
+				  Grid.Row="0"
+				  Grid.Column="0"
+			Content="Close All Viewers" 
+			  Height="30"
+			FontSize="14"
+			Foreground="White"
+			Background="{StaticResource HeaderBrushBlue}"	
+			Template="{StaticResource HorizontalGradientTemplateBlue}"		
+			Style="{StaticResource dimbutton}"
+			Click="DeleteAllViewers_Click"
+			IsTabStop="True"
+			IsEnabled="true"
+			TabIndex="5" Margin="130,8,270,7" 
+			/>
+		</Grid>
 	</Grid>
 </Window>

@@ -1,4 +1,6 @@
-﻿using System.Globalization;
+﻿using System.Diagnostics;
+using System.Globalization;
+using System.Reflection.Emit;
 using System.Windows;
 using System.Windows.Controls;
 
@@ -12,13 +14,20 @@ namespace WPFPages
 		//		public static int GridWindows = 0;
 		//public DataGrid CurrentGrid;
 		//public DateTime LoadTime;
+		WindowExceptionHandler _exceptionHandler;
+		public App ()
+		{
+//			new BindingTracer (msg => Debugger.Break ());
+			_exceptionHandler = new WindowExceptionHandler ();
+		}
 
 #pragma MVVM TODO
 		#region MVVM STUFF
 		// In App.xaml.cs 
 		protected override void OnStartup (StartupEventArgs e)
 		{
-			base.OnStartup (e); MainWindow window = new MainWindow ();
+			base.OnStartup (e); 
+			//MainWindow window = new MainWindow ();
 			// Create the ViewModel to which 
 			// the main window binds. 
 			string path = "Data/customers.xml";
@@ -31,7 +40,9 @@ namespace WPFPages
 			// DataContext, which propagates down 
 			// the element tree. 
 //?			window.DataContext = viewModel;
-			window.Show ();
+			
+			
+//			window.Show ();
 		}
 
 		#endregion MVVM STUFF

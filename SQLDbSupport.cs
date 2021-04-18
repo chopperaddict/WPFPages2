@@ -11,8 +11,6 @@ using System.Windows.Controls.Primitives;
 using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Media;
-
-using WPFPages.DataSources;
 using WPFPages.ViewModels;
 using WPFPages.Views;
 

@@ -1,37 +1,34 @@
-﻿using System;
-
-
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data.SqlClient;
-using System.Linq;
+﻿using System.ComponentModel;
 using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-//using System.Windows.Forms;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
+using WPFPages.ViewModels;
 using WPFPages.Views;
-
 using WpfUI;
-
 using static System.Windows.Forms.VisualStyles.VisualStyleElement.Window;
 
 namespace WPFPages
 {
+
+	delegate void DbEditOcurred (object Sender, EditEventArgs e);
+	delegate void SQLEditOcurred (object Sender, EditEventArgs e);
+//	BankAccountViewModel bvm = BankAccountViewModel.bvm;
+
 	/// <summary>
 	/// Interaction logic for MainWindow.xaml
 	/// </summary>
 	public partial class MainWindow: INotifyPropertyChanged
 	{
+		// Global pointers to Viewmodel classes
+		public static BankAccountViewModel bvm = MainWindow.bvm;
+		public static CustomerViewModel cvm = MainWindow.cvm;
+		public static DetailsViewModel dvm = MainWindow.dvm;
+
+
+		public static EditEventArgs EditArgs = new EditEventArgs ();
+		public static DataGridController DgControl = new DataGridController();
 
 
 		public Frame theFrame;
@@ -42,17 +39,17 @@ namespace WPFPages
 		public static Page _Page3 = new Page3 ();
 		public static Page _Page4 = new Page4 ();
 		public static Page _Page5 = new Page5 ();
-		//		public static Page ButtonStackPanel = new ButtonStackPanel();
-		public static GridViewer gv = new GridViewer ();
 		public static string _baseDataText;
-		public static DbSelector DbSelectorOpen = null;
 		private string _randomText1 = "button1";
 		private string _randomText2 = "button2";
-		public static DbSelector dbs = new DbSelector ();
 		public bool Autoload = false;
-		public bool EventHandlerDebug = true;
-		SqlDbViewer tw = null;
 		
+
+		public static GridViewer gv = new GridViewer ();
+		public static DbSelector dbs = null;
+
+		public SqlDbViewer tw = null;
+
 		public MainWindow ()
 		{
 			// Set this as the main dataContext
@@ -63,25 +60,16 @@ namespace WPFPages
 			RandomText1 = "button1";
 			RandomText2 = "button2";
 			gv = GridViewer.Viewer_instance;
-		}
+	}
 
-		
+	private void OnClosing (object sender, CancelEventArgs e)
+		{
+
+		}
 		private void Loaded_click (object sender, RoutedEventArgs e)
 		{
 			MainPageHolder.NavigationService.Navigate (MainWindow._Blank);
-			this.MouseDown += delegate { DoDragMove (); };
-			string ConString = (string)Properties.Settings.Default["BankSysConnectionString"];
-			SqlConnection con;
-			try
-			{
-				con = new SqlConnection (ConString);
-			}
-			catch (Exception ex)
-			{
-				Console.WriteLine ($"SQL connection failed ....{ex.Message}");
-				MessageBox.Show ($"SQL connection failed ....\r\n{ex.Message}\r\n{ex.Data}");
-			}
-
+			this.MouseDown += delegate { DoDragMove (); };			
 		}
 		private void DoDragMove ()
 		{
@@ -214,40 +202,55 @@ namespace WPFPages
 
 		private void Page6_Click (object sender, RoutedEventArgs e)
 		{
-			//	this allows the loading of up to 5 different Db Viewer Windows
+			//	this allows the loading of up to 10 different Db Viewer Windows
 			//	and to select between them if needed
-			//while (true)
-			//{
-				int selected = 0;
+
+			// first we have some preapration to get done with pointers tpo the various Classes we are going to access
+
+			// setup globakl STATIC pointers to Viewmodels
+			dvm = new DetailsViewModel (); ;
+			cvm = new CustomerViewModel ();
+			bvm = new BankAccountViewModel ();
+//			Flags.DetailsModel = dvm;
+			
+			// Ok hpousekeeping over, lets go
+			
+			int selected = 0;
 			if (MainWindow.gv.DbSelectorWindow != null)
 			{
 				if (MainWindow.gv.DbSelectorWindow.ViewersList.Items.Count > 0)
 				{
 					// Been opened before, so just show it again
 					MainWindow.gv.DbSelectorWindow.Visibility = Visibility.Visible;
-					if (MainWindow.DbSelectorOpen.ViewersList.Items.Count > 1)
+					if (Flags.DbSelectorOpen.ViewersList.Items.Count > 1)
 					{
-						MainWindow.DbSelectorOpen.ViewerDeleteAll.IsEnabled = true;
-						MainWindow.DbSelectorOpen.ViewerDelete.IsEnabled = true;
+						Flags.DbSelectorOpen.ViewerDeleteAll.IsEnabled = true;
+						Flags.DbSelectorOpen.ViewerDelete.IsEnabled = true;
+						Flags.DbSelectorOpen.SelectBtn.IsEnabled = true;
 					}
 
 					MainWindow.gv.DbSelectorWindow.Focus ();
 					MainWindow.gv.DbSelectorWindow.BringIntoView ();
 					MainWindow.gv.DbSelectorWindow.Focus ();
 				}
+				Mouse.OverrideCursor = Cursors.Arrow;
 				return;
 			}
 			else
 			{
-				// create a new Db Viewer Control window
-				MainWindow.DbSelectorOpen = new DbSelector ();
+				//Create a new Db Selector Window system.
+				DbSelector dbs = new DbSelector ();
+				gv.DbSelectorWindow = dbs;
+				dbs.Show ();
+				//Store the "Handle" to this Db Selector window
+				Flags.DbSelectorOpen = dbs;
 				// Load and display a new viewer for the selected Db Type
 				// (returned in the selected var from dbSelector window)
 				Mouse.OverrideCursor = Cursors.Wait;
-				tw = new SqlDbViewer (selected);
+//				tw = new SqlDbViewer (selected);
 				if (Autoload) {
 
-					// find first blank entry of the 5 available slots we have
+					// find first blank entry of the 10 available slots we have
 					// and save our details into it
 					for (int x = 0; x < MainWindow.gv.MaxViewers; x++)
 					{
@@ -262,53 +265,55 @@ namespace WPFPages
 							tw.Show ();
 							tw.Focus ();
 							//Save the Window handle in the Viewer Window itself - Now done in window loaded
-							//tw.Tag = gv.window[x];
+							tw.Tag = gv.window[x];
 							//break;
 							break;
 						}
 					}
 				}
-				MainWindow.DbSelectorOpen.Show ();
+//				Flags.DbSelectorOpen.Show ();
 				Mouse.OverrideCursor = Cursors.Arrow;
-				return;
+//				return;
 			}
-			//Create a new Db Selector Window system.
-			//				DbSelector dbs = new DbSelector ();
 			//Store window handle to DbSelector window in control structure (GridViewer)
-			MainWindow.DbSelectorOpen.Show ();
-			//Store the "Handle" to this Db Selector window
-//				DbSelectorOpen = dbs;
+//			DbSelectorOpen.Show ();
+
+			Mouse.OverrideCursor = Cursors.Arrow;
+			return;
+
 			if (gv.ViewerSelectiontype == 1)
 				{
-				//					selected = gv.SelectedViewerType;
-				//					// Load and display a new viewer for the selected Db Type
-				//					// (returned in the selected var from dbSelector window)
-				//					Mouse.OverrideCursor = Cursors.Wait;
-				//					tw = new SqlDbViewer (selected);
+				selected = gv.SelectedViewerType;
+				// Load and display a new viewer for the selected Db Type
+				// (returned in the selected var from dbSelector window)
+				Mouse.OverrideCursor = Cursors.Wait;
 
-				//					// find first blank entry of the 5 available slots we have
-				//					// and save our details into it
-				//					for (int x = 0; x < MainWindow.gv.MaxViewers; x++)
-				//					{
-				//						if (gv.window[x] == null)
-				//						{
-				//							gv.SelectedViewerType = selected; // store the Db type in our "current" viewer type variable
-				//							gv.ViewerSelectiontype = -1;  // reset flag field for next time
-				//							gv.ViewerCount++;
+//				tw = SqlDbViewer.GetSqlInstance ().SqlDbViewer (selected);
+//				tw = new SqlDbViewer (selected);
 
-				//#pragma warning TODO			
-				//							// THIS TAKES FOR EVER ON 1ST LOAD
-				//							tw.Show ();
-				//							tw.Focus ();
-				//							//Save the Window handle in the Viewer Window itself - Now done in window loaded
-				//							//tw.Tag = gv.window[x];
-				//							//break;
-				//							Mouse.OverrideCursor = Cursors.Arrow;
-				//							return;
-				//						}
-				//					}
-				//					Mouse.OverrideCursor = Cursors.Arrow;
-				//					return;
+				// find first blank entry of the 5 available slots we have
+				// and save our details into it
+				for (int x = 0; x < MainWindow.gv.MaxViewers; x++)
+				{
+					if (gv.window[x] == null)
+					{
+						gv.SelectedViewerType = selected; // store the Db type in our "current" viewer type variable
+						gv.ViewerSelectiontype = -1;  // reset flag field for next time
+						gv.ViewerCount++;
+
+#pragma warning TODO			
+						// THIS TAKES FOR EVER ON 1ST LOAD
+						tw.Show ();
+						tw.Focus ();
+						//Save the Window handle in the Viewer Window itself - Now done in window loaded
+						tw.Tag = gv.window[x];
+						//break;
+						Mouse.OverrideCursor = Cursors.Arrow;
+						return;
+					}
+				}
+				Mouse.OverrideCursor = Cursors.Arrow;
+				return;
 			}
 			//else if (gv.ViewerSelectiontype == 2)
 			//{
@@ -383,6 +388,15 @@ namespace WPFPages
 		private void Blank_Click (object sender, RoutedEventArgs e)
 		{
 			MainPageHolder.NavigationService.Navigate (MainWindow._Blank);
+		}
+
+		private void Main_PreviewKeyDown (object sender, KeyEventArgs e)
+		{
+			if (e.Key == Key.RightCtrl || e.Key == Key.Home)
+				Page6_Click (sender, null);
+			else if (e.Key == Key.Escape)
+				Application.Current.Shutdown();
+
 		}
 	}
 }

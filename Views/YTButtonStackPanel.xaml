@@ -55,7 +55,7 @@ xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         					</ContentPresenter.RenderTransform>
         				</ContentPresenter>
         				<ContentPresenter HorizontalAlignment="Center" 
-                                    VerticalAlignment="Center" Name="content"/>
+                                    VerticalAlignment="Center" Name="Content"/>
         				</Grid>
         			</Border>
         			<ControlTemplate.Triggers>
@@ -73,7 +73,7 @@ xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         						</LinearGradientBrush>
         					</Setter.Value>
         					</Setter>
-        					<Setter TargetName="content" Property="RenderTransform" >
+        					<Setter TargetName="Content" Property="RenderTransform" >
         					<Setter.Value>
         						<TranslateTransform Y="1.0" />
         					</Setter.Value>

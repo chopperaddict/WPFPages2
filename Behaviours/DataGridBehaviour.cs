@@ -77,6 +77,8 @@ namespace WPFPages.Behaviours
           }
 
           private static void OnMouseDown(object sender, MouseButtonEventArgs e) {
+                        return;
+
                var dependencyObject = (DependencyObject)e.OriginalSource;
 
                while ((dependencyObject != null) && !(dependencyObject is DataGridRow)) {

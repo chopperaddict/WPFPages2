@@ -1,5 +1,4 @@
-﻿using DocumentFormat.OpenXml.ExtendedProperties;
-
+﻿#undef SHOWWINDOWDATA
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,6 +9,11 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 
+using DocumentFormat.OpenXml.ExtendedProperties;
+
+using WPFPages.ViewModels;
+using WPFPages.Views;
+
 namespace WPFPages
 {
 	/// <summary>
@@ -19,6 +23,42 @@ namespace WPFPages
 	/// </summary>
 	public class Utils
 	{
+
+		public static bool CheckForExistingGuid (Guid guid)
+		{
+			bool retval = false;
+			for (int x = 0; x < Flags.DbSelectorOpen.ViewersList.Items.Count; x++)
+			{
+				ListBoxItem lbi = new ListBoxItem ();
+				//lbi.Tag = viewer.Tag;
+				lbi = Flags.DbSelectorOpen.ViewersList.Items[x] as ListBoxItem;
+				if (lbi.Tag == null) return retval;
+				Guid g = (Guid)lbi.Tag;
+				if (g == guid)
+				{
+					retval = true;
+					break;
+				}
+			}
+			return retval;
+		}
+
+		public static  void GetWindowHandles ()
+		{
+#if SHOWWINDOWDATA
+			Console.WriteLine ($"Current Windows\r\n"+"===============");
+			foreach (Window window in System.Windows.Application.Current.Windows)
+			{
+				if (window.Title != "" && window.Content != "")
+				{
+					Console.WriteLine ($"Title:  {window.Title },\r\nContent - {window.Content}");
+					Console.WriteLine ($"Name = [{window.Name}]\r\n");
+				}
+			}
+#endif
+		}
+
+
 		public static Style GetDictionaryStyle (string tempname)
 		{
 			Style ctmp = System.Windows.Application.Current.FindResource (tempname) as Style;
