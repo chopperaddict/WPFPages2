@@ -429,7 +429,7 @@ namespace WPFPages.Views
 			Close ();
 		}
 
-		public bool LoadSqlData (string CmdString, DataTable dt, string CallerType)
+		public async Task<bool> LoadSqlData (string CmdString, DataTable dt, string CallerType)
 		{
 			SqlConnection con;
 			string ConString = "";
@@ -447,7 +447,7 @@ namespace WPFPages.Views
 					//load the SQL data into our OC named bankaccounts
 					if (CallerType == "BANKACCOUNT")
 					{
-						bvm.LoadBankAccountIntoList (dt);
+						await bvm.LoadBankAccountIntoList (dt);
 //						bvm.LoadBankAccountIntoList (BankAccountViewModel.BankList, dt);
 						if (BankAccountViewModel.BankList.Count == 0)
 							return false;
@@ -455,7 +455,7 @@ namespace WPFPages.Views
 					else if (CallerType == "CUSTOMER")
 					{
 						SqlDbViewer sqldbv = new SqlDbViewer (1);
-						cvm.LoadCustomerObsCollection ();
+						await cvm.LoadCustomerObsCollection ();
 						//SqlDbViewer.LoadCustData ();
 						//						if (!CustomerViewModel.LoadCustomersCollection ())
 						//							return false;
@@ -463,8 +463,10 @@ namespace WPFPages.Views
 					else if (CallerType == "DETAILS")
 					{
 						SqlDbViewer sqldbv = new SqlDbViewer (2);
-						if (!dvm.LoadDetailsObsCollection ())
-							return false;
+						await dvm.LoadDetailsObsCollection ();
+						//Task<bool>
+//						if (dvm.LoadDetailsObsCollection () != )
+//							return false;
 					}
 					//reset filter flag
 					return true;

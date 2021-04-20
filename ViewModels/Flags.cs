@@ -1,5 +1,8 @@
 ﻿//#define SHOWFLAGS
 #define SHOWALLFLAGS
+#define USEDETAILEDEXCEPTIONHANDLER
+#undef USEDETAILEDEXCEPTIONHANDLER
+
 //using System;
 using System;
 using System.Collections.Generic;
@@ -79,46 +82,17 @@ namespace WPFPages.ViewModels
 		///  Holds the DataGrid pointer fort each open SqlDbViewer Window as they
 		///  can each have diffrent datasets in use at any one time
 		/// </summary>
-		//public static List<DataGrid> CurrentEditDbViewerBankGridList;
-		//public static List<DataGrid> CurrentEditDbViewerCustomerGridList;
-		//public static List<DataGrid> CurrentEditDbViewerDetailsGridList;
 		public static DataGrid ActiveSqlDbViewer = null;
 
-		/// <summary>
-		///  these are the original, and current ponters in use
-		/// </summary>
-		//private static DataGrid currentEditDbViewerBankGrid;
-		//private static DataGrid currentEditDbViewerCustomerGrid;
-		//private static DataGrid currentEditDbViewerDetailsGrid;
 
-		//******************
-		//		public static DataGrid CurrentEditDbViewerBankGrid
-		//		{
-		//			get { return currentEditDbViewerBankGrid; }
-		//			set
-		//			{
-		//				currentEditDbViewerBankGrid = value;
-		////				if (value != null) CurrentEditDbViewerBankGridList.Add (value);
-		//			}
-		//		}
-		//		public static DataGrid CurrentEditDbViewerCustomerGrid
-		//		{
-		//			get { return currentEditDbViewerCustomerGrid; }
-		//			set
-		//			{
-		//				currentEditDbViewerCustomerGrid = value;
-		////				if (value != null) Flags.CurrentEditDbViewerCustomerGridList.Add (value);
-		//			}
-		//		}
-		//		public static DataGrid CurrentEditDbViewerDetailsGrid
-		//		{
-		//			get { return currentEditDbViewerDetailsGrid; }
-		//			set
-		//			{
-		//				currentEditDbViewerDetailsGrid = value;
-		//	//			if (value != null) Flags.CurrentEditDbViewerDetailsGridList.Add (value);
-		//			}
-		//		}
+		/// <summary>
+		///  Used to  control the initial load of Viewer windows to avoid 
+		///  mutliple additions to DbSelector's viewer  listbox
+		/// </summary>
+		public static bool SqlViewerIsLoading = false;
+		public static bool SqlViewerIsUpdating = false;
+
+
 
 		/// <summary>
 		///  handle maintenance of global flags used to control mutliple 
@@ -131,14 +105,9 @@ namespace WPFPages.ViewModels
 			//Setup global flags - first clear them all as relevant
 			Flags.ActiveSqlViewer = instance;
 			Flags.ActiveSqlViewerStr = instance?.Name;
-			//Flags.SqlBankGridStr = "";
-			//Flags.SqlCustGridStr = "";
-			//Flags.SqlDetGridStr = "";
-//			currentDb = CurrentDb;
 			//only do this if we are not closing a windows (Sends Grid=null)
 			if (Grid != null)
 			{
-//				Type t = instance.GetType();
 				if (Grid == Flags.SqlBankGrid)
 				{
 					Flags.CurrentActiveGrid = Grid;
@@ -197,24 +166,27 @@ namespace WPFPages.ViewModels
 			else
 			{
 				//Remove a SINGLE Viewer Windows data
-				for (int x = 0; x < MainWindow.gv.MaxViewers; x++)
-				{
-					if (MainWindow.gv.ListBoxId[x] == (Guid)instance.Tag)
-					{
-						//remove all record of it's very existence
-						MainWindow.gv.window[x].Close ();
-						MainWindow.gv.window[x] = null; 
-						MainWindow.gv.Datagrid[x] = null;
-						MainWindow.gv.CurrentDb[x] = "";
-						MainWindow.gv.ListBoxId[x] = Guid.Empty;
-						MainWindow.gv.SelectedViewerType = -1;
-						MainWindow.gv.ViewerSelectiontype = -1;
-						MainWindow.gv.ViewerCount--;
-						break;
-					}
-				}
+				SqlDbViewer.DeleteViewerAndFlags ();
+				Flags.CurrentSqlViewer.UpdateDbSelectorBtns (Flags.CurrentSqlViewer);
+
+			//	for (int x = 0; x < MainWindow.gv.MaxViewers; x++)
+			//	{
+			//		if (MainWindow.gv.ListBoxId[x] == (Guid)instance.Tag)
+			//		{
+			//			//remove all record of it's very existence
+			//			MainWindow.gv.window[x].Close ();
+			//			MainWindow.gv.window[x] = null; 
+			//			MainWindow.gv.Datagrid[x] = null;
+			//			MainWindow.gv.CurrentDb[x] = "";
+			//			MainWindow.gv.ListBoxId[x] = Guid.Empty;
+			//			MainWindow.gv.SelectedViewerType = -1;
+			//			MainWindow.gv.ViewerSelectiontype = -1;
+			//			MainWindow.gv.ViewerCount--;
+			//			break;
+			//		}
+			//	}
 			}
-			Flags.CurrentSqlViewer.UpdateDbSelectorBtns (Flags.CurrentSqlViewer);
+			//Flags.CurrentSqlViewer.UpdateDbSelectorBtns (Flags.CurrentSqlViewer);
 		}
 
 		public static void ListGridviewControlFlags ()

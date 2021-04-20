@@ -11,7 +11,7 @@
 		Margin="33,3,3,3"
 		Topmost="false"
 	   WindowStartupLocation="Manual"
-	  Top="700"  Left="1200"
+	  Top="640"  Left="1200"
 	  Closing="Window_Closing" KeyDown="Window_KeyDown">
 
 	<Window.Resources>

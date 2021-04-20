@@ -291,7 +291,7 @@ namespace WPFPages.ViewModels
 			{
 				{
 					await LoadSqlData ();
-					LoadDetailsObsCollection ();
+					await LoadDetailsObsCollection ();
 				}
 			}
 			catch (Exception ex)
@@ -335,7 +335,7 @@ namespace WPFPages.ViewModels
 		}
 		//**************************************************************************************************************************************************************//
 		// Loads data from DataTable into Observable Collection
-		public bool LoadDetailsObsCollection ()
+		public async Task<bool> LoadDetailsObsCollection ()
 		{
 			//if (dtDetails.Rows.Count > 0)
 			//	return true;

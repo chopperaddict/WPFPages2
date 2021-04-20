@@ -447,10 +447,9 @@ namespace WPFPages.ViewModels
 #else
 			{
 				await LoadSqlData (dtCust);
-				LoadCustomerObsCollection ();
+				await LoadCustomerObsCollection ();
 			}
 #endif
-
 			//We now have all the data in our ObservableCollection
 			//so it just needs loaded into the datagrid 
 
@@ -579,7 +578,7 @@ namespace WPFPages.ViewModels
 							Id = Convert.ToInt32 (dtCust.Rows[i][0]),
 							CustNo = dtCust.Rows[i][1].ToString (),
 							BankNo = dtCust.Rows[i][2].ToString (),
-							AcType = Convert.ToInt32 (dtCust.Rows[i][3]),
+							AcType = Convert.ToInt32 (dtCust.Rows[3][3]),
 							FName = dtCust.Rows[i][4].ToString (),
 							LName = dtCust.Rows[i][5].ToString (),
 							Addr1 = dtCust.Rows[i][6].ToString (),
@@ -598,7 +597,7 @@ namespace WPFPages.ViewModels
 				}
 				catch (Exception ex)
 				{
-					Console.WriteLine ($"Error loading Details Data {ex.Message}");
+					Console.WriteLine ($"Error loading Customers Data {ex.Message}");
 					MessageBox.Show ($"SQL error occurred \n\n{ex.Message},\n{ex.Data}");
 
 					return false;

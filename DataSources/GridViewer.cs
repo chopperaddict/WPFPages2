@@ -27,6 +27,7 @@ namespace WPFPages
 		public Guid  Bankviewer = Guid.Empty;
 		public Guid Custviewer = Guid.Empty;
 		public Guid Detviewer = Guid.Empty;
+		public Guid  SqlViewerGuid = Guid.Empty;
 		public int ViewerSelectiontype = -1;    // flag  for return value from selection window
 		//total viewers open right now
 		public int ViewerCount = 0;

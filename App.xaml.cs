@@ -14,15 +14,19 @@ namespace WPFPages
 		//		public static int GridWindows = 0;
 		//public DataGrid CurrentGrid;
 		//public DateTime LoadTime;
+#if USEDETAILEDEXCEPTIONHANDLER
 		WindowExceptionHandler _exceptionHandler;
+#endif
 		public App ()
 		{
 //			new BindingTracer (msg => Debugger.Break ());
+#if USEDETAILEDEXCEPTIONHANDLER
 			_exceptionHandler = new WindowExceptionHandler ();
+#endif
 		}
 
 #pragma MVVM TODO
-		#region MVVM STUFF
+#region MVVM STUFF
 		// In App.xaml.cs 
 		protected override void OnStartup (StartupEventArgs e)
 		{
@@ -45,7 +49,7 @@ namespace WPFPages
 //			window.Show ();
 		}
 
-		#endregion MVVM STUFF
+#endregion MVVM STUFF
 
 		// These are used to try to force Textbox's to always select
 		// all the content in the field, rahter than the default

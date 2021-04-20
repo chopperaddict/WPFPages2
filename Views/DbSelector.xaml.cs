@@ -32,7 +32,7 @@ namespace WPFPages.Views
 	}
 	public partial class DbSelector: Window, INotifyPropertyChanged
 	{
-		private static BankAccountViewModel bvm =  MainWindow.bvm;
+		private static BankAccountViewModel bvm = MainWindow.bvm;
 		private static CustomerViewModel cvm = MainWindow.cvm;
 		private static DetailsViewModel dvm = MainWindow.dvm;
 
@@ -72,6 +72,9 @@ namespace WPFPages.Views
 				case 25:
 					Console.WriteLine ($"DBSELECTOR - Viewer is ready  for relevant data to be loaded for the DataGrid");
 					break;
+				case 101:       // Data needs loading, so tell viewer to do it
+					Console.WriteLine ($"DBSELECTOR  : {status}  [{info}]");
+					break;
 				case 102:       // Starting a method
 					Console.WriteLine ($"DBSELECTOR  : {status}  [{info}]");
 					break;
@@ -104,7 +107,9 @@ namespace WPFPages.Views
 			{
 #pragma This is the one that works well
 				// info contains the text to be added to the Viewers ListBox
-				AddViewerToList (info, NewSqlViewer);
+				Flags.SqlViewerIsLoading = true;
+				DbSelector.AddViewerToList (info, NewSqlViewer, -1);
+				Flags.SqlViewerIsLoading = false;
 				Console.WriteLine ($"\r\nDBSELECTOR - Received [{status}] from SqlDbViewer to Add Viewer to List of Current Viewers \r\n");
 #pragma TODO  ADD an entry into Flags.gv for this new viewer
 			}
@@ -176,12 +181,48 @@ namespace WPFPages.Views
 		}
 
 		//********************************************************************************************//
+		public void UpdateControlFlags (SqlDbViewer caller, string  callertype, string PrettyString)
+		{
+			// We are starting up a new viewer, so need to create the flags structure
+			int x = MainWindow.gv.ViewerCount;
+			{
+				MainWindow.gv.PrettyDetails = PrettyString;
+				//				MainWindow.gv.SqlViewerWindow = this;
+				if (callertype == "BANKACCOUNT")
+				{
+					MainWindow.gv.CurrentDb[x] =callertype;
+					MainWindow.gv.window[x] = Flags.CurrentSqlViewer;
+					MainWindow.gv.Bankviewer = MainWindow.gv.ListBoxId[x] = (Guid)caller.Tag;
+					MainWindow.gv.ViewerCount++;
+					MainWindow.gv.Datagrid[x] = Flags.SqlBankGrid;
+				}
+
+				else if (callertype == "CUSTOMER")
+				{
+					MainWindow.gv.CurrentDb[x] = callertype;
+					MainWindow.gv.window[x] = Flags.CurrentSqlViewer;
+					MainWindow.gv.Custviewer = MainWindow.gv.ListBoxId[x] = (Guid)caller.Tag;
+					MainWindow.gv.ViewerCount++;
+					MainWindow.gv.Datagrid[x] = Flags.SqlCustGrid;
+				}
+				else if (callertype == "DETAILS")
+				{
+					MainWindow.gv.CurrentDb[x] = callertype;
+					MainWindow.gv.window[x] = Flags.CurrentSqlViewer;
+					MainWindow.gv.Detviewer = MainWindow.gv.ListBoxId[x] = (Guid)caller.Tag;
+					MainWindow.gv.ViewerCount++;
+					MainWindow.gv.Datagrid[x] = Flags.SqlDetGrid;
+				}
+			}	
+		}
 		private async void HandleSelection (ListBox listbox, string Command)
 		{
 			// Called when Opening/ Closing/deleting a Db Viewer window
 			//and most other functionality in this window (All buttons and double clicks)
 			int selected = -1;
+			int callertype = -1;
 			string selectedItem = "";
+			string CallingType = "";
 
 			if (listbox.Items.Count == 4 && Command != "DELETE")
 			{
@@ -200,21 +241,29 @@ namespace WPFPages.Views
 						SetFocusToExistingViewer (MainWindow.gv.Detviewer);
 						return;
 					}
+
+					// LOADS THE WINDOW HERE
 					Flags.ActiveSqlViewer = new SqlDbViewer ("DETAILS");
 					Flags.ActiveSqlViewer.BringIntoView ();
 					Flags.ActiveSqlViewer.Show ();
 					ExtensionMethods.Refresh (Flags.ActiveSqlViewer);
+					Flags.ActiveSqlViewer.WaitMessage.Visibility = Visibility.Visible;
+					Flags.ActiveSqlViewer.WaitMessage.BringIntoView ();
 
 					//Data is loaded by here .....
-					if((Guid)Flags.CurrentSqlViewer.Tag == Guid.Empty)
+					if ((Guid)Flags.CurrentSqlViewer.Tag == Guid.Empty)
+					{
 						Flags.CurrentSqlViewer.Tag = Guid.NewGuid ();
-					this.Tag = Flags.CurrentSqlViewer.Tag;
+						MainWindow.gv.SqlViewerGuid = (Guid)Flags.CurrentSqlViewer.Tag;
+						// This is fine, new windows do NOT have their Guid when they arrive here
+						this.Tag = Flags.CurrentSqlViewer.Tag;
+					}
 					var tuple = SqlDbViewer.CreateTuple ("DETAILS");
-					//Flags.CurrentSqlViewer.UpdateSqlControl ((Tuple<SqlDbViewer, string, int>)tuple);
 					Flags.CurrentSqlViewer.GetTupleData ((Tuple<SqlDbViewer, string, int>)tuple);
 					Console.WriteLine ($"\nRefresh method called....\n");
 					Console.WriteLine ($"\nNew Details Viewer Fully loaded....\n");
-					//MainWindow.gv.Detviewer = (Guid)Flags.CurrentSqlViewer.Tag;
+					callertype = 2;
+					CallingType = "DETAILS";
 				}
 				else if (selectedItem.ToUpper ().Contains ("BANK ACCOUNTS"))
 				{
@@ -229,14 +278,23 @@ namespace WPFPages.Views
 					ExtensionMethods.Refresh (Flags.ActiveSqlViewer);
 
 					//Data is loaded by here .....
-					Flags.CurrentSqlViewer.Tag = Guid.NewGuid ();
-					this.Tag = Flags.CurrentSqlViewer.Tag;
+					if ((Guid)Flags.CurrentSqlViewer.Tag == Guid.Empty)
+					{
+						Flags.CurrentSqlViewer.Tag = Guid.NewGuid ();
+						MainWindow.gv.SqlViewerGuid = (Guid)Flags.CurrentSqlViewer.Tag;
+
+						// This is fine, new windows do NOT have their Guid when they arrive here
+						this.Tag = Flags.CurrentSqlViewer.Tag;
+					}
 					var tuple = SqlDbViewer.CreateTuple ("BANKACCOUNT");
-//					Flags.CurrentSqlViewer.UpdateSqlControl ((Tuple<SqlDbViewer, string, int>)tuple);
+					//					Flags.CurrentSqlViewer.UpdateSqlControl ((Tuple<SqlDbViewer, string, int>)tuple);
 					Flags.CurrentSqlViewer.GetTupleData ((Tuple<SqlDbViewer, string, int>)tuple);
-					Console.WriteLine ($"\nRefresh method called....");
+					Console.WriteLine ($"\nTuple created successfully....");
 					Console.WriteLine ($"\nNew BankAccount Viewer Fully loaded....\n");
-//					MainWindow.gv.Bankviewer = (Guid)Flags.CurrentSqlViewer.Tag;
+					callertype = 0;
+					CallingType = "BANKACCOUNT";
+
+					//					MainWindow.gv.Bankviewer = (Guid)Flags.CurrentSqlViewer.Tag;
 				}
 				else if (selectedItem.ToUpper ().Contains ("CUSTOMER ACCOUNTS"))
 				{
@@ -250,132 +308,41 @@ namespace WPFPages.Views
 					Flags.ActiveSqlViewer.Show ();
 					ExtensionMethods.Refresh (Flags.ActiveSqlViewer);
 					//Data is loaded by here .....
-					Flags.CurrentSqlViewer.Tag = Guid.NewGuid ();
-					this.Tag = Flags.CurrentSqlViewer.Tag;
+					if ((Guid)Flags.CurrentSqlViewer.Tag == Guid.Empty)
+					{
+						Flags.CurrentSqlViewer.Tag = Guid.NewGuid ();
+						MainWindow.gv.SqlViewerGuid = (Guid)Flags.CurrentSqlViewer.Tag;
+
+						// This is fine, new windows do NOT have their Guid when they arrive here
+						this.Tag = Flags.CurrentSqlViewer.Tag;
+					}
 					var tuple = SqlDbViewer.CreateTuple ("CUSTOMER");
-//					Flags.CurrentSqlViewer.UpdateSqlControl ((Tuple<SqlDbViewer, string, int>)tuple);
+					//					Flags.CurrentSqlViewer.UpdateSqlControl ((Tuple<SqlDbViewer, string, int>)tuple);
 					Flags.CurrentSqlViewer.GetTupleData ((Tuple<SqlDbViewer, string, int>)tuple);
 					Console.WriteLine ($"\nRefresh method called....\n");
 					Console.WriteLine ($"\nNew Customer Viewer Fully loaded....\n");
-//					MainWindow.gv.Custviewer = (Guid)Flags.CurrentSqlViewer.Tag;
+					callertype = 1;
+					CallingType = "CUSTOMER";
+					//					MainWindow.gv.Custviewer = (Guid)Flags.CurrentSqlViewer.Tag;
 				}
 				//When loading a new viewer, the  MainWindow.gv structure is completed correctly !!!!
+				//				MessageBox.Show ("DbSelector has completed the load");
+
+				// LOAD THE VIEWERS LIST HERE TO AVOID ISSUES
+				Flags.SqlViewerIsLoading = true;
+				string s = DbSelector.AddViewerToList ("", Flags.CurrentSqlViewer, callertype);
+				UpdateControlFlags (Flags.CurrentSqlViewer, CallingType, s);
+				Flags.SqlViewerIsLoading = false;
+//				Debugger.Break ();
 			}
 			else if (Command == "DELETEALL")
 			{
-				//Close selected viewer window
-				//ListBoxItem lbi = new ListBoxItem ();
-				//int tag = 0;
-				//lbi = listbox.SelectedItem as ListBoxItem;
-				//tag = (int)lbi.Tag;
-				// iterate the list form bottom up closing windows
-				for (int x = ViewersList.Items.Count - 1; x >= 1; x--)
-				{
-					if (MainWindow.gv.window[x - 1] != null)
-					{
-						MainWindow.gv.window[x - 1].Close ();
-						//Clear All viewer type flags
-						MainWindow.gv.Bankviewer = Guid.Empty;
-						MainWindow.gv.Custviewer = Guid.Empty;
-						MainWindow.gv.Detviewer = Guid.Empty;
-					}
-				}
-				UpdateDataGridController (null);
-				for (int x = ViewersList.Items.Count; x > 1; x--)
-				{
-					ViewersList.Items.RemoveAt (x - 1);
-				}
-				ViewersList.Refresh ();
-				MainWindow.gv.SqlViewerWindow = null;
-				Flags.CurrentSqlViewer.UpdateDbSelectorBtns (Flags.CurrentSqlViewer);
-				return;
+				CloseDeleteAllViewers ();
 			}
 			else if (Command == "DELETE")
 			{
 				//Close selected viewer window
-				int nextWin = -1;
-				ListBoxItem lbi = new ListBoxItem ();
-				Guid tag = Guid.Empty;
-				lbi = listbox.SelectedItem as ListBoxItem;
-				tag = (Guid)lbi.Tag;
-				//First Close the Viewer window itself & update the control structure
-				for (int x = 0; x < MainWindow.gv.MaxViewers; x++)
-				{
-					if (MainWindow.gv.ListBoxId[x] == tag)
-					{
-						//Clear relevant viewer type flag
-						if (MainWindow.gv.Bankviewer == MainWindow.gv.ListBoxId[x])
-							ClearClosingViewer ("BANKACCOUNT", MainWindow.gv.ListBoxId[x]);
-						else if (MainWindow.gv.Custviewer == MainWindow.gv.ListBoxId[x])
-							ClearClosingViewer ("BANKACCOUNT", MainWindow.gv.ListBoxId[x]);
-						else if (MainWindow.gv.Detviewer == MainWindow.gv.ListBoxId[x])
-							ClearClosingViewer ("BANKACCOUNT", MainWindow.gv.ListBoxId[x]);
-
-						SqlDbViewer sqlv = MainWindow.gv.window[x] as SqlDbViewer;
-						UpdateDataGridController (tag);
-						sqlv.Close ();
-						MainWindow.gv.SqlViewerWindow = null;
-						break;
-					}
-				}
-				Debug.WriteLine ($"listbox count = {listbox.Items.Count} before Removeat() ");
-				//Remove the listbox entry
-				listbox.Items.RemoveAt (selected);
-				Debug.WriteLine ($"listbox count = {listbox.Items.Count} after Removeat() ");
-				Debug.WriteLine ($"ViewersList count = {Flags.DbSelectorOpen.ViewersList.Items.Count} after Removeat() ");
-				if (Flags.DbSelectorOpen.ViewersList.Items.Count == 1)
-					Debug.WriteLine ($"All Viewers have been closed and GridView structure is cleared...");
-
-				Flags.DbSelectorOpen.ViewersList.Refresh ();
-				//Now highlight first one in list if we have one
-				if (Flags.DbSelectorOpen.ViewersList.Items.Count > 1)
-				{
-					bool success = false;
-					//					listbox.SelectedIndex = 1;
-					//					ListBoxItem lb = new ListBoxItem ();
-					//					lb = listbox.SelectedItem as ListBoxItem;
-					//					Guid tg = (Guid)lb.Tag;
-					if (Flags.DbSelectorOpen.ViewersList.Items.Count == 1)
-					{
-						Flags.ActiveSqlViewer.UpdateDbSelectorBtns (Flags.ActiveSqlViewer);
-						// Clear global Flags structure
-						Flags.ClearGridviewControlStructure (null, null);
-						return;
-					}
-					else
-					{
-						for (int x = 0; x < MainWindow.gv.ViewerCount; x++)
-						{
-							if (MainWindow.gv.window[x] != null)
-							{
-								success = true;
-								nextWin = x;
-								break;
-							}
-						}
-					}
-					if (success)
-					{
-						MainWindow.gv.window[nextWin].Focus ();
-						MainWindow.gv.window[nextWin].BringIntoView ();
-						MainWindow.gv.window[nextWin].Refresh ();
-						MainWindow.gv.SqlViewerWindow = MainWindow.gv.window[nextWin] as SqlDbViewer;
-//						Flags.CurrentSqlViewer = MainWindow.gv.window[nextWin] as SqlDbViewer;
-						Flags.DbSelectorOpen.ViewersList.SelectedIndex = nextWin;
-//						Flags.SetGridviewControlFlags (Flags.CurrentSqlViewer, MainWindow.gv.Datagrid[nextWin]);
-						Flags.CurrentSqlViewer.UpdateDbSelectorBtns (Flags.CurrentSqlViewer);
-						Flags.CurrentSqlViewer.Focus ();
-						Flags.CurrentSqlViewer.BringIntoView ();
-						ExtensionMethods.Refresh (Flags.CurrentSqlViewer);
-					}
-					else if (MainWindow.gv.ViewerCount == 1)
-					{
-						//no more opeen viewers, so clear control ctructure entirely
-						Flags.SetGridviewControlFlags (Flags.CurrentSqlViewer, null);
-					}
-				}
-				//Reset global flags
-				EventHandlers.ClearWindowHandles (null, Flags.CurrentSqlViewer);
+				DeleteCurrentViewer ();                           
 			}
 			else if (Command == "SELECT")
 			{
@@ -394,6 +361,118 @@ namespace WPFPages.Views
 				}
 			}
 		}
+
+		public void DeleteCurrentViewer()
+		{
+			//Close selected viewer window
+			DeleteViewerAndFlags (ViewersList.SelectedIndex);
+			return;
+
+			int nextWin = -1;
+			ListBoxItem lbi = new ListBoxItem ();
+			Guid tag = Guid.Empty;
+			lbi = ViewersList.SelectedItem as ListBoxItem;
+			tag = (Guid)lbi.Tag;
+			//First Close the Viewer window itself & update the control structure
+			for (int x = 0; x < MainWindow.gv.MaxViewers; x++)
+			{
+				if (MainWindow.gv.ListBoxId[x] == tag)
+				{
+					//Clear relevant viewer type flag
+					if (MainWindow.gv.Bankviewer == MainWindow.gv.ListBoxId[x])
+						ClearClosingViewer ("BANKACCOUNT", MainWindow.gv.ListBoxId[x]);
+					else if (MainWindow.gv.Custviewer == MainWindow.gv.ListBoxId[x])
+						ClearClosingViewer ("BANKACCOUNT", MainWindow.gv.ListBoxId[x]);
+					else if (MainWindow.gv.Detviewer == MainWindow.gv.ListBoxId[x])
+						ClearClosingViewer ("BANKACCOUNT", MainWindow.gv.ListBoxId[x]);
+
+					SqlDbViewer sqlv = MainWindow.gv.window[x] as SqlDbViewer;
+					UpdateDataGridController (tag);
+					sqlv.Close ();
+					MainWindow.gv.SqlViewerWindow = null;
+					break;
+				}
+			}
+			Debug.WriteLine ($"listbox count = {listbox.Items.Count} before Removeat() ");
+			//Remove the listbox entry
+			listbox.Items.RemoveAt (selected);
+			Debug.WriteLine ($"listbox count = {listbox.Items.Count} after Removeat() ");
+			Debug.WriteLine ($"ViewersList count = {Flags.DbSelectorOpen.ViewersList.Items.Count} after Removeat() ");
+			if (Flags.DbSelectorOpen.ViewersList.Items.Count == 1)
+				Debug.WriteLine ($"All Viewers have been closed and GridView structure is cleared...");
+
+			Flags.DbSelectorOpen.ViewersList.Refresh ();
+			//Now highlight first one in list if we have one
+			if (Flags.DbSelectorOpen.ViewersList.Items.Count > 1)
+			{
+				bool success = false;
+				if (Flags.DbSelectorOpen.ViewersList.Items.Count == 1)
+				{
+					Flags.ActiveSqlViewer.UpdateDbSelectorBtns (Flags.ActiveSqlViewer);
+					// Clear global Flags structure
+					Flags.ClearGridviewControlStructure (null, null);
+					return;
+				}
+				else
+				{
+					for (int x = 0; x < MainWindow.gv.ViewerCount; x++)
+					{
+						if (MainWindow.gv.window[x] != null)
+						{
+							success = true;
+							nextWin = x;
+							break;
+						}
+					}
+				}
+				if (success)
+				{
+					MainWindow.gv.window[nextWin].Focus ();
+					MainWindow.gv.window[nextWin].BringIntoView ();
+					MainWindow.gv.window[nextWin].Refresh ();
+					MainWindow.gv.SqlViewerWindow = MainWindow.gv.window[nextWin] as SqlDbViewer;
+					Flags.DbSelectorOpen.ViewersList.SelectedIndex = nextWin;
+					Flags.CurrentSqlViewer.UpdateDbSelectorBtns (Flags.CurrentSqlViewer);
+					Flags.CurrentSqlViewer.Focus ();
+					Flags.CurrentSqlViewer.BringIntoView ();
+					ExtensionMethods.Refresh (Flags.CurrentSqlViewer);
+				}
+				else if (MainWindow.gv.ViewerCount == 1)
+				{
+					//no more opeen viewers, so clear control ctructure entirely
+					Flags.SetGridviewControlFlags (Flags.CurrentSqlViewer, null);
+				}
+			}
+			//Reset global flags
+			EventHandlers.ClearWindowHandles (null, Flags.CurrentSqlViewer);
+		}
+
+		public void CloseDeleteAllViewers()
+		{
+			//Close selected viewer window
+			// iterate the list form bottom up closing windows
+			for (int x = ViewersList.Items.Count - 1; x >= 1; x--)
+			{
+				if (MainWindow.gv.window[x - 1] != null)
+				{
+					MainWindow.gv.window[x - 1].Close ();
+					//Clear All viewer type flags
+					MainWindow.gv.Bankviewer = Guid.Empty;
+					MainWindow.gv.Custviewer = Guid.Empty;
+					MainWindow.gv.Detviewer = Guid.Empty;
+				}
+			}
+			UpdateDataGridController (null);
+			for (int x = ViewersList.Items.Count; x > 1; x--)
+			{
+				ViewersList.Items.RemoveAt (x - 1);
+			}
+			ViewersList.Refresh ();
+			MainWindow.gv.SqlViewerWindow = null;
+			Flags.CurrentSqlViewer.UpdateDbSelectorBtns (Flags.CurrentSqlViewer);
+			return;
+		}
+
 		/// <summary>
 		/// updates the Grid Controller structure when a viewer closes
 		/// </summary>
@@ -402,16 +481,18 @@ namespace WPFPages.Views
 		{
 			if (Tag == null)
 			{
-				for (int y = 0; y < 10 - 1; y++)
-				{
-					//window has been closed - Remove data from Control Structure
-					MainWindow.gv.ViewerCount--;
-					MainWindow.gv.CurrentDb[y] = "";
-					MainWindow.gv.ListBoxId[y] = Guid.Empty;
-					MainWindow.gv.Datagrid[y] = null;
-					MainWindow.gv.window[y] = null;
-					MainWindow.gv.SqlViewerWindow = null;
-				}
+				SqlDbViewer.DeleteViewerAndFlags ();
+
+				//for (int y = 0; y < 10 - 1; y++)
+				//{
+				//	//window has been closed - Remove data from Control Structure
+				//	MainWindow.gv.ViewerCount--;
+				//	MainWindow.gv.CurrentDb[y] = "";
+				//	MainWindow.gv.ListBoxId[y] = Guid.Empty;
+				//	MainWindow.gv.Datagrid[y] = null;
+				//	MainWindow.gv.window[y] = null;
+				//	MainWindow.gv.SqlViewerWindow = null;
+				//}
 				//This needs to be set to ZERO 
 				MainWindow.gv.ViewerCount = 0;
 				MainWindow.gv.PrettyDetails = "";
@@ -437,38 +518,42 @@ namespace WPFPages.Views
 						MainWindow.gv.Datagrid[y] = null;
 						MainWindow.gv.window[y] = null;
 						MainWindow.gv.SqlViewerWindow = null;
-
 						break;
 					}
 				}
 				else
 				{
-					if (lbtag == (Guid)Tag)
-					{
-						MainWindow.gv.CurrentDb[y] = "";
-						MainWindow.gv.ListBoxId[y] = Guid.Empty;
-						MainWindow.gv.Datagrid[y] = null;
-						MainWindow.gv.window[y] = null;
-						MainWindow.gv.SqlViewerWindow = null;
+					SqlDbViewer.DeleteViewerAndFlags ();
+					break;
+					//if (lbtag == (Guid)Tag)
+					//{
+					//	MainWindow.gv.CurrentDb[y] = "";
+					//	MainWindow.gv.ListBoxId[y] = Guid.Empty;
+					//	MainWindow.gv.Datagrid[y] = null;
+					//	MainWindow.gv.window[y] = null;
+					//	MainWindow.gv.SqlViewerWindow = null;
 
-						//This needs to stay at ZERO, no tdecrmeented to -1 like the rest
-						MainWindow.gv.ViewerCount--;
-						break;
-					}
+					//	//This needs to stay at ZERO, no tdecrmeented to -1 like the rest
+					//	MainWindow.gv.ViewerCount--;
+					//	break;
+					//}
 				}
 			}
+			//			MainWindow.gv.ViewerCount = 0;
 		}
 #pragma main viewerslist content updater NEEDED ???
 		/// <summary>
+		/// PRIMARY Fn TO ADD A VIEWER
 		/// Adds the details of the newly loaded viewer window to the DbSelectors ViewersList window
 		/// </summary>
 		/// <param name="data"></param>
-		public static void AddViewerToList (string data, SqlDbViewer viewer)
+		public static string AddViewerToList (string data, SqlDbViewer viewer, int DbType)
 		{
+			if (viewer == null) return "";
 			if (viewer.Tag == null)
-				return;
-			Binding binding = new Binding ("Content");
-			binding.Source = Flags.DbSelectorOpen.ListBoxItemText;
+				return "";
+			//Binding binding = new Binding ("Content");
+			//binding.Source = Flags.DbSelectorOpen.ListBoxItemText;
 			ListBoxItem lbi = new ListBoxItem ();
 			// Set Tag of this LB Item to the DbViewer Windo.w
 			//			lbi.Tag = SqlDbViewer.SequentialId;
@@ -480,29 +565,61 @@ namespace WPFPages.Views
 			}
 			else
 			{
+				if (Flags.CurrentSqlViewer.Tag == null) return "";
 				//Set tag in the Windows Memory space
-				Flags.CurrentSqlViewer.Tag = lbi.Tag;
-
-				//Bind the new lbItem to our Data source
-//				lbi.SetBinding (ContentProperty, binding);
-
+				if ((Guid)Flags.CurrentSqlViewer.Tag == Guid.Empty)
+					Flags.CurrentSqlViewer.Tag = lbi.Tag;
 				//update our DependencyProperty ListBoxItemText - in DbSelector.cs
-				if (data == "")
+				if (DbType == 0)
 				{
-					data = MainWindow.gv.PrettyDetails;
+					BankAccountViewModel rec = new BankAccountViewModel ();
+					rec = Flags.CurrentSqlViewer.BankGrid.SelectedItem as BankAccountViewModel;
+					MainWindow.gv.PrettyDetails = $"Bank - A/c # {rec?.BankNo}, Cust # {rec?.CustNo}, Balance £ {rec?.Balance}, Interest {rec?.IntRate}%";
+					lbi.Content = MainWindow.gv.PrettyDetails;
 				}
-				if (data == "")
-					data = "Temporarily UNKNOWN";
-				Flags.DbSelectorOpen.ListBoxItemText = data;
-				//This is the normal way to update the lists data
-				lbi.Content = data;
-				int indx = Flags.DbSelectorOpen.ViewersList.Items.Add (lbi);
-				Flags.DbSelectorOpen.ViewersList.SelectedIndex = indx;
+				else if (DbType == 1)
+				{
+					CustomerViewModel rec = new CustomerViewModel ();
+					rec = Flags.CurrentSqlViewer.CustomerGrid.SelectedItem as CustomerViewModel;
+					MainWindow.gv.PrettyDetails = $"Customer - A/c # {rec?.BankNo}, Cust # {rec?.CustNo}, Forename: {rec?.FName}, Surname : {rec?.LName}, Town : {rec?.Town}";
+					lbi.Content = MainWindow.gv.PrettyDetails;
+				}
+				else if (DbType == 2)
+				{
+					DetailsViewModel rec = new DetailsViewModel ();
+					rec = Flags.CurrentSqlViewer.DetailsGrid.SelectedItem as DetailsViewModel;
+					MainWindow.gv.PrettyDetails = $"Details - A/c # {rec?.BankNo}, Cust # {rec?.CustNo}, Balance £ {rec?.Balance}, Interest {rec?.IntRate}%";
+					lbi.Content = MainWindow.gv.PrettyDetails;
+				}
+//				data = MainWindow.gv.PrettyDetails;
 			}
+			// This adds the entry on creation of a new viewer.  MainWindow.gv[] is also filled when we get here on new window loading
+			//if (Flags.SqlViewerIsLoading || !CheckForExistingEntry (lbi.Content as string))
+			//{
+			int indx = Flags.DbSelectorOpen.ViewersList.Items.Add (lbi);
+//			MainWindow.gv.PrettyDetails = lbi.Content as string;
+			Flags.DbSelectorOpen.ViewersList.SelectedIndex = indx;
 			Flags.DbSelectorOpen.ViewersList.Items.Refresh ();
 			ExtensionMethods.Refresh (Flags.DbSelectorOpen.ViewersList);
-			//update MainWindow.gv structure
+			return MainWindow.gv.PrettyDetails;
+		}
+		private static bool CheckForExistingEntry (string entry)
+		{
+			bool result = false;
+			ListBoxItem lbi = new ListBoxItem ();
 
+			foreach (var item in Flags.DbSelectorOpen.ViewersList.Items)
+			{
+				lbi = item as ListBoxItem;
+				string lbentry = lbi.Content as string;
+				// Strings are formatted differently, but this check should identify a match
+				if (lbentry.Contains (entry) || entry.Contains (lbentry))
+				{
+					result = true;
+					break;
+				}
+			}
+			return result;
 		}
 		public string GetCurrentViewerListEntry (SqlDbViewer sender)
 		{
@@ -557,7 +674,7 @@ namespace WPFPages.Views
 			//			{
 			//upper listbox - NEW command
 			ListBox listbox = this.sqlSelector;
-			
+
 
 			if (Command == "NEW")
 			{
@@ -603,17 +720,6 @@ namespace WPFPages.Views
 					{
 						string currentRowText = "";
 						MainWindow.gv.ViewerSelectiontype = -1;  // reset flag field for next time
-											 //Stopwatch sw = new Stopwatch ();
-											 //sw.Start ();
-
-						//*****************************************************//
-						// Load and display a new viewer for the selected Db Type
-						// (returned in the selected var from dbSelector window)
-						//*****************************************************//
-						//						DataGridController dg = new DataGridController ();
-						//*****************************************************************************//
-						//This actually loads the SQLDbViewer windows and populates it
-						// and it is fully displayed on screen, but with no data in the grid
 #pragma  WRONG ???
 						//Set pointer to our current Viewer Window
 						dg.CurrentEditDbViewer = Flags.CurrentSqlViewer;
@@ -627,8 +733,8 @@ namespace WPFPages.Views
 						if (selecteditem == 0)
 						{
 
-//							if (bvm.BankAccountObs == null)
-	//							bvm.BankAccountObs = new ObservableCollection<BankAccountViewModel> (BankAccountViewModel.BankList);
+							//							if (bvm.BankAccountObs == null)
+							//							bvm.BankAccountObs = new ObservableCollection<BankAccountViewModel> (BankAccountViewModel.BankList);
 							await TriggeBankDataLoad (Flags.CurrentSqlViewer);
 							Flags.SqlBankGrid.SelectedIndex = 0;
 							SendViewerCommand (103, $"<<< Completed Data Loading for BankAccount [{Flags.SqlBankGrid.Items.Count}]", Flags.CurrentSqlViewer);
@@ -639,8 +745,8 @@ namespace WPFPages.Views
 						}
 						else if (selecteditem == 1)
 						{
-//							if (cvm.CustomersObs == null)
-//								cvm.CustomersObs = new ObservableCollection<CustomerViewModel> (CustomerViewModel.CustomersList);
+							//							if (cvm.CustomersObs == null)
+							//								cvm.CustomersObs = new ObservableCollection<CustomerViewModel> (CustomerViewModel.CustomersList);
 							await TriggerCustomerDataLoad (Flags.CurrentSqlViewer);
 							// This triggers a selectionChanged event in SQLDbViewer
 							Flags.SqlCustGrid.SelectedIndex = 0;
@@ -651,8 +757,8 @@ namespace WPFPages.Views
 						}
 						else if (selecteditem == 2)
 						{
-//							if (dvm.DetailsObs == null)
-//								dvm.DetailsObs = new ObservableCollection<DetailsViewModel> (DetailsViewModel.DetailsList);
+							//							if (dvm.DetailsObs == null)
+							//								dvm.DetailsObs = new ObservableCollection<DetailsViewModel> (DetailsViewModel.DetailsList);
 							await TriggerDetailsDataLoad (Flags.CurrentSqlViewer);
 							Flags.SqlDetGrid.SelectedIndex = 0;
 							SendViewerCommand (103, $"<<< Completed Data Loading for Details  [{Flags.SqlDetGrid.Items.Count}]", Flags.CurrentSqlViewer);
@@ -664,7 +770,9 @@ namespace WPFPages.Views
 						currentRowText = MainWindow.gv.CurrentDb[x];
 
 						// add new entry to the list of open viewers
-						AddViewerToList (MainWindow.gv.PrettyDetails, selecteditem, (Guid)Flags.CurrentSqlViewer.Tag);
+						Flags.SqlViewerIsLoading = true;
+						AddViewerToList (MainWindow.gv.PrettyDetails, Flags.CurrentSqlViewer, selecteditem);
+						Flags.SqlViewerIsLoading = false;
 
 						//Create/Add new viewer entry (ListBoxItem) to Selection viewer Listbox
 						SendViewerCommand (103, "<<< DbSelector has Completed Window Loading", Flags.CurrentSqlViewer);
@@ -672,21 +780,19 @@ namespace WPFPages.Views
 						if (mx == 1)
 						{
 							ListBoxItem lbi = new ListBoxItem ();
-							//The Show() call below forces it to be displayed
 							{
-								//							Binding binding = new Binding ("Content");
-								//							binding.Source = Flags.DbSelectorOpen.ListBoxItemText;
-
 								// Set Tag of this LB Item to the DbViewer Window
 								lbi.Tag = Flags.CurrentSqlViewer.Tag;
-								//Bind the new lbItem to our Data source
-								//							lbi.SetBinding (lbi.ItemSourceProperty, new Binding { Source = Items});
-								//							lbi.SetBinding (ContentProperty, ViewersList);
+								{
+									//Bind the new lbItem to our Data source
+									//							lbi.SetBinding (lbi.ItemSourceProperty, new Binding { Source = Items});
+									//							lbi.SetBinding (ContentProperty, ViewersList);
 
-								//update our DependencyProperty ListBoxItemText - in DbSelector.cs
-								//							Flags.DbSelectorOpen.ListBoxItemText = currentRowText;
-								//This is the normal way to update the lists data
-								//							lbi.Content = Flags.DbSelectorOpen.ListBoxItemText;
+									//update our DependencyProperty ListBoxItemText - in DbSelector.cs
+									//							Flags.DbSelectorOpen.ListBoxItemText = currentRowText;
+									//This is the normal way to update the lists data
+									//							lbi.Content = Flags.DbSelectorOpen.ListBoxItemText;
+								}
 								lbi.Content = MainWindow.gv.PrettyDetails;
 								lbi.Foreground = new SolidColorBrush (Colors.Black);
 
@@ -720,7 +826,7 @@ namespace WPFPages.Views
 								}
 							}
 							if (bvm.BankAccountObs != null)
-								Flags.ActiveSqlGrid.ItemsSource = bvm.BankAccountObs ;
+								Flags.ActiveSqlGrid.ItemsSource = bvm.BankAccountObs;
 
 
 							// This WORKS for details 2/4/21
@@ -771,6 +877,8 @@ namespace WPFPages.Views
 					ListBoxItem lbi = new ListBoxItem ();
 					lbi = ViewersList.Items[selindex] as ListBoxItem;
 
+
+					// THIS IALL WRONG - INDEXING DOES NOT MATCH BETWEEN VIEWER AND GV[]
 					for (int x = 0; x < MainWindow.gv.MaxViewers; x++)
 					{
 						try
@@ -779,9 +887,12 @@ namespace WPFPages.Views
 							{
 								if (MainWindow.gv.ListBoxId[x] == (Guid)lbi.Tag)
 								{
-									// found the match - so delete viewer and remove from Viewers list
+									DeleteViewerAndFlags (x);
+									// found the match - so just close viewer and remove from Viewers list
 									CloseviewerWindow (x);
 									//									ViewersList.Items.RemoveAt (selindex);
+#pragma TODO
+									// Need to remove #lbi as well !!!!!!
 									break;
 								}
 							}
@@ -823,6 +934,9 @@ namespace WPFPages.Views
 						if (ViewersList.Items.Count == x + 1)
 						{
 							ViewersList.Items.RemoveAt (x);
+#pragma TODO
+							// Need to remove #lbi as well !!!!!!
+
 							//							break;
 						}
 					}
@@ -830,52 +944,7 @@ namespace WPFPages.Views
 			}
 
 		}
-		private void AddViewerToList (string currentRowText, int selecteditem, Guid tag)
-		{
-			//Create/Add new viewer entry (ListBoxItem) to Selection viewer Listbox
-			ListBoxItem lbi = new ListBoxItem ();
-			//The Show() call below forces it to be displayed
-			{
-				//				Binding binding = new Binding ("Content");
-				//				binding.Source = Flags.DbSelectorOpen.ListBoxItemText;
 
-				// Set Tag of this LB Item to the DbViewer Window
-				SendViewerCommand (102, ">>> Starting AddViewerToList()", Flags.CurrentSqlViewer);
-
-				lbi.Tag = tag;
-				//Bind the new lbItem to our Data source
-				//				lbi.SetBinding (ContentProperty, binding);
-
-				//update our DependencyProperty ListBoxItemText - in DbSelector.cs
-				Flags.DbSelectorOpen.ListBoxItemText = currentRowText;
-				//This is the normal way to update the lists data
-				//				lbi.Content = Flags.DbSelectorOpen.ListBoxItemText;
-				lbi.Content = MainWindow.gv.PrettyDetails;
-
-				int indx = this.ViewersList.Items.Add (lbi);
-				this.ViewersList.SelectedIndex = indx;
-				this.ViewersList.Items.Refresh ();
-				ExtensionMethods.Refresh (this.ViewersList);
-
-				if (this.ViewersList.Items.Count > 1)
-				{
-					if (this.ViewersList.Items.Count > 1)
-						this.ViewerDeleteAll.IsEnabled = true;
-					else
-						this.ViewerDeleteAll.IsEnabled = false;
-					this.ViewerDelete.IsEnabled = true;
-					this.SelectViewerBtn.IsEnabled = true;
-				}
-				this.ViewersList.BringIntoView ();
-				ExtensionMethods.Refresh (this.ViewersList);
-				// This WORKS for details 2/4/21
-				Debug.WriteLine ($" *** Current Active...3 =  {Flags.ActiveSqlGridStr}\r\n");
-				if (Flags.ActiveSqlGrid?.ItemsSource != null)
-					CollectionViewSource.GetDefaultView (Flags.ActiveSqlGrid.ItemsSource).Refresh ();
-				SendViewerCommand (103, "<<< Ended AddViewerToList()", Flags.CurrentSqlViewer);
-				Mouse.OverrideCursor = Cursors.Arrow;
-			}
-		}
 
 		//*****************************************************//
 		#endregion Receive notifications from SqlViewer
@@ -912,27 +981,31 @@ namespace WPFPages.Views
 			SendViewerCommand (102, ">>> Starting OnWindowLoaded()", Flags.CurrentSqlViewer);
 			int counter = 0;
 
+
+
+//			AddViewerToList (MainWindow.gv.PrettyDetails, Flags.CurrentSqlViewer);
+
 			//Try to populate our list of existing Viewers
-			for (int x = 0; x < MainWindow.gv.MaxViewers; x++)
-			{
-				if (MainWindow.gv.window[x] != null)
-				{
-					ListBoxItem lbi = new ListBoxItem ();
+			//for (int x = 0; x < MainWindow.gv.MaxViewers; x++)
+			//{
+			//	if (MainWindow.gv.window[x] != null)
+			//	{
+			//		ListBoxItem lbi = new ListBoxItem ();
 
-					Binding binding = new Binding ("ListBoxItemText");
-					binding.Source = ListBoxItemText;
-					//lbi.SetBinding (ContentProperty, binding);
-					lbi.Content = MainWindow.gv.PrettyDetails;
+			//		Binding binding = new Binding ("ListBoxItemText");
+			//		binding.Source = ListBoxItemText;
+			//		//lbi.SetBinding (ContentProperty, binding);
+			//		lbi.Content = MainWindow.gv.PrettyDetails;
 
-					ViewersList.SelectedIndex = ViewersList.Items.Add (lbi);
+			//		ViewersList.SelectedIndex = ViewersList.Items.Add (lbi);
 
-					//Inital values going into our listbox item (entry)!!
-					lbi.Tag = MainWindow.gv.ListBoxId[x];
-					counter++;
-					//					ViewerDelete.IsEnabled = true;
-					//					SelectViewerBtn.IsEnabled = true;
-				}
-			}
+			//		//Inital values going into our listbox item (entry)!!
+			//		lbi.Tag = MainWindow.gv.ListBoxId[x];
+			//		counter++;
+			//		//					ViewerDelete.IsEnabled = true;
+			//		//					SelectViewerBtn.IsEnabled = true;
+			//	}
+			//}
 			//Set default active item to 1st valid entry
 			if (counter == 0)
 			{
@@ -1108,7 +1181,7 @@ namespace WPFPages.Views
 					lb.SelectedIndex--;
 				return;
 			}
-			else if (e.Key == Key.Home )
+			else if (e.Key == Key.Home)
 			{
 				Flags.ListGridviewControlFlags ();
 				return;
@@ -1253,8 +1326,8 @@ namespace WPFPages.Views
 					cvm.LoadCustomersTask ();
 				});
 			});
-			
-//			NewSqlViewer.CustomerGrid.ItemsSource = cvm.CustomersObs;
+
+			//			NewSqlViewer.CustomerGrid.ItemsSource = cvm.CustomersObs;
 			SendViewerCommand (103, "<<< Ended TriggerCustomerDataLoad()", Flags.ActiveSqlViewer);
 		}
 		private async Task TriggerDetailsDataLoad (SqlDbViewer NewSqlViewer)
@@ -1265,13 +1338,13 @@ namespace WPFPages.Views
 			SendViewerCommand (102, ">>> Starting TriggerDetailsDataLoad()", Flags.ActiveSqlViewer);
 			await Task.Factory.StartNew (() =>
 			{
-				//Dispatcher.Invoke (() =>
-				//{
-				//	DetailsViewModel.LoadDetailsTask ();
-				//});
-				dvm.LoadDetailsTask ();
+			//Dispatcher.Invoke (() =>
+			//{
+			//	DetailsViewModel.LoadDetailsTask ();
+			//});
+			dvm.LoadDetailsTask ();
 			});
-//			Flags.CurrentActiveGrid.ItemsSource = dvm.DetailsObs ;
+			//			Flags.CurrentActiveGrid.ItemsSource = dvm.DetailsObs ;
 			SendViewerCommand (102, ">>> Ended  TriggerDetailsDataLoad()", Flags.ActiveSqlViewer);
 		}
 		#endregion Task loading for each Grid type
@@ -1281,88 +1354,71 @@ namespace WPFPages.Views
 			Console.WriteLine ($"\r\n######### Received [ONDATALOADED] Event trigger from DbSelector #########");
 			Console.WriteLine ($"LoadedEventArgs = {e.CallerDb }\r\n");
 		}
-		private void AddViewerToListFromTuple (Tuple<SqlDbViewer, string, int> tuple)
-		{
-			//Create/Add new viewer entry (ListBoxItem) to Selection viewer Listbox
-			/*
-				 Item1 = current SqlDbViewer
-				Item2 = CurrentDb string`
-				Item3 = Grid.SelectedIndex
-			 */
-			ListBoxItem lbi = new ListBoxItem ();
-			{
-				// Set Tag of this LB Item to the DbViewer Window
-				SendViewerCommand (102, ">>> Starting AddViewerToListFromTuple()", Flags.CurrentSqlViewer);
-				SqlDbViewer sqlv = tuple.Item1 as SqlDbViewer;
-				lbi.Tag = sqlv.Tag;
-				Flags.DbSelectorOpen.ListBoxItemText = ">>>>>>>>>>>";
-				//This is the normal way to update the lists data
-				if (tuple.Item2 == "BANKACCOUNT")
-				{
-					var v = sqlv.BankGrid.SelectedItem as BankAccountViewModel;
+//		private void AddViewerToListFromTuple (Tuple<SqlDbViewer, string, int> tuple)
+//		//NOT USED
+//		{
+//			//Create/Add new viewer entry (ListBoxItem) to Selection viewer Listbox
+//			/*
+//				 Item1 = current SqlDbViewer
+//				Item2 = CurrentDb string`
+//				Item3 = Grid.SelectedIndex
+//			 */
+//			ListBoxItem lbi = new ListBoxItem ();
+//			{
+//				// Set Tag of this LB Item to the DbViewer Window
+//				SendViewerCommand (102, ">>> Starting AddViewerToListFromTuple()", Flags.CurrentSqlViewer);
+//				SqlDbViewer sqlv = tuple.Item1 as SqlDbViewer;
+//				lbi.Tag = sqlv.Tag;
+//				Flags.DbSelectorOpen.ListBoxItemText = ">>>>>>>>>>>";
+//				//This is the normal way to update the lists data
+//				if (tuple.Item2 == "BANKACCOUNT")
+//				{
+//					var v = sqlv.BankGrid.SelectedItem as BankAccountViewModel;
 
-				}
-				else if (tuple.Item2 == "CUSTOMER")
-				{
-					var v = sqlv.BankGrid.SelectedItem as CustomerViewModel;
+//				}
+//				else if (tuple.Item2 == "CUSTOMER")
+//				{
+//					var v = sqlv.BankGrid.SelectedItem as CustomerViewModel;
 
-				}
-				else if (tuple.Item2 == "DETAILS")
-				{
-					var v = sqlv.BankGrid.SelectedItem as DetailsViewModel;
+//				}
+//				else if (tuple.Item2 == "DETAILS")
+//				{
+//					var v = sqlv.BankGrid.SelectedItem as DetailsViewModel;
 
-				}
-				lbi.Content = MainWindow.gv.PrettyDetails;
+//				}
 
-				int indx = this.ViewersList.Items.Add (lbi);
-				this.ViewersList.SelectedIndex = indx;
-				this.ViewersList.Items.Refresh ();
-				ExtensionMethods.Refresh (this.ViewersList);
+////				AddViewerToList (MainWindow.gv.PrettyDetails, Flags.CurrentSqlViewer);
 
-				if (this.ViewersList.Items.Count > 1)
-				{
-					if (this.ViewersList.Items.Count > 1)
-						this.ViewerDeleteAll.IsEnabled = true;
-					else
-						this.ViewerDeleteAll.IsEnabled = false;
-					this.ViewerDelete.IsEnabled = true;
-					this.SelectViewerBtn.IsEnabled = true;
-				}
-				//NewSqlViewer.WaitMessage.Visibility = Visibility.Collapsed;
-				//if (selecteditem == 0)
-				//{       //Bank
-				//	NewSqlViewer.BankGrid.Visibility = Visibility.Visible;
-				//	//										NewSqlViewer.Show_
-				//}
-				//else if (selecteditem == 1)
-				//{
-				//	{ // Customer
-				//		NewSqlViewer.CustomerGrid.Visibility = Visibility.Visible;
-				//		NewSqlViewer.CustomerGrid.SelectedIndex = 1;
-				//	}
-				//}
-				//else if (selecteditem == 2)
-				//{
-				//	//Details
-				//	NewSqlViewer.DetailsGrid.Visibility = Visibility.Visible;
-				//}
-				//if (bvm.BankAccountObs != null)
-				//	Flags.ActiveSqlGrid.ItemsSource = bvm.BankAccountObs ;
+//				//lbi.Content = MainWindow.gv.PrettyDetails;
 
-				this.ViewersList.BringIntoView ();
-				ExtensionMethods.Refresh (this.ViewersList);
-				// This WORKS for details 2/4/21
-				Debug.WriteLine ($" *** Current Active...3 =  {Flags.ActiveSqlGridStr}\r\n");
-				if (Flags.ActiveSqlGrid?.ItemsSource != null)
-					CollectionViewSource.GetDefaultView (Flags.ActiveSqlGrid.ItemsSource).Refresh ();
-				SendViewerCommand (103, "<<< Ended AddViewerToList()", Flags.CurrentSqlViewer);
+//				//int indx = this.ViewersList.Items.Add (lbi);
+//				//this.ViewersList.SelectedIndex = indx;
+//				this.ViewersList.Items.Refresh ();
+//				ExtensionMethods.Refresh (this.ViewersList);
 
-				Mouse.OverrideCursor = Cursors.Arrow;
+//				if (this.ViewersList.Items.Count > 1)
+//				{
+//					if (this.ViewersList.Items.Count > 1)
+//						this.ViewerDeleteAll.IsEnabled = true;
+//					else
+//						this.ViewerDeleteAll.IsEnabled = false;
+//					this.ViewerDelete.IsEnabled = true;
+//					this.SelectViewerBtn.IsEnabled = true;
+//				}
+//				this.ViewersList.BringIntoView ();
+//				ExtensionMethods.Refresh (this.ViewersList);
+//				// This WORKS for details 2/4/21
+//				Debug.WriteLine ($" *** Current Active...3 =  {Flags.ActiveSqlGridStr}\r\n");
+//				if (Flags.ActiveSqlGrid?.ItemsSource != null)
+//					CollectionViewSource.GetDefaultView (Flags.ActiveSqlGrid.ItemsSource).Refresh ();
+//				SendViewerCommand (103, "<<< Ended AddViewerToList()", Flags.CurrentSqlViewer);
 
-				//				dg.CurrentSqlViewer.Focus ();
-				//				break;
-			}
-		}
+//				Mouse.OverrideCursor = Cursors.Arrow;
+
+//				//				dg.CurrentSqlViewer.Focus ();
+//				//				break;
+//			}
+//		}
 
 
 	}

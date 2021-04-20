@@ -410,7 +410,7 @@
 			<Button Width="85" Height="35" Margin="1"
 				FontSize="11"
 				IsEnabled="true"
-				Focusable="True"
+				Focusable="True"				
 				Content="Close Viewer"
 				MouseDown="Window_MouseDown"
 				Background="{StaticResource HeaderBrushRed}"	
@@ -641,7 +641,8 @@
 				TargetUpdated="CustomerGrid_TargetUpdated"  
 				TabIndex="2"
 				VerticalGridLinesBrush="{StaticResource Orange0}"
-				Visibility="Collapsed" Margin="0,0,-25,0" >
+				Visibility="Collapsed" 
+				Margin="0,0,-25,0" >
 				<!--MouseDown="CustomerGrid_MouseDown"-->
 				<!--VerticalContentAlignment="Center"-->
 				<!--PreparingCellForEdit="CustomerGrid_PreparingCellForEdit"-->

@@ -34,12 +34,12 @@ namespace WPFPages
 		public override void OnUnhandledException (Exception e)
 		{
 			Application.Current.Dispatcher.BeginInvoke (new Action (() => {
-				var exceptionWindow = new ExceptionWindow ();
+			var exceptionWindow = new ExceptionWindow ();
 				exceptionWindow.DataContext = new ExceptionWindowVM (e);
 				exceptionWindow.Show ();
 			}));
-		}
 	}
+}
 
 	public abstract class GlobalExceptionHandlerBase
 	{
@@ -136,5 +136,6 @@ namespace WPFPages
 //			return e.ExceptionObject as Exception ??
 //			    new UnknownAppDomainException ($"AppDomainUnhandledException: Unknown exceptionobject: {e.ExceptionObject}");
 		}
-	}
+}
+
 }

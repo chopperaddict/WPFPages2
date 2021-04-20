@@ -40,7 +40,6 @@ namespace WPFPages.ViewModels
 		public BankAccountViewModel ()
 		{
 			BankAccountObs.CollectionChanged += BankAccountObs_CollectionChanged1;
-
 		}
 
 		private void BankAccountObs_CollectionChanged1 (object sender, NotifyCollectionChangedEventArgs e)
@@ -48,7 +47,6 @@ namespace WPFPages.ViewModels
 			Type t = sender.GetType ();
 			if (!t.FullName.Contains ("ViewModels.BankAccountViewModel"))
 				Console.WriteLine ($"BankAccountViewModel has received a notofication that collection \"{t.FullName}\"has changed..... YEAH");
-
 		}
 
 		public void BankAccountObsChanged (object o, NotifyCollectionChangedEventArgs e)
@@ -254,7 +252,8 @@ namespace WPFPages.ViewModels
 #else
 			{
 				await FillBankAccountDataGrid ();
-				LoadBankAccountObsCollection ();
+				await LoadBankAccountObsCollection ();
+				Task.WaitAll ();
 			}
 #endif
 			Mouse.OverrideCursor = Cursors.Arrow;
@@ -264,11 +263,11 @@ namespace WPFPages.ViewModels
 		///<summary>
 		/// fill DataTable with data from SQL BankAccount database
 		/// </summary>
-		public async Task<bool> FillBankAccountDataGrid ()
+		public  async Task<bool>  FillBankAccountDataGrid ()
 		{
 			//clear the datatable first as we are only showing a subset
 			if (dtBank.Rows.Count > 0)
-				return false;
+				return  false;
 			if (dtBank.Rows.Count > 0)
 				dtBank.Clear ();
 			dtBank = LoadSqlData (dtBank);
@@ -276,10 +275,10 @@ namespace WPFPages.ViewModels
 			// dtBank should be fully loaded here
 		}
 		//**************************************************************************************************************************************************************//
-		public async Task LoadBankAccountIntoList (DataTable dtBank)
+		public async Task<bool> LoadBankAccountIntoList (DataTable dtBank)
 		{
 			if (BankAccountObs.Count > 0)
-				return;
+				return false;
 			//This DOES access the Bank/Account Class properties !!!!!
 			for (int i = 0; i < dtBank.Rows.Count; ++i)
 			{
@@ -297,7 +296,8 @@ namespace WPFPages.ViewModels
 			}
 			Console.WriteLine ($"Loaded Sql data into BankAccountObs directly....");
 
-			//			return true;
+			return true;
+		
 		}
 		public async Task OldLoadBankAccountIntoList (List<BankAccountViewModel> Banklist, DataTable dtBank)
 		{
@@ -322,7 +322,7 @@ namespace WPFPages.ViewModels
 		}
 
 		//**************************************************************************************************************************************************************//
-		public async void LoadBankAccountObsCollection ()
+		public async Task<bool>  LoadBankAccountObsCollection ()
 		{
 			if (this.BankAccountObs != null && this.BankAccountObs.Count > 0)
 			{
@@ -368,7 +368,7 @@ namespace WPFPages.ViewModels
 
 			//			if (Flags.ActiveSqlGrid != null)
 			//				Flags.ActiveSqlGrid.ItemsSource = CollectionViewSource.GetDefaultView (bvm.BankAccountObs );
-			//			return true;
+			return true;
 		}
 
 		#endregion data loading stuff
