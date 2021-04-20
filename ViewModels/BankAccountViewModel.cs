@@ -59,7 +59,7 @@ namespace WPFPages.ViewModels
 			SqlDbViewer sqlv = new SqlDbViewer ('A');
 			// assign event handler function
 			sqlv.NotifyOfDataChange += DbHasChanged;
-			CollectionChanged += test;
+//			CollectionChanged += test;
 			BankAccountObs.CollectionChanged += BankAccountObsChanged;
 			EventHandlers.ShowSubscribersCount();
 		}
@@ -75,7 +75,7 @@ namespace WPFPages.ViewModels
 		{
 			DataGrid cvm = sender as DataGrid;
 			if (cvm.Name != "BankGrid")
-				Console.WriteLine ($"\n^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nBankAccount View Model has received DbHasChanged notification\ndue toUpdate of \"{args.DbName}\" Db");
+				Console.WriteLine ($"\nBankAccount ViewModel received Data Change in \"{args.DbName}\" Db");
 			if (args.DbName != "BANKACCOUNT")
 			{
 				// need to update our Collection
@@ -91,7 +91,7 @@ namespace WPFPages.ViewModels
 							int curr = Flags.SqlBankGrid.SelectedIndex;
 							if (curr >= 0)
 							{
-								LoadBankTask ();
+								LoadBankTaskInSortOrder();
 								Flags.SqlBankGrid.SelectedIndex = curr;
 								Flags.SqlBankGrid.Refresh ();
 							}
@@ -213,7 +213,7 @@ namespace WPFPages.ViewModels
 		#region data loading stuff
 
 		//**************************************************************************************************************************************************************//
-		public async Task LoadBankTask ()
+		public async Task LoadBankTask (int mode = -1)
 		{
 			//Create the one and only dtBank instance if not already there
 			if (dtBank == null)
@@ -263,14 +263,14 @@ namespace WPFPages.ViewModels
 		///<summary>
 		/// fill DataTable with data from SQL BankAccount database
 		/// </summary>
-		public  async Task<bool>  FillBankAccountDataGrid ()
+		public  async Task<bool>  FillBankAccountDataGrid (int mode = -1)
 		{
 			//clear the datatable first as we are only showing a subset
 			if (dtBank.Rows.Count > 0)
 				return  false;
 			if (dtBank.Rows.Count > 0)
 				dtBank.Clear ();
-			dtBank = LoadSqlData (dtBank);
+			dtBank = LoadSqlData (dtBank, mode);
 			return true;
 			// dtBank should be fully loaded here
 		}
@@ -294,7 +294,7 @@ namespace WPFPages.ViewModels
 					CDate = Convert.ToDateTime (dtBank.Rows[i][7]),
 				});
 			}
-			Console.WriteLine ($"Loaded Sql data into BankAccountObs directly....");
+			Console.WriteLine ($"Sql data loaded into BankAccountObs [{BankAccountObs.Count}] ....");
 
 			return true;
 		
@@ -372,6 +372,28 @@ namespace WPFPages.ViewModels
 		}
 
 		#endregion data loading stuff
+		#region CallBacks
+
+		public async Task<bool> LoadBankTaskInSortOrder (int mode = -1)
+		{
+			/*
+			if (mode == -1)		// default
+				commandline += "CustNo";
+			else if (mode == 1)
+				commandline += "BankNo";
+			else if (mode == 2)
+				commandline += "Id";
+			else if (mode == 3)
+				commandline += "AcType";
+			else if (mode == 4)
+				commandline += "Dob";
+			else if (mode == 5)
+				commandline += "Odate";
+			 * */
+			await LoadBankTask(mode);
+			return true;
+		}
+		#endregion CallBacks
 	}
 }
 

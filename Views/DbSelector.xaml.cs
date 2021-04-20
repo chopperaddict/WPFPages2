@@ -64,53 +64,48 @@ namespace WPFPages.Views
 		/// </summary>
 		public static void MyNotification (int status, string info, SqlDbViewer NewSqlViewer)
 		{
-			//Debug.WriteLine ($"\r\nDBSELECTOR - Command : [{status}] Received");
-			//Debug.WriteLine ($"Info : [{info}]\r\n");
-			//Debug.Assert (ListBoxItem.TagProperty != null);
 			switch (status)
 			{
-				case 25:
-					Console.WriteLine ($"DBSELECTOR - Viewer is ready  for relevant data to be loaded for the DataGrid");
-					break;
-				case 101:       // Data needs loading, so tell viewer to do it
-					Console.WriteLine ($"DBSELECTOR  : {status}  [{info}]");
-					break;
+//				case 25:
+//					Console.WriteLine ($"DBSELECTOR NOTIFICATION - Viewer is ready  for relevant data to be loaded for the DataGrid");
+//					break;
 				case 102:       // Starting a method
-					Console.WriteLine ($"DBSELECTOR  : {status}  [{info}]");
+					Console.WriteLine ($"DBSELECTOR NOTIFICATION : {status}  [{info}]");
 					break;
 				case 103:       // Ending a process
-					Console.WriteLine ($"DBSELECTOR : {status}  [{info}]");
+					Console.WriteLine ($"DBSELECTOR NOTIFICATION: {status}  [{info}]");
 					break;
 				case 111:       // Info reports
-					Console.WriteLine ($"DBSELECTOR Info : [{status}] - [{info}]");
+					Console.WriteLine ($"DBSELECTOR NOTIFICATION : [{status}] - [{info}]");
 					break;
 				default:
-					Console.WriteLine ($"DBSELECTOR - ?? : [{status}], [{info}]");
+					Console.WriteLine ($"DBSELECTOR NOTIFICATION : [{status}], [{info}]");
 					break;
 			}
 
 			if (status == 25)
 			{
 				// VERY IMPORTANT MSG - Send 100 Command to Tell Viewer to load data 
-				Console.WriteLine ($"\r\nDBSELECTOR - Received : {status}  command - Calling InitialLoad() to load data in SqlDbv\r\n");
+				Console.WriteLine ($"\r\nDBSELECTOR COMMAND : [{status}] -  Calling InitialLoad() to load data in SqlDbv\r\n");
 				Flags.DbSelectorOpen.SendViewerCommand (100, $"{info}", null);
 			}
 			else if (status == 99)
 			{
-				Console.WriteLine ($"\r\nDBSELECTOR - Received [{status}]  - Window is closing down\r\n");
+				Console.WriteLine ($"\r\nDBSELECTOR NOTIFICATION : Received [{status}]  - Window is closing down\r\n");
 			}
 			else if (status == 100)
 			{
-				Console.WriteLine ($"\r\nDBSELECTOR - Received TEST SIGNAL {status} from SqlDbViewer\r\n");
+				Console.WriteLine ($"\r\nDBSELECTOR NOTIFICATION : Received TEST SIGNAL {status} from SqlDbViewer\r\n");
 			}
 			else if (status == 101)
 			{
 #pragma This is the one that works well
 				// info contains the text to be added to the Viewers ListBox
+				Console.WriteLine ($"\r\nDBSELECTOR - Received request [{status}] to Add Viewer to Current Viewers List.\r\n");
 				Flags.SqlViewerIsLoading = true;
 				DbSelector.AddViewerToList (info, NewSqlViewer, -1);
 				Flags.SqlViewerIsLoading = false;
-				Console.WriteLine ($"\r\nDBSELECTOR - Received [{status}] from SqlDbViewer to Add Viewer to List of Current Viewers \r\n");
+				Console.WriteLine ($"\r\nDBSELECTOR - Viewer ADDED to List of Current Viewers \r\n");
 #pragma TODO  ADD an entry into Flags.gv for this new viewer
 			}
 		}
@@ -141,7 +136,9 @@ namespace WPFPages.Views
 			this.MouseDown += delegate { DoDragMove (); };
 			//This DOES send a message to SqlDbViewer !!
 			SendViewerCommand (103, "<<< Completed DbSelector basic Constructor", null);
+#if USEDETAILEDEXCEPTIONHANDLER
 			Console.WriteLine ($" \r\n%%%%%%%%%%%%%%% DbSelector Constructor completed %%%%%%%%%%%%%%\r\n");
+#endif
 			Utils.GetWindowHandles ();
 
 		}
@@ -215,6 +212,7 @@ namespace WPFPages.Views
 				}
 			}	
 		}
+
 		private async void HandleSelection (ListBox listbox, string Command)
 		{
 			// Called when Opening/ Closing/deleting a Db Viewer window
@@ -243,14 +241,14 @@ namespace WPFPages.Views
 					}
 
 					// LOADS THE WINDOW HERE
-					Flags.ActiveSqlViewer = new SqlDbViewer ("DETAILS");
+					Flags.ActiveSqlViewer =  new SqlDbViewer ("DETAILS");
 					Flags.ActiveSqlViewer.BringIntoView ();
 					Flags.ActiveSqlViewer.Show ();
 					ExtensionMethods.Refresh (Flags.ActiveSqlViewer);
 					Flags.ActiveSqlViewer.WaitMessage.Visibility = Visibility.Visible;
 					Flags.ActiveSqlViewer.WaitMessage.BringIntoView ();
 
-					//Data is loaded by here .....
+					//Window is visible & Data is loaded by here .....
 					if ((Guid)Flags.CurrentSqlViewer.Tag == Guid.Empty)
 					{
 						Flags.CurrentSqlViewer.Tag = Guid.NewGuid ();
@@ -260,8 +258,7 @@ namespace WPFPages.Views
 					}
 					var tuple = SqlDbViewer.CreateTuple ("DETAILS");
 					Flags.CurrentSqlViewer.GetTupleData ((Tuple<SqlDbViewer, string, int>)tuple);
-					Console.WriteLine ($"\nRefresh method called....\n");
-					Console.WriteLine ($"\nNew Details Viewer Fully loaded....\n");
+					SendViewerCommand (103, "\nNew Details Viewer Fully loaded....\n", null);
 					callertype = 2;
 					CallingType = "DETAILS";
 				}
@@ -289,8 +286,8 @@ namespace WPFPages.Views
 					var tuple = SqlDbViewer.CreateTuple ("BANKACCOUNT");
 					//					Flags.CurrentSqlViewer.UpdateSqlControl ((Tuple<SqlDbViewer, string, int>)tuple);
 					Flags.CurrentSqlViewer.GetTupleData ((Tuple<SqlDbViewer, string, int>)tuple);
-					Console.WriteLine ($"\nTuple created successfully....");
-					Console.WriteLine ($"\nNew BankAccount Viewer Fully loaded....\n");
+//					Console.WriteLine ($"\nTuple created successfully....");
+					SendViewerCommand (103, "\nNew BankAccount Viewer Fully loaded....\n", null);
 					callertype = 0;
 					CallingType = "BANKACCOUNT";
 
@@ -319,11 +316,9 @@ namespace WPFPages.Views
 					var tuple = SqlDbViewer.CreateTuple ("CUSTOMER");
 					//					Flags.CurrentSqlViewer.UpdateSqlControl ((Tuple<SqlDbViewer, string, int>)tuple);
 					Flags.CurrentSqlViewer.GetTupleData ((Tuple<SqlDbViewer, string, int>)tuple);
-					Console.WriteLine ($"\nRefresh method called....\n");
-					Console.WriteLine ($"\nNew Customer Viewer Fully loaded....\n");
+					SendViewerCommand (103, "\nNew Customer Viewer Fully loaded....\n", null);
 					callertype = 1;
 					CallingType = "CUSTOMER";
-					//					MainWindow.gv.Custviewer = (Guid)Flags.CurrentSqlViewer.Tag;
 				}
 				//When loading a new viewer, the  MainWindow.gv structure is completed correctly !!!!
 				//				MessageBox.Show ("DbSelector has completed the load");
@@ -951,7 +946,7 @@ namespace WPFPages.Views
 
 		public int selection = 0;
 		private int CurrentList = -1;
-		private Window thiswin;
+//		private Window thiswin;
 
 
 		// Variable to hold string content for ListBox items in ViewerList of DbSelector.
@@ -1304,13 +1299,14 @@ namespace WPFPages.Views
 			// so we should Functionalise this lot so we can have the viewer window shown fuly painted.
 			//and we need to do the same in SqlDbViewer
 			SendViewerCommand (102, ">>> Starting TriggerBankDataLoad()", Flags.ActiveSqlViewer);
-			await Task.Factory.StartNew (() =>
-			{
-				Dispatcher.Invoke (() =>
-				{
-					bvm.LoadBankTask ();
-				});
-			});
+			//await Task.Factory.StartNew (() =>
+			//{
+			//	Dispatcher.Invoke (() =>
+			//	{
+			//		bvm.LoadBankTaskInSortOrder (-1);
+			//	});
+			//});
+			bvm.LoadBankTaskInSortOrder (-1);
 			SendViewerCommand (103, "<<< Ended TriggerBankDataLoad()", Flags.ActiveSqlViewer);
 		}
 		private async Task TriggerCustomerDataLoad (SqlDbViewer NewSqlViewer)
@@ -1319,13 +1315,14 @@ namespace WPFPages.Views
 			// so we should Functionalise this lot so we can have the viewer window shown fuly painted.
 			//and we need to do the same in SqlDbViewer
 			SendViewerCommand (102, ">>> Starting TriggerCustomerDataLoad()", Flags.ActiveSqlViewer);
-			await Task.Factory.StartNew (() =>
-			{
-				Dispatcher.Invoke (() =>
-				{
-					cvm.LoadCustomersTask ();
-				});
-			});
+			//await Task.Factory.StartNew (() =>
+			//{
+			//	Dispatcher.Invoke (() =>
+			//	{
+			//		cvm.LoadCustomerTaskInSortOrder (-1);
+			//	});
+			//});
+			cvm.LoadCustomerTaskInSortOrder (-1);
 
 			//			NewSqlViewer.CustomerGrid.ItemsSource = cvm.CustomersObs;
 			SendViewerCommand (103, "<<< Ended TriggerCustomerDataLoad()", Flags.ActiveSqlViewer);
@@ -1336,14 +1333,14 @@ namespace WPFPages.Views
 			// so we should Functionalise this lot so we can have the viewer window shown fuly painted.
 			//and we need to do the same in SqlDbViewer
 			SendViewerCommand (102, ">>> Starting TriggerDetailsDataLoad()", Flags.ActiveSqlViewer);
-			await Task.Factory.StartNew (() =>
-			{
-			//Dispatcher.Invoke (() =>
+			//await Task.Factory.StartNew (() =>
 			//{
-			//	DetailsViewModel.LoadDetailsTask ();
+			//	//Dispatcher.Invoke (() =>
+			//	//{
+			//	//	DetailsViewModel.LoadDetailsTaskInSortOrder (-1);
+			//	//});
 			//});
-			dvm.LoadDetailsTask ();
-			});
+			dvm.LoadDetailsTaskInSortOrder (-1);
 			//			Flags.CurrentActiveGrid.ItemsSource = dvm.DetailsObs ;
 			SendViewerCommand (102, ">>> Ended  TriggerDetailsDataLoad()", Flags.ActiveSqlViewer);
 		}

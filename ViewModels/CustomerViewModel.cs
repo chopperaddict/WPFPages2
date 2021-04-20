@@ -91,7 +91,7 @@ namespace WPFPages.ViewModels
 		{
 			Type t = sender.GetType ();
 			if (!t.FullName.Contains ("ViewModels.CustomerViewModel"))
-				Console.WriteLine ($"CustomerViewModel has received a notofication that  the Customer Obs collection has changhed..... YEAH");
+				Console.WriteLine ($"CustomerViewModel has received a notofication that  the Customer Obs collection has changed..... YEAH");
 		}
 		public void SubscribeToChangeEvents ()
 		{
@@ -109,7 +109,7 @@ namespace WPFPages.ViewModels
 		{
 			DataGrid cvm = sender as DataGrid;
 			if (cvm.Name != "CustomerGrid")
-				Console.WriteLine ($"\n^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nCustomerViewModel has received DbHasChanged notification\ndue toUpdate of \"{args.DbName}\" Db");
+				Console.WriteLine ($"\nCustomerViewModel received Data Change in \"{args.DbName}\" Db");
 			if (args.DbName != "CUSTOMER")
 			{
 				// need to update our Collection
@@ -128,7 +128,7 @@ namespace WPFPages.ViewModels
 							int curr = Flags.SqlCustGrid.SelectedIndex;
 							if (curr >= 0)
 							{
-								LoadCustomersTask ();
+								LoadCustomerTaskInSortOrder ();
 								Flags.SqlCustGrid.SelectedIndex = curr;
 								Flags.SqlCustGrid.Refresh ();
 							}
@@ -327,7 +327,7 @@ namespace WPFPages.ViewModels
 
 		static async Task HandleTask (Task task)
 		{
-			task.Await (OnCompleted);
+			await (task);
 			int x = 0;
 			if (x != 0)
 			{
@@ -405,7 +405,7 @@ namespace WPFPages.ViewModels
 		///  Called from DBSELECTOR
 		/// </summary>
 		/// <param> </param>
-		public async Task<bool> LoadCustomersTask ()
+		public async Task<bool> LoadCustomersTask (int mode = -1)
 		{
 			Mouse.OverrideCursor = Cursors.Wait;
 
@@ -446,7 +446,7 @@ namespace WPFPages.ViewModels
 			}
 #else
 			{
-				await LoadSqlData (dtCust);
+				await LoadSqlData (dtCust, mode);
 				await LoadCustomerObsCollection ();
 			}
 #endif
@@ -501,7 +501,7 @@ namespace WPFPages.ViewModels
 
 		//}
 
-		public async static Task<DataTable> LoadSqlData (DataTable dt)
+		public async static Task<DataTable> LoadSqlData (DataTable dt, int mode = -1)
 		//Load data from Sql Server
 		{
 			try
@@ -511,9 +511,26 @@ namespace WPFPages.ViewModels
 				ConString = (string)Properties.Settings.Default["BankSysConnectionString"];
 				//			@"Data Source = (localdb)\MSSQLLocalDB; Initial Catalog = 'C:\USERS\IANCH\APPDATA\LOCAL\MICROSOFT\MICROSOFT SQL SERVER LOCAL DB\INSTANCES\MSSQLLOCALDB\IAN1.MDF'; Integrated Security = True; Connect Timeout = 30; Encrypt = False; TrustServerCertificate = False; ApplicationIntent = ReadWrite; MultiSubnetFailover = False";
 				con = new SqlConnection (ConString);
+
 				using (con)
 				{
-					SqlCommand cmd = new SqlCommand ("Select * from Customer order by CustNo", con);
+					string commandline = "";
+					commandline = "Select * from Customer  order by ";
+					if (mode == -1)		// default
+						commandline += "CustNo";
+					else if (mode == 1)
+						commandline += "BankNo";
+					else if (mode == 2)
+						commandline += "Id";
+					else if (mode == 3)
+						commandline += "AcType";
+					else if (mode == 4)
+						commandline += "Dob";
+					else if (mode == 5)
+						commandline += "Odate";
+
+					SqlCommand cmd = new SqlCommand( commandline, con);
+					
 					SqlDataAdapter sda = new SqlDataAdapter (cmd);
 					sda.Fill (dt);
 					return dt;
@@ -592,7 +609,7 @@ namespace WPFPages.ViewModels
 							ODate = Convert.ToDateTime (dtCust.Rows[i][14]),
 							CDate = Convert.ToDateTime (dtCust.Rows[i][15])
 						});
-					Console.WriteLine ($"Loaded Sql data into CustomersObs directly....");
+					Console.WriteLine ($"Sql data loaded into CustomersObs directly [{CustomersObs.Count}] ....");
 					return true;
 				}
 				catch (Exception ex)
@@ -609,5 +626,28 @@ namespace WPFPages.ViewModels
 		//**************************************************************************************************************************************************************//
 
 		#endregion SQL data handling
+
+		#region CallBacks
+
+		public async Task<bool>  LoadCustomerTaskInSortOrder(int mode = -1)
+		{
+			/*
+			if (mode == -1)		// default
+				commandline += "CustNo";
+			else if (mode == 1)
+				commandline += "BankNo";
+			else if (mode == 2)
+				commandline += "Id";
+			else if (mode == 3)
+				commandline += "AcType";
+			else if (mode == 4)
+				commandline += "Dob";
+			else if (mode == 5)
+				commandline += "Odate";
+			 * */
+			await LoadCustomersTask(mode);
+			return true;
+		}
+		#endregion CallBacks
 	}
 }

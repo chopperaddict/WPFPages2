@@ -284,28 +284,26 @@ namespace WPFPages
 		}
 		//******************************************//
 		/// <summary>
-		/// Use da secondary call to fill out the window, load data etc
+		/// MAIN STARTUP CALL from DbSelector
 		/// </summary>
 		/// <param name="caller"></param>
 		/// <returns></returns>
 		public SqlDbViewer (string caller)
 		{
-			//if (bvm == null) bvm = new BankAccountViewModel ();
-			//if (cvm == null) cvm = new CustomerViewModel ();
-			//if (dvm == null) dvm = new DetailsViewModel ();
 			int selectedDb = -1;
 			IsViewerLoaded = false;
 			InitializeComponent ();
 			sqldbForm = this;
 			dgControl = new DataGridController ();
 
+#if USEDETAILEDEXCEPTIONHANDLER
 			Console.WriteLine ($"\r\n%%%%%%%% In SqlDbViewer(string) Constructor %%%%%%%%%%%\r\n");
-			if (Flags.CurrentSqlViewer != this)
-			{
-				Flags.CurrentSqlViewer = this;
-			}
+#endif
+			//			if (Flags.CurrentSqlViewer != this)
+			//			{
+			Flags.CurrentSqlViewer = this;
+			//			}
 
-			//			Utils.GetWindowHandles ();
 			//Setup our delegate receive function to get messages form DbSelector
 			NotifyViewer SendCommand = new NotifyViewer (MyNotification);
 			SendDbSelectorCommand = MyNotification;
@@ -317,22 +315,16 @@ namespace WPFPages
 				case "BANKACCOUNT":
 					CurrentDb = "BANKACCOUNT";
 					new EventHandlers (BankGrid, "BANKACOUNT", out EventHandler);
-					//Store pointers to our DataGrid in BOTH ModelViews for access by Data row updating code
-					//					Flags.CurrentSqlViewerBankGrid = BankGrid;
 					Flags.ActiveSqlDbViewer = BankGrid;
 					break;
 				case "CUSTOMER":
 					CurrentDb = "CUSTOMER";
 					new EventHandlers (CustomerGrid, "CUSTOMER", out EventHandler);
-					//Store pointers to our DataGrid in BOTH ModelViews for access by Data row updating code
-					//					Flags.CurrentSqlViewerCustomerGrid = CustomerGrid;
 					Flags.ActiveSqlDbViewer = CustomerGrid;
 					break;
 				case "DETAILS":
 					CurrentDb = "DETAILS";
 					new EventHandlers (DetailsGrid, "DETAILS", out EventHandler);
-					//Store pointers to our DataGrid in BOTH ModelViews for access by Data row updating code
-					//					Flags.CurrentSqlViewerDetailsGrid = DetailsGrid;
 					Flags.ActiveSqlDbViewer = DetailsGrid;
 					break;
 				default:
@@ -342,11 +334,13 @@ namespace WPFPages
 			EditArgs = new EditEventArgs ();
 			this.MouseDown += delegate { DoDragMove (); };
 			SendDbSelectorCommand (103, "<<< SqlDbViewer Constructor  completed....", Flags.CurrentSqlViewer);
-			SendDbSelectorCommand (111, "Secondary Constructor Completed", Flags.CurrentSqlViewer);
+			//			SendDbSelectorCommand (111, "Secondary Constructor Completed", Flags.CurrentSqlViewer);
+
 			////subscribing viewmodels to data changed event !!!
 			NotifyOfDataChange += bvm.DbHasChanged;
 			NotifyOfDataChange += cvm.DbHasChanged;
 			NotifyOfDataChange += dvm.DbHasChanged;
+			this.Show ();
 		}
 		#endregion Constructors
 
@@ -436,7 +430,7 @@ namespace WPFPages
 			{
 				ExtensionMethods.Refresh (this);
 				ExtensionMethods.Refresh (BankGrid);
-				await bvm.LoadBankTask ();
+				await bvm.LoadBankTaskInSortOrder (-1);
 				this.BankGrid.ItemsSource = bvm.BankAccountObs;
 				//				Flags.SqlViewerIsLoading = true;
 				this.BankGrid.SelectedIndex = 0;
@@ -447,7 +441,8 @@ namespace WPFPages
 			{
 				ExtensionMethods.Refresh (this);
 				ExtensionMethods.Refresh (CustomerGrid);
-				await cvm.LoadCustomersTask ();
+				await cvm.LoadCustomerTaskInSortOrder(3);
+				//await cvm.LoadCustomersTask ();
 				this.CustomerGrid.ItemsSource = cvm.CustomersObs;
 				//				Flags.SqlViewerIsLoading = true;
 				this.CustomerGrid.SelectedIndex = 0;
@@ -459,7 +454,7 @@ namespace WPFPages
 				//Loads the data Asynchronously
 				ExtensionMethods.Refresh (this);
 				ExtensionMethods.Refresh (DetailsGrid);
-				await dvm.LoadDetailsTask ();
+				await dvm.LoadDetailsTaskInSortOrder (-1);
 				this.DetailsGrid.ItemsSource = dvm.DetailsObs;
 				//				Flags.SqlViewerIsLoading = true;
 				this.DetailsGrid.SelectedIndex = 0;
@@ -509,7 +504,7 @@ namespace WPFPages
 		{
 			// THIS IS WHERE WE NEED TO SET THIS FLAG
 			Flags.SqlViewerIsLoading = true;
-
+			this.Show ();
 			int currentindex = -1;
 			this.MouseDown += delegate { DoDragMove (); };
 
@@ -667,30 +662,9 @@ namespace WPFPages
 			SendDbSelectorCommand (102, ">>> SqlDbViewer Entering FillBankAccountDataGrid()", Flags.CurrentSqlViewer);
 
 			string CmdString = "";
-			//if (FilterCommand != "")
-			//{
-			//	CmdString = FilterCommand;
-			//	FilterCommand = "";
-			//}
-			//else
-			//{
-			//	if (isMultiMode)
-			//	{
-			//		//THIS IS THE SQL COMMAND TO GET FULL LINES OF DUPLICATED CUSTOMER ACCOUNT #'S DATA
-			//		CmdString = "SELECT * FROM BankAccount WHERE CUSTNO IN "
-			//			+ "(SELECT CUSTNO FROM BANKACCOUNT "
-			//			+ " GROUP BY CUSTNO"
-			//			+ " HAVING COUNT(*) > 1)";
-			//		//clear the datatable first as we are only showing a subset
-			//		dtBank.Clear ();
-			//	}
-			//	else
-			//	{
 			CmdString = "SELECT * FROM BankAccount order by CustNo";
 			//clear the datatable first as we are only showing a subset
 			BankAccountViewModel.dtBank.Clear ();
-			//	}
-			//}
 			CurrentDb = "BANKACCOUNT";
 			bool result = LoadSqlData (CmdString, BankAccountViewModel.dtBank, "BANKACCOUNT", isMultiMode, Filters, StatusBar, Multiaccounts);
 			// dtBank is fully loaded here
@@ -704,6 +678,8 @@ namespace WPFPages
 		{
 			SqlConnection con;
 			string ConString = "";
+			this.Show ();
+
 			ConString = (string)Properties.Settings.Default["BankSysConnectionString"];
 			//			@"Data Source = (localdb)\MSSQLLocalDB; Initial Catalog = 'C:\USERS\IANCH\APPDATA\LOCAL\MICROSOFT\MICROSOFT SQL SERVER LOCAL DB\INSTANCES\MSSQLLOCALDB\IAN1.MDF'; Integrated Security = True; Connect Timeout = 30; Encrypt = False; TrustServerCertificate = False; ApplicationIntent = ReadWrite; MultiSubnetFailover = False";
 			con = new SqlConnection (ConString);
@@ -774,8 +750,8 @@ namespace WPFPages
 						Btn.IsEnabled = true;
 					}
 					isMultiMode = false;
-					SendDbSelectorCommand (103, $"<<< LoadSqlData Completed for {CallerType}", Flags.CurrentSqlViewer);
-					return true;
+					//					SendDbSelectorCommand (103, $"<<< LoadSqlData Completed for {CallerType}", Flags.CurrentSqlViewer);
+					//					return true;
 				}
 			}
 			catch (Exception ex)
@@ -787,6 +763,7 @@ namespace WPFPages
 
 				return false;
 			}
+			SendDbSelectorCommand (102, $">>> Completed LoadSqlData successfully", Flags.CurrentSqlViewer);
 			return true;
 		}
 
@@ -869,6 +846,7 @@ namespace WPFPages
 
 		#region Load/show selected data base data
 
+		//*****************************************************************************************//
 		/// <summary>
 		/// Fetches SQL data for BankAccount Db and fills BankAccount DataGrid
 		/// </summary>
@@ -879,6 +857,7 @@ namespace WPFPages
 		/// </summary>
 		/// <param name="sender"></param>
 		/// <param name="e"></param>
+		//*****************************************************************************************//
 		private async void ShowBank_Click (object sender, RoutedEventArgs e)
 		{
 			// Make sure this window has it's pointer "Registreded" cos we can 
@@ -886,13 +865,15 @@ namespace WPFPages
 			Flags.CurrentSqlViewer = this;
 
 			string currentViewerListEntry = Flags.DbSelectorOpen.GetCurrentViewerListEntry (sender as SqlDbViewer);
-			SendDbSelectorCommand (102, ">>> SqlDbViewer starting  ShowBank_Click()", Flags.CurrentSqlViewer);
+			//Use Delegate to notify DbSelector
+			SendDbSelectorCommand (102, ">>> Entering ShowBank_Click()", Flags.CurrentSqlViewer);
+			SendDbSelectorCommand (111, $"SqlDbViewer  - calling AWAIT Task LoadBankTask", Flags.CurrentSqlViewer);
 #if ALLOWREFRESH
 			if (BankGrid.Items.Count > 0)
 			{
 				Mouse.OverrideCursor = Cursors.Arrow;
 				BankGrid.ItemsSource = null;
-				await bvm.LoadBankTask ();
+				await bvm.LoadBankTaskInSortOrder (-1);
 				BankGrid.ItemsSource = bvm.BankAccountObs;
 				ParseButtonText (true);
 				BankGrid.Refresh ();
@@ -900,15 +881,16 @@ namespace WPFPages
 				return;
 			}
 #else
-			if (MainWindow.gv.Bankviewer != Guid.Empty)
 			{
-				Flags.DbSelectorOpen.SetFocusToExistingViewer (MainWindow.gv.Bankviewer);
-				Mouse.OverrideCursor = Cursors.Arrow;
-				MessageBox.Show ($"A seperate Viewer is already open for the Bank Accounts Database....");
-				return;
+				if (MainWindow.gv.Bankviewer != Guid.Empty)
+				{
+					Flags.DbSelectorOpen.SetFocusToExistingViewer (MainWindow.gv.Bankviewer);
+					Mouse.OverrideCursor = Cursors.Arrow;
+					MessageBox.Show ($"A seperate Viewer is already open for the Bank Accounts Database....");
+					return;
+				}
 			}
 #endif
-
 			if (BankAccountViewModel.EditdbWndBank != null)
 			{
 				if (MessageBox.Show ("You have an Edit Window open for the current Database.\r\nThis will be closed if you proceed !", "Edit Window Closing",
@@ -923,15 +905,19 @@ namespace WPFPages
 				else
 					return;
 			}
-			await Task.Factory.StartNew (() =>
+
 			{
-				Dispatcher.Invoke (async () =>
-				{
-					await bvm.LoadBankTask ();
-				});
-				//All data is loaded  by the above task
+				//await Task.Factory.StartNew (() =>
+				//{
+				//	Dispatcher.Invoke (async () =>
+				//	{
+				//		await bvm.LoadBankTask ();
+				//	});
+				//	//All data is loaded  by the above task
+				//}
+				//);
 			}
-			);
+			await bvm.LoadBankTaskInSortOrder (-1);
 			CurrentDb = "BANKACCOUNT";
 			this.DetailsGrid.Visibility = Visibility.Hidden;
 			this.CustomerGrid.Visibility = Visibility.Hidden;
@@ -943,18 +929,18 @@ namespace WPFPages
 			var str = this.BankGrid.SelectedItem as BankAccountViewModel;
 			DbSelector.ChangeViewerListEntry (currentViewerListEntry, $"Bank - A/c # {str?.BankNo}, Cust # {str?.CustNo}, Balance £ {str?.Balance}, Interest {str?.IntRate}%", this);
 
-			SendDbSelectorCommand (103, "<<< SqlDbViewer Exiting ShowBank_Click()", Flags.CurrentSqlViewer);
-			SendDbSelectorCommand (103, $"<<< Completed ShowBank()", Flags.CurrentSqlViewer);
 			SendDbSelectorCommand (111, $"ALL BANK DATA LOADED [{this.BankGrid.Items.Count}] records& Grid is setup to index 0", Flags.CurrentSqlViewer);
 			ParseButtonText (true);
 			UpdateAuxilliaries ("BankAccount Data Loaded...");
 			//Set global flags
 			Flags.SetGridviewControlFlags (this, this.BankGrid);
 			Mouse.OverrideCursor = Cursors.Arrow;
+			SendDbSelectorCommand (103, "<<< SqlDbViewer Exiting ShowBank_Click()", Flags.CurrentSqlViewer);
 			this.BringIntoView ();
 			this.Focus ();
 		}
 
+		//*****************************************************************************************//
 		/// <summary>
 		/// Fetches SQL data for Customer Db and fills relevant DataGrid
 		/// NB it is ONLY called by use of the buttons on the Viewer window, so we 
@@ -963,6 +949,7 @@ namespace WPFPages
 		/// </summary>
 		/// <param name="sender"></param>
 		/// <param name="e"></param>
+		//*****************************************************************************************//
 		private async void ShowCust_Click (object sender, RoutedEventArgs e)
 		{
 			// Make sure this window has it's pointer "Registreded" cos we can 
@@ -973,12 +960,13 @@ namespace WPFPages
 			//Get and store current entry in ViewersList se we can update it later
 			string currentViewerListEntry = Flags.DbSelectorOpen.GetCurrentViewerListEntry (sender as SqlDbViewer);
 
+			SendDbSelectorCommand (102, $">>> Entering ShowCust_Click()", Flags.CurrentSqlViewer);
 #if ALLOWREFRESH
 			if (CustomerGrid.Items.Count > 0)
 			{
 				Mouse.OverrideCursor = Cursors.Arrow;
 				CustomerGrid.ItemsSource = null;
-				await cvm.LoadCustomersTask ();
+				await cvm.LoadCustomerTaskInSortOrder (-1);
 				CustomerGrid.ItemsSource = cvm.CustomersObs;
 				CustomerGrid.Refresh ();
 				ParseButtonText (true);
@@ -986,22 +974,18 @@ namespace WPFPages
 				return;
 			}
 #else
-			if (MainWindow.gv.Custviewer != Guid.Empty)
 			{
-				Flags.DbSelectorOpen.SetFocusToExistingViewer (MainWindow.gv.Custviewer);
-				Mouse.OverrideCursor = Cursors.Arrow;
-				MessageBox.Show ($"A seperate Viewer is already open for the Customer Database....");
-				return;
+				if (MainWindow.gv.Custviewer != Guid.Empty)
+				{
+					Flags.DbSelectorOpen.SetFocusToExistingViewer (MainWindow.gv.Custviewer);
+					Mouse.OverrideCursor = Cursors.Arrow;
+					MessageBox.Show ($"A seperate Viewer is already open for the Customer Database....");
+					return;
+				}
 			}
 #endif
-
-			//We need to go and load the Customer data etc
-			this.Show ();
-			ExtensionMethods.Refresh (this);
-			SendDbSelectorCommand (102, $">>> Entered ShowCust_Click()", Flags.CurrentSqlViewer);
 			if (BankAccountViewModel.EditdbWndBank != null)
 			{
-
 				if (MessageBox.Show ("You have an Edit Window open for the current Database.\r\nThis will be closed if you proceed !", "Edit Window Closing",
 					MessageBoxButton.OKCancel,
 					MessageBoxImage.Question,
@@ -1014,10 +998,14 @@ namespace WPFPages
 				else
 					return;
 			}
+
+			//We need to go and load the Customer data etc
+			this.Show ();
+			ExtensionMethods.Refresh (this);
 			//Use Delegate to notify DbSelector
 			SendDbSelectorCommand (111, $"SqlDbViewer  - calling AWAIT Task LoadCustomersTask", Flags.CurrentSqlViewer);
 
-			await cvm.LoadCustomersTask ();
+			await cvm.LoadCustomerTaskInSortOrder (-1);
 			this.CustomerGrid.ItemsSource = cvm.CustomersObs;
 			this.CustomerGrid.SelectedIndex = 0;
 			this.CustomerGrid.SelectedItem = 0;
@@ -1033,19 +1021,22 @@ namespace WPFPages
 			var str = this.CustomerGrid.SelectedItem as CustomerViewModel;
 			DbSelector.ChangeViewerListEntry (currentViewerListEntry, $"Customer - Customer # {str?.CustNo}, Bank # {str?.BankNo}, {str?.LName} {str.Town}, {str?.County}", this);
 			//Use Delegate to notify DbSelector
-			SendDbSelectorCommand (103, $"<<< Completed ShowCust_Click()", Flags.CurrentSqlViewer);
 			SendDbSelectorCommand (111, $"ALL CUSTOMER DATA LOADED [{this.CustomerGrid.Items.Count}] records& Grid is setup to index 0", Flags.CurrentSqlViewer);
 			ParseButtonText (true);
 			UpdateAuxilliaries ("Customer Data Loaded...");
 			//Set global flags
 			Flags.SetGridviewControlFlags (this, this.CustomerGrid);
 			Mouse.OverrideCursor = Cursors.Arrow;
+			SendDbSelectorCommand (103, $"<<< Exiting ShowCust_Click()", Flags.CurrentSqlViewer);
+			this.BringIntoView ();
+			this.Focus ();
 		}
 		//*****************************************************************************************//
 		/// <summary>
 		/// Fetches SQL data for DetailsViewModel Db and fills relevant DataGrid
 		/// <param name="sender"></param>
 		/// <param name="e"></param></summary>
+		//*****************************************************************************************//
 		private async void ShowDetails_Click (object sender, RoutedEventArgs e)
 		{
 			// Make sure this window has it's pointer "Registreded" cos we can 
@@ -1053,12 +1044,13 @@ namespace WPFPages
 			Flags.CurrentSqlViewer = this;
 
 			string currentViewerListEntry = Flags.DbSelectorOpen.GetCurrentViewerListEntry (sender as SqlDbViewer);
+			SendDbSelectorCommand (102, ">>> Entering ShowDetails_Click()", Flags.CurrentSqlViewer);
 #if ALLOWREFRESH
 			if (DetailsGrid.Items.Count > 0)
 			{
 				Mouse.OverrideCursor = Cursors.Arrow;
 				DetailsGrid.ItemsSource = null;
-				await dvm.LoadDetailsTask ();
+				await dvm.LoadDetailsTaskInSortOrder (-1);
 				DetailsGrid.ItemsSource = dvm.DetailsObs;
 				DetailsGrid.Refresh ();
 				ParseButtonText (true);
@@ -1066,17 +1058,17 @@ namespace WPFPages
 				return;
 			}
 #else
-			if (MainWindow.gv.Detviewer != Guid.Empty)
 			{
-				Mouse.OverrideCursor = Cursors.Wait;
-				Flags.DbSelectorOpen.SetFocusToExistingViewer (MainWindow.gv.Detviewer);
-				Mouse.OverrideCursor = Cursors.Arrow;
-				MessageBox.Show ($"A seperate Viewer is already open for the Details Database....");
-				return;
+				if (MainWindow.gv.Detviewer != Guid.Empty)
+				{
+					Mouse.OverrideCursor = Cursors.Wait;
+					Flags.DbSelectorOpen.SetFocusToExistingViewer (MainWindow.gv.Detviewer);
+					Mouse.OverrideCursor = Cursors.Arrow;
+					MessageBox.Show ($"A seperate Viewer is already open for the Details Database....");
+					return;
+				}
 			}
 #endif
-
-
 			if (BankAccountViewModel.EditdbWndBank != null)
 			{
 				if (MessageBox.Show ("You have an Edit Window open for the current Database.\r\nThis will be closed if you proceed !", "Edit Window Closing",
@@ -1094,7 +1086,8 @@ namespace WPFPages
 					return;
 				}
 			}
-			dvm.LoadDetailsTask ();
+			SendDbSelectorCommand (111, $"SqlDbViewer  - calling AWAIT Task LoadDetailsTask", Flags.CurrentSqlViewer);
+			dvm.LoadDetailsTaskInSortOrder (-1);
 			CurrentDb = "DETAILS";
 			this.CustomerGrid.Visibility = Visibility.Hidden;
 			this.BankGrid.Visibility = Visibility.Hidden;
@@ -1104,15 +1097,19 @@ namespace WPFPages
 			var str = this.DetailsGrid.SelectedItem as DetailsViewModel;
 			DbSelector.ChangeViewerListEntry (currentViewerListEntry, $"Details - Bank A/C # {str?.BankNo}, Cust # {str?.CustNo}, Balance {str?.Balance}, Interest % {str?.IntRate}", this);
 			//Use Delegate to notify DbSelector
-			SendDbSelectorCommand (103, $"<<< Completed ShowDetals_Click()", Flags.CurrentSqlViewer);
-			SendDbSelectorCommand (111, $"ALL DETALS DATA LOADED [{this.DetailsGrid.Items.Count}] records& Grid is setup to index 0", Flags.CurrentSqlViewer);
+			SendDbSelectorCommand (111, $"ALL DETAILS DATA LOADED [{this.DetailsGrid.Items.Count}] records& Grid is setup to index 0", Flags.CurrentSqlViewer);
 
 			ParseButtonText (true);
 			UpdateAuxilliaries ("Details Data Loaded...");
 			//Set global flags
 			Flags.SetGridviewControlFlags (this, this.DetailsGrid);
 			Mouse.OverrideCursor = Cursors.Arrow;
+			SendDbSelectorCommand (103, $"<<< Exiting ShowDetals_Click()", Flags.CurrentSqlViewer);
+			this.BringIntoView ();
+			this.Focus ();
 		}
+		//*****************************************************************************************//
+
 		#endregion Load/show selected data base data
 
 		#region Standard Click Events
@@ -2410,6 +2407,9 @@ namespace WPFPages
 			else
 				SelectionhasChanged = false;    // clear the edit status flag again
 
+			SendDbSelectorCommand (103, $"CHANGES made to data in {CurrentDb} Db)", Flags.CurrentSqlViewer);
+
+
 			Mouse.OverrideCursor = Cursors.Wait;
 			//Only called whn an edit has been completed
 			if (e == null)
@@ -2420,17 +2420,17 @@ namespace WPFPages
 				{
 					// set global flag to show we are in edit/Save mode
 					BankAccountViewModel.SqlUpdating = true;
-					t1 = Task.Factory.StartNew (() => sqlh.UpdateDbRow ("BANKACCOUNT", (object)ss));
+					t1 = await Task.Factory.StartNew (() => sqlh.UpdateDbRow ("BANKACCOUNT", (object)ss));
 					ss = BankCurrentRow.Item as BankAccountViewModel;
 				}
 				else if (CurrentDb == "DETAILS")
 				{
-					t1 = Task.Factory.StartNew (() => sqlh.UpdateDbRow ("DETAILS", (object)sa));
+					t1 = await Task.Factory.StartNew (() => sqlh.UpdateDbRow ("DETAILS", (object)sa));
 					sa = DetailsCurrentRow.Item as DetailsViewModel;
 				}
 				else if (CurrentDb == "CUSTOMER")
 				{
-					t1 = Task.Factory.StartNew (() => sqlh.UpdateDbRow ("CUSTOMER", (object)cs));
+					t1 = await Task.Factory.StartNew (() => sqlh.UpdateDbRow ("CUSTOMER", (object)cs));
 					cs = CustomerCurrentRow.Item as CustomerViewModel;
 				}
 			}
@@ -2443,8 +2443,8 @@ namespace WPFPages
 					ss = e.Row.Item as BankAccountViewModel;
 					// set global flag to show we are in edit/Save mode
 					BankAccountViewModel.SqlUpdating = true;
-					Task t1 = await Task.Factory.StartNew (() => sqlh.UpdateDbRow ("BANKACCOUNT", (object)ss)
-					);
+//					Task t1 = await Task.Factory.StartNew (() => sqlh.UpdateDbRow ("BANKACCOUNT", (object)ss)
+//					);
 					{
 						//Task t1 = Task.Factory.StartNew (
 						//	async () => await SQLHandlers.UpdateDbRow ("BANKACCOUNT", e.Row));
@@ -2455,8 +2455,9 @@ namespace WPFPages
 						//// Wait for the background task to finish
 						//tasks[0].Wait ();
 					}
-					//					t1.Wait (2000);
-					Console.WriteLine ($"t1 result = {t1.IsCompleted}");
+					
+					await sqlh.UpdateDbRow("BANKACCOUNT", (object) ss);
+					//Console.WriteLine ($"t1 result = {t1.IsCompleted}");
 					//					Thread.Sleep (500);
 					SendDataChanged (BankGrid, CurrentDb);
 					Mouse.OverrideCursor = Cursors.Arrow;
@@ -2468,14 +2469,12 @@ namespace WPFPages
 					sa = e.Row.Item as DetailsViewModel;
 					// set global flag to show we are in edit/Save mode
 					BankAccountViewModel.SqlUpdating = true;
-					Task t1 = await Task.Factory.StartNew (() => sqlh.UpdateDbRow ("DETAILS", (object)sa));
-					//					t1.Wait (2000);
-					Console.WriteLine ($"t1 result = {t1.IsCompleted}");
-					//					Thread.Sleep (500);
+//					Task t1 = await Task.Factory.StartNew (() => sqlh.UpdateDbRow ("DETAILS", (object)sa));
+					await sqlh.UpdateDbRow ("DETAILS", (object)sa);
+					//Console.WriteLine ($"t1 result = {t1.IsCompleted}");
 					SendDataChanged (DetailsGrid, CurrentDb);
 					Mouse.OverrideCursor = Cursors.Arrow;
 					return;
-					//					UpdateAllOpenViewers ();
 				}
 				else if (CurrentDb == "CUSTOMER")
 				{
@@ -2483,19 +2482,12 @@ namespace WPFPages
 					cs = e.Row.Item as CustomerViewModel;
 					// set global flag to show we are in edit/Save mode
 					BankAccountViewModel.SqlUpdating = true;
-					//await Task.Factory.StartNew (() =>
-					//{
-					//					Dispatcher.Invoke (() =>
-					//					{
-					Task t1 = await Task.Factory.StartNew (() => sqlh.UpdateDbRow ("CUSTOMER", (object)cs));
-					//					t1.Wait (5000);
-					Console.WriteLine ($"t1 result = {t1.IsCompleted}");
-					//					Thread.Sleep (500);
+//					Task t1 = await Task.Factory.StartNew (() => sqlh.UpdateDbRow ("CUSTOMER", (object)cs));
+					await sqlh.UpdateDbRow ("CUSTOMER", (object)cs);
+					//Console.WriteLine ($"t1 result = {t1.IsCompleted}");
 					SendDataChanged (CustomerGrid, CurrentDb);
 					Mouse.OverrideCursor = Cursors.Arrow;
 					return;
-					//					});
-					//});
 					{
 						//await SQLHandlers.UpdateDbRow ("CUSTOMER", e.Row);
 						//Task t1 = Task.Factory.StartNew (
@@ -2508,9 +2500,7 @@ namespace WPFPages
 						//// Wait for the background task to finish
 						//tasks[0].Wait ();
 					}
-					//					UpdateAllOpenViewers ();
 				}
-
 			}
 
 			if (CurrentDb == "BANKACCOUNT" || CurrentDb == "DETAILS")
@@ -3149,7 +3139,9 @@ namespace WPFPages
 			}
 			if (!Updated)
 			{
-				Console.WriteLine ("\nUpdateRowDetails has NOT up[dated anything ???\n");
+				if (Notifier != null)
+					Notifier (111, "UpdateRowDetails has NOT updated anything ???", null);
+				//				Console.WriteLine ("\nUpdateRowDetails has NOT up[dated anything ???\n");
 				//				if (Flags.SqlViewerIsLoading) 
 				//					return;
 				//				// Seems there are no entries right now, so we are starting up
@@ -3609,7 +3601,7 @@ namespace WPFPages
 			Mouse.OverrideCursor = Cursors.Arrow;
 		}
 		//*******************************************************************************************************//
-		public async void LoadCustData ()
+		public async void LoadCustData (int mode = -1)
 		{
 			SendDbSelectorCommand (102, ">>> SqlDbViewer in LoadCustData()", Flags.CurrentSqlViewer);
 
@@ -3622,7 +3614,7 @@ namespace WPFPages
 			{
 				Dispatcher.Invoke (() =>
 				{
-					cvm.LoadCustomersTask ();
+					cvm.LoadCustomerTaskInSortOrder (-1);
 				});
 			});
 			Debug.WriteLine ($"returned from calling Task to load the data....");
@@ -3642,7 +3634,7 @@ namespace WPFPages
 		public void LoadDetailsData ()
 		{
 			Debug.WriteLine ($"LoadDetailsData callback has been called successfully\r\nNow loading data into system....");
-			dvm.LoadDetailsTask ();
+			dvm.LoadDetailsTaskInSortOrder (-1);
 			if (dvm.DetailsObs.Count == 0)
 				dvm.LoadDetailsObsCollection ();
 			// Now our List<DetailsViewModel is populated
@@ -3799,10 +3791,10 @@ namespace WPFPages
 			else
 			{
 				//called when EditDb is NOT OPEN
-				CustomerViewModel custacct = null;
-				BankAccountViewModel bankacct = null;
-				DetailsViewModel detsacct = null;
-				int CurrentId = 0;
+				//				CustomerViewModel custacct = null;
+				//				BankAccountViewModel bankacct = null;
+				//				DetailsViewModel detsacct = null;
+				//				int CurrentId = 0;
 				{
 					//if (datagrid.Name == "CustomerGrid")
 					//{
@@ -3847,8 +3839,9 @@ namespace WPFPages
 				//Update the Loading window content for "Viewers Open"
 				if (Flags.EventHandlerDebug)
 				{
-					Console.WriteLine ($"\r\n\r\nSqlDbViewer(1810) - ONSELECTIONCHANGED() - index changed\r\n");
-					Console.WriteLine ($"Selected Index has changed, NOT using Event handler");
+					//					Console.WriteLine ($"\r\n\r\nSqlDbViewer(1810) - ONSELECTIONCHANGED() - index changed\r\n");
+					//					Console.WriteLine ($"Selected Index has changed, NOT using Event handler");
+					Notifier (111, "Selected Index has changed", null);
 				}
 				if (CurrentDb == "BANKACCOUNT")
 				{
@@ -3858,7 +3851,6 @@ namespace WPFPages
 						// Fills/Updates the MainWindow.gv[] array
 						Flags.SqlViewerIsUpdating = true;
 						UpdateRowDetails (this.BankGrid.SelectedItem, "BankGrid");
-						//						Flags.SqlViewerIsUpdating = false;
 					}
 					//we now have FULL PrettyDetails
 				}
@@ -3869,7 +3861,6 @@ namespace WPFPages
 						CurrentCustomerSelectedRecord = this.CustomerGrid.SelectedItem as CustomerViewModel;
 						Flags.SqlViewerIsUpdating = true;
 						UpdateRowDetails (this.CustomerGrid.SelectedItem, "CustomerGrid");
-						//						Flags.SqlViewerIsUpdating = false;
 					}
 				}
 				else if (CurrentDb == "DETAILS")
@@ -3885,7 +3876,6 @@ namespace WPFPages
 			}
 			UpdateAuxilliaries ($"Selection changed to row {index}");
 			Mouse.OverrideCursor = Cursors.Arrow;
-
 		}
 		//*******************************************************************************************************//
 		public void UpdateAuxilliaries (string comment)

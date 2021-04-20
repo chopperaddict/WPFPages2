@@ -49,7 +49,7 @@ namespace WPFPages.ViewModels
 		{
 			Type t = sender.GetType ();
 			if (!t.FullName.Contains ("ViewModels.DetailsViewModel"))
-				Console.WriteLine ($"DetailsViewModel has received a notofication that  the Customer Obs collection has changhed..... YEAH");
+				Console.WriteLine ($"DetailsViewModel has received a notofication that  the Customer Obs collection has changed..... YEAH");
 		}
 		/// <summary>
 		/// Callback for db change notifications
@@ -59,7 +59,7 @@ namespace WPFPages.ViewModels
 		{
 			DataGrid cvm = sender as DataGrid;
 			if (cvm.Name != "DetailsGrid")
-				Console.WriteLine ($"\n^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nDetailsViewModel has received DbHasChanged notification\ndue toUpdate of \"{args.DbName}\" Db");
+				Console.WriteLine ($"\nDetailsViewModel received Data Change in \"{args.DbName}\" Db");
 			if (args.DbName != "DETAILS")
 			{
 				// need to update our Collection
@@ -244,7 +244,7 @@ namespace WPFPages.ViewModels
 		///  Called from DBSELECTOR
 		/// </summary>
 		/// <param> </param>
-		public async Task LoadDetailsTask ()
+		public async Task LoadDetailsTask (int mode = -1)
 		{
 			Mouse.OverrideCursor = Cursors.Wait;
 			// load SQL data in DataTable
@@ -290,7 +290,7 @@ namespace WPFPages.ViewModels
 			try
 			{
 				{
-					await LoadSqlData ();
+					await LoadSqlData(mode);
 					await LoadDetailsObsCollection ();
 				}
 			}
@@ -307,7 +307,7 @@ namespace WPFPages.ViewModels
 		/// Handles the actual conneciton ot SQL to load the Details Db data required
 		/// </summary>
 		/// <returns></returns>
-		public async static Task<DataTable> LoadSqlData ()
+		public async static Task<DataTable> LoadSqlData (int mode = -1)
 		{
 			try
 			{
@@ -320,7 +320,23 @@ namespace WPFPages.ViewModels
 				con = new SqlConnection (ConString);
 				using (con)
 				{
-					SqlCommand cmd = new SqlCommand ("Select * from SecAccounts order by BankNo", con);
+					//					SqlCommand cmd = new SqlCommand ("Select * from SecAccounts order by BankNo", con);
+					string commandline = "";
+					commandline = "Select * from SecAccounts  order by ";
+					if (mode == -1)         // default
+						commandline += "CustNo";
+					else if (mode == 1)
+						commandline += "BankNo";
+					else if (mode == 2)
+						commandline += "Id";
+					else if (mode == 3)
+						commandline += "AcType";
+					else if (mode == 4)
+						commandline += "Dob";
+					else if (mode == 5)
+						commandline += "Odate";
+
+					SqlCommand cmd = new SqlCommand (commandline, con);
 					SqlDataAdapter sda = new SqlDataAdapter (cmd);
 					sda.Fill (dtDetails);
 					return dtDetails;
@@ -357,7 +373,7 @@ namespace WPFPages.ViewModels
 						CDate = Convert.ToDateTime (dtDetails.Rows[i][7])
 					});
 				// WE NOW HAVE OUR DATA HERE - fully loaded into Obs 
-				Console.WriteLine ($"Loaded Sql data into DetailsObs directly....");
+				Console.WriteLine ($"Sql data loaded into DetailsObs [{DetailsObs.Count}] ....");
 				return true;
 			}
 			catch (Exception ex)
@@ -368,6 +384,29 @@ namespace WPFPages.ViewModels
 
 		}
 
+
+		#region CallBacks
+
+		public async Task<bool> LoadDetailsTaskInSortOrder (int mode = -1)
+		{
+			/*
+			if (mode == -1)		// default
+				commandline += "CustNo";
+			else if (mode == 1)
+				commandline += "BankNo";
+			else if (mode == 2)
+				commandline += "Id";
+			else if (mode == 3)
+				commandline += "AcType";
+			else if (mode == 4)
+				commandline += "Dob";
+			else if (mode == 5)
+				commandline += "Odate";
+			 * */
+			await LoadDetailsTask (mode);
+			return true;
+		}
+		#endregion CallBacks
 		//**************************************************************************************************************************************************************//
 	}
 }

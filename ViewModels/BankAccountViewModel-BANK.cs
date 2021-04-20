@@ -48,7 +48,7 @@ namespace WPFPages.ViewModels
 		}
 
 
-		public event NotifyCollectionChangedEventHandler CollectionChanged;
+//		public event NotifyCollectionChangedEventHandler CollectionChanged;
 
 		/// <summary>
 		///  Function that is called to broadcast a notification to whoever to 
@@ -93,7 +93,7 @@ namespace WPFPages.ViewModels
 		/// </summary>
 		/// <param name="dt"></param>
 		/// <returns></returns>
-		public static DataTable LoadSqlData (DataTable dt)
+		public static DataTable LoadSqlData (DataTable dt, int mode = -1)
 		{
 			try
 			{
@@ -104,7 +104,23 @@ namespace WPFPages.ViewModels
 				con = new SqlConnection (ConString);
 				using (con)
 				{
-					SqlCommand cmd = new SqlCommand ("Select * from BankAccount order by CustNo", con);
+//					SqlCommand cmd = new SqlCommand ("Select * from BankAccount order by CustNo", con);
+					string commandline = "";
+					commandline = "Select * from BankAccount order by ";
+					if (mode == -1)         // default
+						commandline += "CustNo";
+					else if (mode == 1)
+						commandline += "BankNo";
+					else if (mode == 2)
+						commandline += "Id";
+					else if (mode == 3)
+						commandline += "AcType";
+					else if (mode == 4)
+						commandline += "Dob";
+					else if (mode == 5)
+						commandline += "Odate";
+
+					SqlCommand cmd = new SqlCommand (commandline, con);
 					SqlDataAdapter sda = new SqlDataAdapter (cmd);
 					sda.Fill (dt);
 					return dt;
