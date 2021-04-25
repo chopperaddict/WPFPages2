@@ -13,9 +13,9 @@ using System . Collections . ObjectModel;
 using DocumentFormat . OpenXml . Presentation;
 using System . Collections . Generic;
 using WPFPages . Views;
-using WPFPages .ViewModels;
+using WPFPages . ViewModels;
 
-namespace WPFPages .Views
+namespace WPFPages . Views
 {
 
 	/// <summary>
@@ -42,7 +42,7 @@ namespace WPFPages .Views
 		// I can now just use this : SendViewerCommand(x, "");
 		//to send messages to SqlDbViewer window
 		//*********************DELEGATE STUFF **************************************************//
-//		EVent trigger for public delegate void NotifyViewer ( int status, string info, SqlDbViewer NewSqlViewer );
+		//		EVent trigger for public delegate void NotifyViewer ( int status, string info, SqlDbViewer NewSqlViewer );
 		public NotifyViewer SendViewerCommand = null;
 		//*********************DELEGATE STUFF **************************************************//
 
@@ -180,48 +180,51 @@ namespace WPFPages .Views
 		}
 
 		//********************************************************************************************//
-		public  static  void UpdateControlFlags ( SqlDbViewer caller, string callertype, string PrettyString )
+		public static void UpdateControlFlags ( SqlDbViewer caller, string callertype, string PrettyString )
 		{
 			int x = 0;
 			// We are starting up a new viewer, so need to create the flags structure
-			// Get the first empty set of structures
-			for(x = 0 ; x < 3 ; x++ )
+			// Get the first empty set of structures  and fill them out ofr this NEW Viewer Window
+			for ( x = 0 ; x < 3 ; x++ )
 			{
-				if ( MainWindow . gv . ListBoxId [ x ] == Guid . Empty ) break;
-			}
-			//int x = MainWindow . gv . ViewerCount;
-			{
-				MainWindow . gv . PrettyDetails = PrettyString;
-				//				MainWindow.gv.SqlViewerWindow = this;
-				if ( callertype == "BANKACCOUNT" )
+				if ( MainWindow . gv . ListBoxId [ x ] == Guid . Empty )
 				{
-					MainWindow . gv . CurrentDb [ x ] = callertype;
-					MainWindow . gv . window [ x ] = Flags . CurrentSqlViewer;
-					MainWindow . gv . Bankviewer = MainWindow . gv . ListBoxId [ x ] = ( Guid ) caller . Tag;
-					MainWindow . gv . ViewerCount++;
-					MainWindow . gv . Datagrid [ x ] = Flags . SqlBankGrid;
-					MainWindow . gv . SqlBankViewer = caller;
-				}
+					MainWindow . gv . PrettyDetails = PrettyString;
+					//				MainWindow.gv.SqlViewerWindow = this;
+					if ( callertype == "BANKACCOUNT" )
+					{
+						MainWindow . gv . CurrentDb [ x ] = callertype;
+						MainWindow . gv . window [ x ] = Flags . CurrentSqlViewer;
+						MainWindow . gv . Bankviewer =
+							MainWindow . gv . ListBoxId [ x ] = ( Guid ) caller . Tag;
+						MainWindow . gv . ViewerCount++;
+						MainWindow . gv . Datagrid [ x ] = Flags . SqlBankGrid;
+						MainWindow . gv . SqlBankViewer = caller;
+					}
 
-				else if ( callertype == "CUSTOMER" )
-				{
-					MainWindow . gv . CurrentDb [ x ] = callertype;
-					MainWindow . gv . window [ x ] = Flags . CurrentSqlViewer;
-					MainWindow . gv . Custviewer = MainWindow . gv . ListBoxId [ x ] = ( Guid ) caller . Tag;
-					MainWindow . gv . ViewerCount++;
-					MainWindow . gv . Datagrid [ x ] = Flags . SqlCustGrid;
-					MainWindow . gv . SqlCustViewer = caller;
+					else if ( callertype == "CUSTOMER" )
+					{
+						MainWindow . gv . CurrentDb [ x ] = callertype;
+						MainWindow . gv . window [ x ] = Flags . CurrentSqlViewer;
+						MainWindow . gv . Custviewer =
+							MainWindow . gv . ListBoxId [ x ] = ( Guid ) caller . Tag;
+						MainWindow . gv . ViewerCount++;
+						MainWindow . gv . Datagrid [ x ] = Flags . SqlCustGrid;
+						MainWindow . gv . SqlCustViewer = caller;
+					}
+					else if ( callertype == "DETAILS" )
+					{
+						MainWindow . gv . CurrentDb [ x ] = callertype;
+						MainWindow . gv . window [ x ] = Flags . CurrentSqlViewer;
+						MainWindow . gv . Detviewer = MainWindow . gv . ListBoxId [ x ] = ( Guid ) caller . Tag;
+						MainWindow . gv . ViewerCount++;
+						MainWindow . gv . Datagrid [ x ] = Flags . SqlDetGrid;
+						MainWindow . gv . SqlDetViewer = caller;
+					}
+
+					MainWindow . gv . SqlViewerWindow = caller;
+					break;
 				}
-				else if ( callertype == "DETAILS" )
-				{
-					MainWindow . gv . CurrentDb [ x ] = callertype;
-					MainWindow . gv . window [ x ] = Flags . CurrentSqlViewer;
-					MainWindow . gv . Detviewer = MainWindow . gv . ListBoxId [ x ] = ( Guid ) caller . Tag;
-					MainWindow . gv . ViewerCount++;
-					MainWindow . gv . Datagrid [ x ] = Flags . SqlDetGrid;
-					MainWindow . gv . SqlDetViewer = caller;
-				}
-				MainWindow . gv . SqlViewerWindow = caller;
 			}
 		}
 
@@ -266,8 +269,11 @@ namespace WPFPages .Views
 						// This is fine, new windows do NOT have their Guid when they arrive here
 						this . Tag = Flags . CurrentSqlViewer . Tag;
 					}
+//					//done later on
+//					UpdateControlFlags ( Flags . ActiveSqlViewer, CallingType, "" );
+//
 					var tuple = SqlDbViewer . CreateTuple ( "DETAILS" );
-					Flags . CurrentSqlViewer . GetTupleData ( ( Tuple<SqlDbViewer, string, int> ) tuple );
+//					Flags . CurrentSqlViewer . GetTupleData ( ( Tuple<SqlDbViewer, string, int> ) tuple );
 					SendViewerCommand ( 103, "\nNew Details Viewer Fully loaded....\n", null );
 					callertype = 2;
 					CallingType = "DETAILS";
@@ -343,9 +349,6 @@ namespace WPFPages .Views
 				Flags . SqlViewerIsLoading = false;
 				//Set the viewer Delete one/All/Select buttons up correctly
 				UpdateSelectorButtons ( );
-
-
-				//				Debugger.Break ();
 			}
 			else if ( Command == "DELETEALL" )
 			{
@@ -533,7 +536,7 @@ namespace WPFPages .Views
 				}
 			}
 			//Reset global flags
-//			EventHandlers . ClearWindowHandles ( null, Flags . CurrentSqlViewer );
+			//			EventHandlers . ClearWindowHandles ( null, Flags . CurrentSqlViewer );
 		}
 
 		public void CloseDeleteAllViewers ( )
@@ -1210,7 +1213,7 @@ namespace WPFPages .Views
 			//This calls  LoadDetailsTask for us after sorting out the command line sort order requested
 			try
 			{
-				dvm . LoadDetailsTaskInSortOrder ( true, 0 );
+				await dvm . LoadDetailsTaskInSortOrder ( true, 0 );
 				//List<Task<bool>> tasks = new List<Task<bool>> ( );
 				//tasks . Add ( dvm . LoadDetailsTaskInSortOrder ( true, 0 ) );
 				//var Results = await Task . WhenAll ( tasks );

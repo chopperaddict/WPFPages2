@@ -6,7 +6,7 @@ using System . ComponentModel;
 using System . Data;
 using System . Data . SqlClient;
 using System . Diagnostics;
-using System.Linq;
+using System . Linq;
 using System . Threading . Tasks;
 using System . Windows;
 using System . Windows . Controls;
@@ -522,7 +522,7 @@ namespace WPFPages
 				//This calls  LoadcustomerTask for us after sorting out the command line sort order requested
 				// It also broadcasts to any other viewer to update  if needed
 				Console . WriteLine ( $"CUSTOMER: {CustomerGrid . Items?.Count}" );
-				cvm . LoadCustomerTaskInSortOrder ( true, 0 );
+				await cvm . LoadCustomerTaskInSortOrder ( true, 0 );
 				//List<Task<bool>> tasks = new List<Task<bool>> ( );
 				//tasks . Add ( cvm . LoadCustomerTaskInSortOrder ( true, 0 ) );
 				//var Results = await Task . WhenAll ( tasks );
@@ -946,7 +946,7 @@ namespace WPFPages
 			//		cvm . LoadCustomerTaskInSortOrder ( -1 );
 			//	} );
 			//} );
-			cvm . LoadCustomerTaskInSortOrder ( true, 0 );
+			await cvm . LoadCustomerTaskInSortOrder ( true, 0 );
 			//List<Task<bool>> tasks = new List<Task<bool>> ( );
 			//tasks . Add ( cvm . LoadCustomerTaskInSortOrder ( true, 0 ) );
 			//var Results = await Task . WhenAll ( tasks );
@@ -1224,7 +1224,7 @@ namespace WPFPages
 				SendDbSelectorCommand ( 102, $">>> Entering ShowDetails_Click()", Flags . CurrentSqlViewer );
 
 			Mouse . OverrideCursor = Cursors . Wait;
-			// Make sure this window has it's pointer "Registreded" cos we can 
+			// Make sure this window has it's pointer "Registered" cos we can 
 			// Click the button before the window has had focus set
 			Flags . CurrentSqlViewer = this;
 			if ( Flags . SqlDetGrid != DetailsGrid && DetailsGrid . Items . Count > 0 && !Flags . IsMultiMode )
@@ -1250,6 +1250,7 @@ namespace WPFPages
 			ParseButtonText ( true );
 			UpdateAuxilliaries ( "Details Data Loaded..." );
 
+			//			if(Flags.)
 			await dvm . LoadDetailsTaskInSortOrder ( true, 0 );
 			//List<Task<bool>> tasks = new List<Task<bool>> ( );
 			//tasks . Add ( dvm . LoadDetailsTaskInSortOrder ( true, 0 ) );
@@ -1265,6 +1266,7 @@ namespace WPFPages
 			UpdateDbSelectorItem ( str );
 
 			this . Focus ( );
+			IsFiltered = "";
 			Mouse . OverrideCursor = Cursors . Arrow;
 			return;
 		}
@@ -1396,7 +1398,7 @@ namespace WPFPages
 				cvm . CustomersObs . Clear ( );
 				CustomerGrid . Items . Clear ( );
 				CustomerViewModel . dtCust . Clear ( );
-				cvm . LoadCustomerTaskInSortOrder ( true, 0 );
+				await cvm . LoadCustomerTaskInSortOrder ( true, 0 );
 				//List<Task<bool>> tasks = new List<Task<bool>> ( );
 				//tasks . Add ( cvm . LoadCustomerTaskInSortOrder ( true, 0 ) );
 				//var Results = await Task . WhenAll ( tasks );
@@ -2135,7 +2137,7 @@ namespace WPFPages
 					//This calls  LoadcustomerTask for us after sorting out the command line sort order requested
 					// It also broadcasts to any other viewer to update  if needed
 					Console . WriteLine ( $"DETAILS : {DetailsGrid . Items?.Count}" );
-					dvm . LoadDetailsTaskInSortOrder ( true, 0 );
+					await dvm . LoadDetailsTaskInSortOrder ( true, 0 );
 					//List<Task<bool>> tasks = new List<Task<bool>> ( );
 					//tasks . Add ( dvm . LoadDetailsTaskInSortOrder ( true, 0 ) );
 					//var Results = await Task . WhenAll ( tasks );
@@ -2176,7 +2178,7 @@ namespace WPFPages
 					BankGrid_SelectedCellsChanged ( dg, null );
 				}
 			}
-			e . Handled = false;
+			e . Handled = true;
 		}
 		/// <summary>
 		/// CALLED BY ANY GRID TO PHYSICALLY DELETE A ROW of DATA FROM THE dB
@@ -3687,7 +3689,7 @@ namespace WPFPages
 		{
 			//Application.Current.Dispatcher.Invoke (() =>
 			ParseButtonText ( true );
-			IsFiltered = "";
+			//			IsFiltered = "";
 			ResetOptionButtons ( 0 );
 			UpdateDbSelectorBtns ( Flags . CurrentSqlViewer );
 			// Update DbSelector ListBoxItems structure and our GridViewer control Structure
@@ -3746,22 +3748,43 @@ namespace WPFPages
 		/// <param name="CurrentDb"></param>
 		public void OnEditDbViewerIndexChanged ( int row, string CurrentDb )
 		{
-			if (Flags.CurrentEditDbViewer == null) return;
+			if ( Flags . CurrentEditDbViewer == null ) return;
+			if ( row == CustomerGrid . Items . Count )
+				row -= 1;
 
 			if ( CurrentDb == "BANKACCOUNT" )
 			{
 				RemoteIndexChange = true;
-				this. BankGrid . SelectedIndex = row;
-				this.BankGrid . SelectedItem = bvm.BankAccountObs.ElementAt(row);
-				this.BankGrid . ScrollIntoView ( this.BankGrid . SelectedItem );
-				ExtensionMethods . Refresh (BankGrid );
+				this . BankGrid . SelectedIndex = row;
+				//Needs -1 cos if the last record is selected it is out of bounds due to  zero start count
+				if ( row == BankGrid . Items . Count )
+					row -= 1;
+				try
+				{
+					this . BankGrid . SelectedItem = bvm . BankAccountObs . ElementAt ( row );
+				}
+				catch ( Exception ex )
+				{
+					Console . WriteLine ( $"{ex . Message}, @{ex . Data}" );
+				}
+				this . BankGrid . ScrollIntoView ( this . BankGrid . SelectedItem );
+				ExtensionMethods . Refresh ( BankGrid );
 				RemoteIndexChange = false;
 			}
 			else if ( CurrentDb == "CUSTOMER" )
 			{
 				RemoteIndexChange = true;
 				this . CustomerGrid . SelectedIndex = row;
-				this. CustomerGrid . SelectedItem = cvm . CustomersObs . ElementAt ( row );
+				if ( row == CustomerGrid . Items . Count )
+					row -= 1;
+				try
+				{
+					this . CustomerGrid . SelectedItem = cvm . CustomersObs . ElementAt ( row );
+				}
+				catch ( Exception ex )
+				{
+					Console . WriteLine ( $"{ex . Message}, @{ex . Data}" );
+				}
 				this . CustomerGrid . ScrollIntoView ( this . CustomerGrid . SelectedItem );
 				this . CustomerGrid . Refresh ( );
 				RemoteIndexChange = false;
@@ -3770,7 +3793,14 @@ namespace WPFPages
 			{
 				RemoteIndexChange = true;
 				this . DetailsGrid . SelectedIndex = row;
-				this.DetailsGrid . SelectedItem = dvm . DetailsObs . ElementAt ( row );
+				try
+				{
+					DetailsGrid . SelectedItem = dvm . DetailsObs . ElementAt ( row );
+				}
+				catch ( Exception ex )
+				{
+					Console . WriteLine ( $"{ex . Message}, @{ex . Data}" );
+				}
 				this . DetailsGrid . ScrollIntoView ( this . DetailsGrid . SelectedItem );
 				this . DetailsGrid . Refresh ( );
 				RemoteIndexChange = false;
@@ -3911,7 +3941,7 @@ namespace WPFPages
 		//*****************************************************************************************//
 		private void SetFilter_Click ( object sender, RoutedEventArgs e )
 		{
-			// Make sure this window has it's pointer "Registreded" cos we can 
+			// Make sure this window has it's pointer "Registered" cos we can 
 			// Click the button before the window has had focus set
 			Flags . CurrentSqlViewer = this;
 			// Call up the Filtering Window to select 
@@ -4008,7 +4038,7 @@ namespace WPFPages
 				filtervalue1 = sf . FilterValue . Text;
 				filtervalue2 = sf . FilterValue2 . Text;
 				operand = sf . operand;
-				DoFilter ( null, null );
+				DoFilter ( sender, null );
 				StatusBar . Text = $"Filtered Results are shown above. Column = {columnToFilterOn}, Condition = {operand}, Value(s) = {filtervalue1}, {filtervalue2} ";
 				Filters . IsEnabled = false;
 				Filters . Content = "Reset";
@@ -4071,7 +4101,10 @@ namespace WPFPages
 				else if ( operand . Contains ( "< value1 OR > value2" ) )
 					Commandline = Commandline1 + $" {columnToFilterOn} < {filtervalue1} OR {columnToFilterOn} > '{filtervalue2}'";
 			}
-			Commandline += " order by CustNo";
+
+			Commandline += " Order  by ";
+			Commandline = Utils . GetDataSortOrder ( Commandline );
+			Flags . FilterCommand = Commandline;
 			//	set file wide filter command line
 			FilterCommand = Commandline;
 			if ( CurrentDb == "BANKACCOUNT" )
@@ -4089,6 +4122,8 @@ namespace WPFPages
 				IsFiltered = "DETAILS";
 				ShowDetails_Click ( null, null );
 			}
+
+			UpdateAuxilliaries ( "" );
 			Mouse . OverrideCursor = Cursors . Arrow;
 
 		}
@@ -4226,7 +4261,7 @@ namespace WPFPages
 			CustGrid . Items . Clear ( );
 
 			Debug . WriteLine ( $"Calling Task to reload Customer data...." );
-			cvm . LoadCustomerTaskInSortOrder ( true, 0 );
+			await cvm . LoadCustomerTaskInSortOrder ( true, 0 );
 			//List<Task<bool>> tasks = new List<Task<bool>> ( );
 			//tasks . Add ( cvm . LoadCustomerTaskInSortOrder ( true, 0 ) );
 			//var Results = await Task . WhenAll ( tasks );
@@ -4257,7 +4292,7 @@ namespace WPFPages
 			DetGrid . Items . Clear ( );
 
 			Debug . WriteLine ( $"Calling Task to reload Details data...." );
-			dvm . LoadDetailsTaskInSortOrder ( true, 0 );
+			await dvm . LoadDetailsTaskInSortOrder ( true, 0 );
 			//List<Task<bool>> tasks = new List<Task<bool>> ( );
 			//tasks . Add ( dvm . LoadDetailsTaskInSortOrder ( true, 0 ) );
 			//var Results = await Task . WhenAll ( tasks );

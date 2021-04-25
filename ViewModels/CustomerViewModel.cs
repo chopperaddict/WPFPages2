@@ -89,7 +89,7 @@ namespace WPFPages . Views
 		/// so we need to update OURSELVES
 		/// </summary>
 		/// <param name="sender"></param>
-		public async void DbHasChangedHandler ( SqlDbViewer sender, DataGrid Grid, DataChangeArgs args )
+		public  void DbHasChangedHandler ( SqlDbViewer sender, DataGrid Grid, DataChangeArgs args )
 		{
 			if ( Grid . Name == "CustomerGrid" )
 				return;         // Nothing to do, it was us that sent the broadcast
@@ -383,6 +383,10 @@ namespace WPFPages . Views
 							+ $" GROUP BY CUSTNO"
 							+ $" HAVING COUNT(*) > 1) ORDER BY ";
 						commandline = Utils . GetDataSortOrder ( commandline );
+					}
+					else if ( Flags . FilterCommand != "" )
+					{
+						commandline = Flags . FilterCommand;
 					}
 					else
 					{

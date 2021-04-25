@@ -377,6 +377,11 @@ namespace WPFPages . Views
 				//Store pointers to our DataGrid in BOTH ModelViews for access by Data row updating code
 				//				Flags.CurrentEditDbViewerBankGrid = DataGrid1;
 				BankAccountViewModel . ActiveEditDbViewer = DataGrid1;
+
+				Flags . CurrentEditDbViewer = this;
+				Flags . CurrentEditDbViewer . Name = "BankAccount";
+
+
 				DataGrid1 . Focus ( );
 				DataGrid1 . BringIntoView ( );
 			}
@@ -418,6 +423,10 @@ namespace WPFPages . Views
 				//Store pointers to our DataGrid in BOTH ModelViews for access by Data row updating code
 				//				Flags.CurrentEditDbViewerCustomerGrid = DataGrid2;
 				BankAccountViewModel . ActiveEditDbViewer = DataGrid2;
+
+				Flags . CurrentEditDbViewer = this;
+				Flags . CurrentEditDbViewer . Name = "Customer";
+
 				DataGrid2 . Focus ( );
 				DataGrid2 . BringIntoView ( );
 			}
@@ -461,12 +470,14 @@ namespace WPFPages . Views
 				//Store pointers to our DataGrid in BOTH ModelViews for access by Data row updating code
 				//				Flags.CurrentEditDbViewerDetailsGrid = DetailsGrid;
 				BankAccountViewModel . ActiveEditDbViewer = DetailsGrid;
+
+				Flags . CurrentEditDbViewer = this;
+				Flags . CurrentEditDbViewer . Name = "Details";
 				DetailsGrid . Focus ( );
 				DetailsGrid . BringIntoView ( );
 			}
 
 			MainWindow.gv.SqlCurrentEditViewer = this;
-			Flags.CurrentEditDbViewer = this;
 			// subscribe to SqlViewerIndexChanged EVENT. Assign Handling to THIS FILE ->  OnSqlViewerIndexChanged;
 			// SqlViewerIndexChanged  is the Trigger function (In Sqlviewer) we call on index change
 			EventHandlers . SqlViewerIndexChanged += MainWindow . gv . SqlCurrentEditViewer . OnSqlViewerIndexChanged;

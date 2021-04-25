@@ -76,7 +76,7 @@ namespace WPFPages . ViewModels
 		/// and update their datagris as relevant
 		/// </summary>
 		/// <param name="sender"></param>
-		public async void DbHasChangedHandler ( SqlDbViewer sender, DataGrid Grid, DataChangeArgs args )
+		public  void DbHasChangedHandler ( SqlDbViewer sender, DataGrid Grid, DataChangeArgs args )
 		{
 			if ( Grid . Name == "BankGrid" )
 				return;         // Nothing to do, it was us that sent the broadcast

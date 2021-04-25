@@ -73,6 +73,7 @@ namespace WPFPages
 		public static SqlDbViewer CurrentSqlViewer = null;
 		public static SqlDbViewer SqlUpdateOriginatorViewer = null;
 		public static bool EditDbChangeHandled = false;
+		public static string FilterCommand = "";
 
 		//Control CW output of event handlers
 		public static bool EventHandlerDebug = false;
@@ -234,7 +235,8 @@ namespace WPFPages
 				$"\nDETAILS     SqlDetCurrentIndex:-   [{SqlDetCurrentIndex }]\n" +
 #endif
 			"-----------------------------------------------------------------\n" +
-			$"ActiveSqlGrid  =		[{ActiveSqlGrid? . Name}]\n" +
+			$"CurrentEditDbViewer		[{CurrentEditDbViewer?.Name}]\n" +
+			$"ActiveSqlGrid  =		[{ActiveSqlGrid?.Name}]\n" +
 			$"CurrentSqlViewer :-		[{CurrentSqlViewer?.Tag}]\n" +
 			//				$"\nCurrentSqlViewer :- [{ActiveDbGridStr}]\n" +
 			$"\nACTIVE VIEWERS:\n===============\n" +
