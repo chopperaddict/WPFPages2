@@ -6,6 +6,7 @@ using System . ComponentModel;
 using System . Data;
 using System . Data . SqlClient;
 using System . Diagnostics;
+using System.Linq;
 using System . Threading . Tasks;
 using System . Windows;
 using System . Windows . Controls;
@@ -18,7 +19,6 @@ using WPFPages . ViewModels;
 
 namespace WPFPages
 {
-	//	public delegate void DbUpdated ( SqlDbViewer sender, DataGrid Grid, DataChangeArgs args );
 
 	#region EventArg Declarations
 	public class LoadedEventArgs : EventArgs
@@ -42,13 +42,13 @@ namespace WPFPages
 
 	public partial class SqlDbViewer : Window, INotifyPropertyChanged
 	{
-
 		public DbUpdated NotifyOfDataChange;
-		public static event SqlSelectedRowChanged SqlViewerIndexChanged;
-		public static event EditDbRowChange EditDbViewerSelectedIndexChanged;
+
+		//		public static event SqlSelectedRowChanged SqlViewerIndexChanged;
+		//		public static event EditDbRowChange EditDbViewerSelectedIndexChanged;
 
 
-				public static bool RemoteIndexChange = false;
+		public static bool RemoteIndexChange = false;
 
 		#region Global ViewModel declarations
 		// SQL Data Setup
@@ -57,92 +57,6 @@ namespace WPFPages
 		public DetailsViewModel dvm = MainWindow . dvm;
 		#endregion Global ViewModel declarations
 		//*********************************************************************************************************//
-
-		#region  Declare our Delegates & Events
-
-		// Use with EVENT NotifyOfDataChange (TRIGGER EVENT)
-		//Declare our Event
-		//declared in NameSpace
-		//public delegate void DbUpdated ( SqlDbViewer sender, DataGrid Grid, DataChangeArgs args );
-		public DataChangeArgs dca = new DataChangeArgs ( );
-
-		// Use with EVENT NotifyOfDataLoaded (TRIGGER EVENT)
-		public delegate bool DbReloaded ( object sender, DataLoadedArgs args );
-		//Declare our Event that hopefully will call us back ponce the data has been loaded Asynchronously
-		public event DbReloaded NotifyOfDataLoaded;
-
-		#endregion  Declare our Delegates 
-		//*********************************************************************************************************//
-
-		#region CallBack/Delegate stuff - SqlViewerNotify (int status, string info, SqlDbViewer NewSqlViewer)
-
-		//EVENT Callback for when SQL data has been full loaded Aynchronously
-		// Even on initial load of a viewer window
-		//	EVENT DECLARATION
-		//		public event DbReloaded NotifyOfDataLoaded;
-		//	DELEGATE :-
-		//		public delegate bool DbReloaded ( object sender, DataLoadedArgs args );
-		//	TRIGGER :
-		//		SendDBLoadedMsg ( null, args );
-		// Recieves the message - Yeahhhhh
-		public bool DbDataLoadedHandler ( object sender, DataLoadedArgs args )
-		{
-			DataGrid Grid;
-			bool result = false;
-
-			Console . WriteLine ( $"DbDataLoadedHandler Callback has been activated for {args . DbName} Db" );
-			//Wrap all the data updating functionality into this function - 
-			//Set up the relevant DataGrid from assigning the ItemsSource to the current index and Refresh
-			// so it does not need to be handled elsewheree
-			if ( args . DbName == "BANKACCOUNT" )
-			{
-				// Handle assigning  the Collections to the grids etc
-				if ( bvm . BankAccountObs != null )
-				{
-					BankGrid . ItemsSource = bvm . BankAccountObs;
-					BankGrid . SelectedIndex = args . CurrentIndex;
-					BankGrid . SelectedItem = args . CurrentIndex;
-					BankGrid . Visibility = Visibility . Visible;
-					DetailsGrid . Visibility = Visibility . Hidden;
-					CustomerGrid . Visibility = Visibility . Hidden;
-					ExtensionMethods . Refresh ( BankGrid );
-					ParseButtonText ( true );
-					UpdateAuxilliaries ( "BankAccount Data Loaded..." );
-					Console . WriteLine ( $"{BankGrid . Items . Count} Records reloaded for the {args . DbName} Db, CurrentIndex = {args . CurrentIndex}" );
-					result = true;
-				}
-			}
-			else if ( args . DbName == "CUSTOMER" )
-			{
-				CustomerGrid . ItemsSource = cvm . CustomersObs;
-				CustomerGrid . SelectedIndex = args . CurrentIndex;
-				CustomerGrid . SelectedItem = args . CurrentIndex;
-				BankGrid . Visibility = Visibility . Hidden;
-				DetailsGrid . Visibility = Visibility . Hidden;
-				CustomerGrid . Visibility = Visibility . Visible;
-				ExtensionMethods . Refresh ( CustomerGrid );
-				ParseButtonText ( true );
-				UpdateAuxilliaries ( "Customer Data Loaded..." );
-				Console . WriteLine ( $"{CustomerGrid . Items . Count} Records reloaded for the {args . DbName} Db, CurrentIndex = {args . CurrentIndex}" );
-				result = true;
-			}
-			else if ( args . DbName == "DETAILS" )
-			{
-				DetailsGrid . ItemsSource = dvm . DetailsObs;
-				DetailsGrid . SelectedIndex = args . CurrentIndex;
-				DetailsGrid . SelectedItem = args . CurrentIndex;
-				BankGrid . Visibility = Visibility . Hidden;
-				DetailsGrid . Visibility = Visibility . Visible;
-				CustomerGrid . Visibility = Visibility . Hidden;
-				ExtensionMethods . Refresh ( DetailsGrid );
-				ParseButtonText ( true );
-				UpdateAuxilliaries ( "Details Data Loaded..." );
-				Console . WriteLine ( $"{DetailsGrid . Items . Count} Records reloaded for the {args . DbName} Db, CurrentIndex = {args . CurrentIndex}" );
-
-				result = true;
-			}
-			return result;
-		}
 
 		#region SqlDbViewer Class Constructors
 		//Dummy Constructor for Event handlers
@@ -176,17 +90,21 @@ namespace WPFPages
 		private void SubscribeToEvents ( )
 		{
 			////subscribing viewmodels to data changed event !!!
-			// point to our callback functions - DbHasChangedHandler(Viewer, Grid, , DatachangedArgs)
-			NotifyOfDataChange += bvm . DbHasChangedHandler;
-			NotifyOfDataChange += cvm . DbHasChangedHandler;
-			NotifyOfDataChange += dvm . DbHasChangedHandler;
-			// point to our callback function - DbDataLoadedHandler(object, DataLoadedArgs)
-			NotifyOfDataLoaded += DbDataLoadedHandler;
-			//public static event EditDbRowChange EditDbViewerSelectedIndexChanged;
-			
-			EditDbViewerSelectedIndexChanged += OnEditDbViewerIndexChanged;
+			// point to our callback functions in REMOTE FILES DbHasChangedHandler(Viewer, Grid, , DatachangedArgs)
+			NotifyOfDataChange += bvm . DbHasChangedHandler;                // Callback in REMOTE FILE
+			NotifyOfDataChange += cvm . DbHasChangedHandler;                // Callback in REMOTE FILE
+			NotifyOfDataChange += dvm . DbHasChangedHandler;                // Callback in REMOTE FILE
 
-					// used by Exception handler
+			// point to callback function in THIS FILE - DbDataLoadedHandler(object, DataLoadedArgs)
+			NotifyOfDataLoaded += DbDataLoadedHandler;              // Callback in THIS FILE
+										// point to callback function in THIS FILE - OnEditDbViewerIndexChanged(( int row, string CurrentDb )
+										// EVENT  DECLARATION = EditDbRowChange EditDbViewerSelectedIndexChanged;
+										//			if ( EventHandlers . EditDbViewerSelectedIndexChanged == null )
+			EventHandlers ev = new EventHandlers ( );
+			EventHandlers . EditDbViewerSelectedIndexChanged += OnEditDbViewerIndexChanged;                 // Callback in THIS FILE
+			ev . ShowSubscribersCount ( );
+
+			// used by Exception handler
 			DataGridBase dgb = new DataGridBase ( );
 		}
 
@@ -301,11 +219,93 @@ namespace WPFPages
 		}
 		#endregion Constructors
 
-		// EVENT Callback
-		public bool UpdateDataBase ( DataGrid grid, string CurrentDb )
+
+		#region  Declare our Delegates & Events
+
+		// Use with EVENT NotifyOfDataChange (TRIGGER EVENT)
+		//Declare our Event
+		//declared in NameSpace
+		//public delegate void DbUpdated ( SqlDbViewer sender, DataGrid Grid, DataChangeArgs args );
+		public DataChangeArgs dca = new DataChangeArgs ( );
+
+		// Use with EVENT NotifyOfDataLoaded (TRIGGER EVENT)
+		public delegate bool DbReloaded ( object sender, DataLoadedArgs args );
+		//Declare our Event that hopefully will call us back ponce the data has been loaded Asynchronously
+		public event DbReloaded NotifyOfDataLoaded;
+
+		#endregion  Declare our Delegates 
+		//*********************************************************************************************************//
+
+		#region CallBack/Delegate stuff - SqlViewerNotify (int status, string info, SqlDbViewer NewSqlViewer)
+
+		//EVENT Callback for when SQL data has been full loaded Aynchronously
+		// Even on initial load of a viewer window
+		//	EVENT DECLARATION
+		//		public event DbReloaded NotifyOfDataLoaded;
+		//	DELEGATE :-
+		//		public delegate bool DbReloaded ( object sender, DataLoadedArgs args );
+		//	TRIGGER :
+		//		SendDBLoadedMsg ( null, args );
+		// Recieves the message - Yeahhhhh
+		public bool DbDataLoadedHandler ( object sender, DataLoadedArgs args )
 		{
-			return true;
+			DataGrid Grid;
+			bool result = false;
+
+			Console . WriteLine ( $"DbDataLoadedHandler Callback has been activated for {args . DbName} Db" );
+			//Wrap all the data updating functionality into this function - 
+			//Set up the relevant DataGrid from assigning the ItemsSource to the current index and Refresh
+			// so it does not need to be handled elsewheree
+			if ( args . DbName == "BANKACCOUNT" )
+			{
+				// Handle assigning  the Collections to the grids etc
+				if ( bvm . BankAccountObs != null )
+				{
+					BankGrid . ItemsSource = bvm . BankAccountObs;
+					BankGrid . SelectedIndex = args . CurrentIndex;
+					BankGrid . SelectedItem = args . CurrentIndex;
+					BankGrid . Visibility = Visibility . Visible;
+					DetailsGrid . Visibility = Visibility . Hidden;
+					CustomerGrid . Visibility = Visibility . Hidden;
+					ExtensionMethods . Refresh ( BankGrid );
+					ParseButtonText ( true );
+					UpdateAuxilliaries ( "BankAccount Data Loaded..." );
+					Console . WriteLine ( $"{BankGrid . Items . Count} Records reloaded for the {args . DbName} Db, CurrentIndex = {args . CurrentIndex}" );
+					result = true;
+				}
+			}
+			else if ( args . DbName == "CUSTOMER" )
+			{
+				CustomerGrid . ItemsSource = cvm . CustomersObs;
+				CustomerGrid . SelectedIndex = args . CurrentIndex;
+				CustomerGrid . SelectedItem = args . CurrentIndex;
+				BankGrid . Visibility = Visibility . Hidden;
+				DetailsGrid . Visibility = Visibility . Hidden;
+				CustomerGrid . Visibility = Visibility . Visible;
+				ExtensionMethods . Refresh ( CustomerGrid );
+				ParseButtonText ( true );
+				UpdateAuxilliaries ( "Customer Data Loaded..." );
+				Console . WriteLine ( $"{CustomerGrid . Items . Count} Records reloaded for the {args . DbName} Db, CurrentIndex = {args . CurrentIndex}" );
+				result = true;
+			}
+			else if ( args . DbName == "DETAILS" )
+			{
+				DetailsGrid . ItemsSource = dvm . DetailsObs;
+				DetailsGrid . SelectedIndex = args . CurrentIndex;
+				DetailsGrid . SelectedItem = args . CurrentIndex;
+				BankGrid . Visibility = Visibility . Hidden;
+				DetailsGrid . Visibility = Visibility . Visible;
+				CustomerGrid . Visibility = Visibility . Hidden;
+				ExtensionMethods . Refresh ( DetailsGrid );
+				ParseButtonText ( true );
+				UpdateAuxilliaries ( "Details Data Loaded..." );
+				Console . WriteLine ( $"{DetailsGrid . Items . Count} Records reloaded for the {args . DbName} Db, CurrentIndex = {args . CurrentIndex}" );
+
+				result = true;
+			}
+			return result;
 		}
+
 
 		//*************************************************************************//
 		// delegate object for others to access (listen for notifications sent by THIS CLASS)
@@ -450,8 +450,6 @@ namespace WPFPages
 		private int OriginalCellColumn = 0;
 
 		public static DataGridController dgControl;
-
-		//		public DbUpdated UpdateRequired;
 
 		//---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------//
 		//Delegate & Event handler for Db Updates
@@ -669,7 +667,7 @@ namespace WPFPages
 			MainWindow . gv . SqlViewerGuid = ( Guid ) Flags . CurrentSqlViewer . Tag;
 			IsViewerLoaded = true;
 			//Store pointers to our DataGrids in all ModelViews for access by Data row updating code
-//			EventHandlers . SetWindowHandles ( null, this, null );
+			//			EventHandlers . SetWindowHandles ( null, this, null );
 
 			// We must now GET THE DATA LOADED
 			//Tell DbSelector to command US TO load THE REQUIRED DATA
@@ -678,7 +676,11 @@ namespace WPFPages
 			ParseButtonText ( true );
 
 
-			EditDbViewerSelectedIndexChanged += OnEditDbViewerIndexChanged;
+			//			if( EventHandlers . EditDbViewerSelectedIndexChanged == null)
+			EventHandlers ev = new EventHandlers ( );
+			EventHandlers . EditDbViewerSelectedIndexChanged += OnEditDbViewerIndexChanged;
+			ev . ShowSubscribersCount ( );
+
 			// clear global "loading new window" flag
 			Flags . SqlViewerIsLoading = false;
 			Mouse . OverrideCursor = Cursors . Arrow;
@@ -709,7 +711,7 @@ namespace WPFPages
 		}
 		//*********************************************************************************************************//
 		public void resetSQLDBindex ( bool self, int RowSelected, DataGrid caller )
-			// NOT USED NOW
+		// NOT USED NOW
 		{
 			////This is received when a change is made in EditDb DataGrid
 			//// and handles selecting the new index row and scrolling it into view
@@ -836,10 +838,19 @@ namespace WPFPages
 		/// </summary>
 		/// <param name="row"></param>
 		/// <param name="CurentDb"></param>
-		private void SendlViewerIndexChange ( int row, string CurentDb )
+		private void SendViewerIndexChange ( int row, string CurentDb )
 		{
-			if ( SqlViewerIndexChanged != null )
-				SqlViewerIndexChanged ( row, CurrentDb );
+			if ( Flags . EditDbChangeHandled )
+				return;
+
+			EventHandlers ev = new EventHandlers ( );
+			ev . ShowSubscribersCount ( );
+			if ( EventHandlers . SqlViewerIndexChanged != null )
+			{
+				EventHandlers . SqlViewerIndexChanged ( row, CurrentDb );
+				//				Flags . EditDbIndexTriggered = false;
+
+			}
 		}
 
 		/// <summary>
@@ -854,13 +865,14 @@ namespace WPFPages
 			dca . DbName = dbName;
 			if ( NotifyOfDataChange != null )
 			{
-				NotifyOfDataChange ( o, Grid, dca );
+				EventHandlers ev = new EventHandlers ( );
+				ev . NotifyOfDataChange ( o, Grid, dca );
 			}
 		}
 
 		/// <summary>
 		/// Triigered by the three ViewModels 
-		/// and broadcasts a notification to whoever to 
+		/// so WE broadcast a notification to whoever to 
 		///  notify that the reloading of data via Asnyc SQL has been fuly completed
 		/// </summary>
 		/// <param name="o"> The sending object</param>
@@ -1519,6 +1531,7 @@ namespace WPFPages
 				// ensure global flag is cleared after loading a viewer
 				Flags . SqlViewerIsLoading = false;
 				UpdateDbSelectorItem ( s );
+				CustomerGrid . ScrollIntoView ( CustomerGrid . SelectedItem );
 				ExtensionMethods . Refresh ( this );
 				// broadcast data change to all subscribers
 				//								SendDataChanged (CustomerGrid, "CUSTOMER");
@@ -1906,7 +1919,7 @@ namespace WPFPages
 				SendDbSelectorCommand ( 99, "Window is closing", Flags . CurrentSqlViewer );
 				RemoveFromViewerList ( );
 
-//				EventHandlers . ClearWindowHandles ( null, this );
+				//				EventHandlers . ClearWindowHandles ( null, this );
 				BankAccountViewModel . EditdbWndBank = null;
 				Flags . CurrentSqlViewer = null;
 				UpdateDbSelectorBtns ( Flags . CurrentSqlViewer );
@@ -2778,7 +2791,7 @@ namespace WPFPages
 			}
 			SendDbSelectorCommand ( 99, "Window is closing", Flags . CurrentSqlViewer );
 			//Set global flags
-//			EventHandlers . ClearWindowHandles ( null, this );
+			//			EventHandlers . ClearWindowHandles ( null, this );
 			UpdateDbSelectorBtns ( Flags . CurrentSqlViewer );
 			BankAccountViewModel . EditdbWndBank = null;
 			//			Flags . CurrentSqlViewer . Tag = Guid . Empty;
@@ -3326,9 +3339,8 @@ namespace WPFPages
 			NotifyOfDataChange -= dvm . DbHasChangedHandler;
 			// point to our callback function - DbDataLoadedHandler(object, DataLoadedArgs)
 			NotifyOfDataLoaded -= DbDataLoadedHandler;
-			EditDbViewerSelectedIndexChanged -= OnEditDbViewerIndexChanged;
-			Console . WriteLine ($"Unsubscribed from All events successfully" );
-#pragma TEMP DEBUG
+			EventHandlers . EditDbViewerSelectedIndexChanged -= OnEditDbViewerIndexChanged;
+			Console . WriteLine ( $"Unsubscribed from All events successfully" );
 			Console . WriteLine ( $"\n***Window has just closed***" );
 			Flags . ListGridviewControlFlags ( );
 		}
@@ -3547,7 +3559,7 @@ namespace WPFPages
 					}
 				}
 				// Notify EditDb viewer of selection changed
-				SendlViewerIndexChange ( index, CurrentDb );
+				SendViewerIndexChange ( index, CurrentDb );
 				SqlUpdating = false;
 			}
 			else
@@ -3734,29 +3746,33 @@ namespace WPFPages
 		/// <param name="CurrentDb"></param>
 		public void OnEditDbViewerIndexChanged ( int row, string CurrentDb )
 		{
+			if (Flags.CurrentEditDbViewer == null) return;
+
 			if ( CurrentDb == "BANKACCOUNT" )
 			{
 				RemoteIndexChange = true;
-				BankGrid. SelectedIndex = row;
-				BankGrid . SelectedItem = row;
-				BankGrid . ScrollIntoView ( BankGrid . SelectedItem );
-				BankGrid . Refresh ( );
+				this. BankGrid . SelectedIndex = row;
+				this.BankGrid . SelectedItem = bvm.BankAccountObs.ElementAt(row);
+				this.BankGrid . ScrollIntoView ( this.BankGrid . SelectedItem );
+				ExtensionMethods . Refresh (BankGrid );
 				RemoteIndexChange = false;
 			}
 			else if ( CurrentDb == "CUSTOMER" )
 			{
 				RemoteIndexChange = true;
-				CustomerGrid. SelectedIndex = row;
-				CustomerGrid . SelectedItem = row;
-				CustomerGrid . ScrollIntoView ( CustomerGrid .SelectedItem);
+				this . CustomerGrid . SelectedIndex = row;
+				this. CustomerGrid . SelectedItem = cvm . CustomersObs . ElementAt ( row );
+				this . CustomerGrid . ScrollIntoView ( this . CustomerGrid . SelectedItem );
+				this . CustomerGrid . Refresh ( );
 				RemoteIndexChange = false;
 			}
 			else if ( CurrentDb == "DETAILS" )
 			{
 				RemoteIndexChange = true;
-				DetailsGrid . SelectedIndex = row;
-				DetailsGrid . SelectedItem = row;
-				DetailsGrid . ScrollIntoView ( DetailsGrid .SelectedItem);
+				this . DetailsGrid . SelectedIndex = row;
+				this.DetailsGrid . SelectedItem = dvm . DetailsObs . ElementAt ( row );
+				this . DetailsGrid . ScrollIntoView ( this . DetailsGrid . SelectedItem );
+				this . DetailsGrid . Refresh ( );
 				RemoteIndexChange = false;
 			}
 

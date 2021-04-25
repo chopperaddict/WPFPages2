@@ -31,12 +31,12 @@ namespace WPFPages . ViewModels
 		//==================================
 		/// </summary>
 		/// Also declared in SqlDbViewer
-//		public delegate void DbUpdated ( SqlDbViewer sender, DataGrid Grid, DataChangeArgs args );
-		//public event DbUpdated NotifyOfDataChange;
 		// CONSTRUCTOR
 		public BankAccountViewModel ( )
 		{
 			BankAccountObs . CollectionChanged += BankAccountObs_CollectionChanged1;
+//			EventHandlers . ShowSubscribersCount ( );
+
 		}
 
 		private void BankAccountObs_CollectionChanged1 ( object sender, NotifyCollectionChangedEventArgs e )
@@ -59,19 +59,17 @@ namespace WPFPages . ViewModels
 			// subscribe to Data chngned event fired by SqlDbviewer
 			SqlDbViewer sqlv = new SqlDbViewer ( 'A' );
 			// assign event handler function
-			sqlv . NotifyOfDataChange += DbHasChangedHandler;
+			NotifyOfDataChange += DbHasChangedHandler;
 			//			CollectionChanged += test;
 			BankAccountObs . CollectionChanged += BankAccountObsChanged;
-//			EventHandlers . ShowSubscribersCount ( );
+			EventHandlers ev = new EventHandlers ( );
+			ev . ShowSubscribersCount ( );
 		}
 		public void test ( object o, EventArgs e )
 		{
 			int y = 0;
 		}
 
-		//		public delegate void DbUpdated ( SqlDbViewer sender, DataGrid Grid, DataChangeArgs args );
-		//		public event DbUpdated NotifyOfDataChange;
-		//		public DataChangeArgs dca = new DataChangeArgs ( );
 		/// <summary>
 		/// Callback handler for db change notifications sent by another SqlDbViewer
 		/// We have to try to work out whether we have one or more other viewers open

@@ -20,12 +20,6 @@ namespace WPFPages . Views
 	//==================================
 	//Delegate & Event handler for Db Updates
 	//==================================
-	/// <summary>
-	///  A(Globally visible) Delegateto hold all the global flags and other stuff that is needed to handle 
-	///  Static -> non static  movements with EditDb &b SqlDbViewer in particular
-	/// </summary>
-	//	public delegate void DbUpdated ( SqlDbViewer sender, DataGrid Grid, DataChangeArgs args );
-
 	//===========================
 	//CUSTOMER VIEW MODEL CLASS
 	//===========================
@@ -50,12 +44,13 @@ namespace WPFPages . Views
 		public CustomerViewModel ( )
 		{
 			CustomersObs . CollectionChanged += CustomersObs_CollectionChanged1;
+//			EventHandlers . ShowSubscribersCount ( );
+
 		}
 		#endregion CONSTRUCTORS
 
 		#region  Events & Delegates declarations
 
-		public DbUpdated NotifyOfDataChange;
 		public event PropertyChangedEventHandler PropertyChanged;
 
 		#endregion  Events & Delegates

@@ -4,7 +4,7 @@
 		xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
 		xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 		xmlns:local="clr-namespace:WPFPages"
-		xmlns:MyData="clr-namespace:WPFPages.ViewModels" 
+		xmlns:myData="clr-namespace:WPFPages.ViewModels" 
 		mc:Ignorable="d"
 		Title="Database Editing Window - " 
 		Height="640" Width="700"
@@ -287,12 +287,12 @@
 				SelectionMode="Single"
 				SelectionUnit="FullRow" 
 				AutoGenerateColumns="False"
-				SelectedItem="{Binding BnkModel, Mode=TwoWay}"
 				SelectionChanged="DataGrid1_SelectionChanged" 
 				RowEditEnding="DataGrid1_RowEditEnding"
 				 Visibility="Visible" 
 			    CellEditEnding="DataGrid1_CellEditEnding"
 				  >
+			<!--SelectedItem="{Binding myData:BankAccountViewModel, Mode=TwoWay}"-->
 			<DataGrid.Resources>
 				<SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightBrushKey}" Color="LightBlue"/>
 			</DataGrid.Resources>
@@ -776,12 +776,12 @@
 				PreviewMouseDown="DataGrid2_PreviewMouseDown"
 				RowEditEnding="DataGrid2_RowEditEnding"
 				SelectionChanged="DataGrid2_SelectionChanged"
-				SelectedItem="{Binding CustModel, Mode=TwoWay}"
 				SelectionMode="Single"
 				SelectionUnit="FullRow" 
 				Visibility="Collapsed" 
 				VerticalAlignment="Stretch"
 				  >
+				<!--SelectedItem="{Binding CustModel, Mode=TwoWay}"-->
 				<DataGrid.Resources>
 					<SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightBrushKey}" Color="DarkGray"/>
 				</DataGrid.Resources>
@@ -930,11 +930,11 @@
 			IsReadOnly="False"
 			    PreviewMouseDown="DetailsGrid_PreviewMouseDown"
 			RowEditEnding="DetailsGrid_RowEditEnding"
-			SelectedItem="{Binding DetModel, Mode=TwoWay}"
 			SelectionMode="Single"
 			SelectionUnit="FullRow" 
 			VerticalAlignment="Stretch"
 			Visibility="Visible" CellEditEnding="DetailsGrid_CellEditEnding" SelectionChanged="DetailsGrid_SelectionChanged">
+			<!--SelectedItem="{Binding DetModel, Mode=TwoWay}"-->
 			<DataGrid.Resources>
 				<SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightBrushKey}" Color="LightBlue"/>
 			</DataGrid.Resources>

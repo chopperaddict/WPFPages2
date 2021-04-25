@@ -56,6 +56,8 @@ namespace WPFPages
 //			DataContext = this;
 			InitializeComponent ();
 			Loaded += MainWindowLoaded;
+			EventHandlers ev = new EventHandlers ( );
+			ev . ShowSubscribersCount ( );
 			BaseDataText = "Starting text";
 			RandomText1 = "button1";
 			RandomText2 = "button2";

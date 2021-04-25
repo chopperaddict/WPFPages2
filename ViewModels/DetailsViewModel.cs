@@ -78,7 +78,7 @@ namespace WPFPages . ViewModels
 		//Delegate & Event handler for Db Updates
 		//==================================
 //		public delegate void DbUpdated ( SqlDbViewer sender, DataGrid Grid, DataChangeArgs args );
-		public DbUpdated NotifyOfDataChange;
+//		public DbUpdated NotifyOfDataChange;
 
 		/// <summary>
 		///  A Delegate declared in SqlDbViewer to notify all ViewModels when a data change occurs
@@ -93,6 +93,8 @@ namespace WPFPages . ViewModels
 		public DetailsViewModel ( )
 		{
 			DetailsObs . CollectionChanged += DetailsObs_CollectionChanged;
+//			EventHandlers . ShowSubscribersCount ( );
+
 
 		}
 		#region properties

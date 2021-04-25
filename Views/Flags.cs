@@ -72,6 +72,7 @@ namespace WPFPages
 		public static EditDb CurrentEditDbViewer = null;
 		public static SqlDbViewer CurrentSqlViewer = null;
 		public static SqlDbViewer SqlUpdateOriginatorViewer = null;
+		public static bool EditDbChangeHandled = false;
 
 		//Control CW output of event handlers
 		public static bool EventHandlerDebug = false;

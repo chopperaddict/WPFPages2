@@ -1,6 +1,6 @@
 ﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-                    xmlns:local="clr-namespace:WPFPages.Dicts">
+                    xmlns:local="clr-namespace:WPFPages">
 
 	<!--<SolidColorBrush x:Key="" Color="" />
 	<SolidColorBrush x:Key="1" Color="" />
