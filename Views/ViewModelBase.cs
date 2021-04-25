@@ -2,7 +2,7 @@
 using System.Diagnostics;
 
 
-namespace WPFPages.ViewModels
+namespace WPFPages
 {
 	public class ViewModelBase
 	{

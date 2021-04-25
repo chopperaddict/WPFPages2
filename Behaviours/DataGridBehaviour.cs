@@ -8,7 +8,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows;
 
-namespace WPFPages.Behaviours
+namespace WPFPages
 {
 	public static class DataGridBehaviour
 	{

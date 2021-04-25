@@ -1,6 +1,6 @@
 ﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-                    xmlns:local="clr-namespace:WPFPages.Dicts">
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+	<!--xmlns:local="clr-namespace:WPFPages.Dicts">-->
 	
 	<!--This is a Standard DEFAULT Button Template-->
     <!--<Style x:Key="FocusVisual">

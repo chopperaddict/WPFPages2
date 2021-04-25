@@ -4,7 +4,6 @@
 	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
 	xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
 	xmlns:local="clr-namespace:WPFPages" 
-	xmlns:Convertors="clr-namespace:WPFPages.Converters"
 	xmlns:MyData="clr-namespace:WpfUI"
 	xmlns:Themes="clr-namespace:Microsoft.Windows.Themes;assembly=PresentationFramework.Aero2" x:Class="WPFPages.Page0"
 	mc:Ignorable="d" 
@@ -14,10 +13,10 @@
 	<Page.Resources>
 
 		<!--Define our data sources and Convertor paths -->
-		<Convertors:SalaryConvertor x:Key="salaryConvertor"/>
+		<!--<local:SalaryConvertor x:Key="salaryConvertor"/>-->
 		<local:AllStaff x:Key="allStaff"/>
 		<MyData:People x:Key="people"/>
-		<Convertors:FormatServicePeriodConvertor x:Key="formatServicePeriodConvertor"/>
+		<!--<local:FormatServicePeriodConvertor x:Key="formatServicePeriodConvertor"/>-->
 
 		<!--Define some colors for use in Resources-->
 		<SolidColorBrush x:Key="BorderBrushDark" Color="DarkGoldenrod"/>
@@ -144,11 +143,11 @@
 						 Text="{Binding Surname}" Style="{StaticResource tblStyle5}"/>
 				<TextBlock Grid.Column="4"  Height="45" Width="65"
 						 VerticalAlignment="Center" Padding="10"
-						 Text="{Binding Salary, Converter={StaticResource salaryConvertor}}"
+						 Text="{Binding Salary}"
 						 Style="{StaticResource tblStyle5}"/>
 				<TextBlock Grid.Column="5"  Height="45" Width="65"
 						 VerticalAlignment="Center" Padding="10"
-						 Text="{Binding MonthsEmployed, Converter={StaticResource formatServicePeriodConvertor}}" Style="{StaticResource tblStyle5}"/>
+						 Text="{Binding MonthsEmployed}" Style="{StaticResource tblStyle5}"/>
 				<TextBlock Grid.Column="6"  Height="45" Width="555"
 						 VerticalAlignment="Center" Padding="10"
 						 Text=""/>
@@ -603,11 +602,9 @@
 									 Style="{StaticResource lbItems99}"/>
 							<TextBlock x:Name="tb3" Text="{Binding Age}" 
 									 Style="{StaticResource lbItems99}"/>
-							<TextBlock x:Name="tb4" Text="{Binding Path=MonthsEmployed, 
-								Converter={StaticResource formatServicePeriodConvertor}}" 
+							<TextBlock x:Name="tb4" Text="{Binding Path=MonthsEmployed}" 
 								Style="{StaticResource lbItems99}"/>
-							<TextBlock x:Name="tb5" Text="{Binding Path=Salary, 
-								Converter={StaticResource salaryConvertor}}" 
+							<TextBlock x:Name="tb5" Text="{Binding Path=Salary}" 
 								Style="{StaticResource lbItems99}">
 							</TextBlock>
 

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Windows.Input;
 
-namespace WPFPages.ViewModels
+namespace WPFPages
 {
         public class CommandViewModel: ViewModelBase
         {

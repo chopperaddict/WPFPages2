@@ -6,7 +6,6 @@ using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 
-using WPFPages.ViewModels;
 
 namespace WPFPages
 {

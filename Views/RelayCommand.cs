@@ -2,7 +2,7 @@
 using System.Diagnostics;
 using System.Windows.Input;
 
-namespace WPFPages.Commands
+namespace WPFPages
 {
 	public class RelayCommand: ICommand
 	{

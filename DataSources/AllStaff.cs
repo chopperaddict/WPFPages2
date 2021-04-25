@@ -2,7 +2,6 @@
 using System.Collections.ObjectModel;
 using System.Windows.Media.Imaging;
 
-using WPFPages.ViewModels;
 
 namespace WPFPages
 {

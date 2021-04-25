@@ -5,8 +5,9 @@ using System.Collections.Specialized;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using WPFPages . ViewModels;
 
-namespace WPFPages.ViewModels
+namespace WPFPages .Views
 {
 	public class MainWindowViewModel
 	{

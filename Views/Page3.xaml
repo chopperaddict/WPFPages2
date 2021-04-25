@@ -4,7 +4,7 @@
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
 	 xmlns:local="clr-namespace:WPFPages.UserControls"
-      xmlns:local1="clr-namespace:WPFPages"
+      xmlns:local1="clr-namespace:WPFPages.Views"
 	 xmlns:control ="clr-namespace:WPFPages"
       mc:Ignorable="d" 
       d:DesignHeight="750" d:DesignWidth="1000"
@@ -393,10 +393,10 @@
 			Orientation="Vertical"
 			Background="Transparent" >
 
-			<control:CustomControl1 x:Name="customControl"
+			<!--<control:CustomControl1 x:Name="customControl"
 				Width="170" Height="66"
 				Margin="10" Button.Click="customControl_Click" 
-				Style="{StaticResource V_btnWhiteOrangeGradientBackgroundStyle}"/>
+				Style="{StaticResource V_btnWhiteOrangeGradientBackgroundStyle}"/>-->
 
 		</StackPanel>
 		<TextBlock Name="txtBlock" 
@@ -460,9 +460,9 @@
 			that defines the user Control's (file) name
 			xmlns:local1="clr-namespace:WPFPages"
 			-->
-			<Grid Grid.Row="1">
+			<!--<Grid Grid.Row="1">
 				<local1:EllipseExitButton Foreground="White" FontSize="18"/>
-			</Grid>
+			</Grid>-->
 
 
 		</Grid>

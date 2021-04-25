@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Controls;
 
-namespace WPFPages.ViewModels
+namespace WPFPages.Views
 {
 	/// <summary>
 	///  a class to help control of SqlDbViewer and EditDb DataGrid handling

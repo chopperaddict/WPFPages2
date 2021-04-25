@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Data;
 
-namespace WPFPages.Converters
+namespace WPFPages
 {
 	public class FormatServicePeriodConvertor : IValueConverter
 	{

@@ -3,9 +3,9 @@ using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using WPFPages . Views;
+using WPFPages . ViewModels;
 
-using WPFPages.ViewModels;
-using WPFPages.Views;
 using WpfUI;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement.Window;
 
@@ -47,7 +47,7 @@ namespace WPFPages
 
 		public static GridViewer gv = new GridViewer ();
 		public static DbSelector dbs = null;
-
+			      
 		public SqlDbViewer tw = null;
 
 		public MainWindow ()

@@ -2,10 +2,9 @@
 using System.Windows;
 using System.Windows.Data;
 using System.Windows.Input;
+using WPFPages . ViewModels;
 
-using WPFPages.ViewModels;
-
-namespace WPFPages.Views
+namespace WPFPages .Views
 {
 	/// <summary>
 	/// Interaction logic for MultiViewer.xaml

@@ -3,7 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:WPFPages.Views" 
+        xmlns:local="clr-namespace:WPFPages" 
 		mc:Ignorable="d"
         Title="DbViewer" Height="335" Width="600"
 	   MinWidth="680" MaxWidth="850"
@@ -97,7 +97,7 @@
 							Padding="3"
 							HorizontalAlignment="Center"
 							SnapsToDevicePixels="true">
-							<ContentPresenter />
+							<ContentPresenter  />
 						</Border>
 						<ControlTemplate.Triggers>
 							<!--<Trigger Property="IsFocused" Value="true">
@@ -348,6 +348,7 @@
 			HorizontalContentAlignment="Stretch"
 			IsTabStop="True"
 			ItemContainerStyle="{DynamicResource _ListBoxItemStyle2}"
+			PreviewMouseDown="ViewersList_PreviewMouseDown"
 			MouseDoubleClick="ViewersList_Select" 
 			TabIndex="3"
 			PreviewKeyDown="IsEnterKey"

@@ -7,9 +7,10 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using WPFPages . ViewModels;
 
 
-namespace WPFPages.ViewModels
+namespace WPFPages .Views
 {
 	public class SQLHandlers
 	{
@@ -17,93 +18,43 @@ namespace WPFPages.ViewModels
 		public static BankAccountViewModel bvm = MainWindow.bvm;
 		public static CustomerViewModel cvm = MainWindow.cvm;
 		public static DetailsViewModel dvm = MainWindow.dvm;
-		private static DataGridRow BankCurrentRow;
-		private static DataGridRow CustomerCurrentRow;
-		private static DataGridRow DetailsCurrentRow;
+		//private static DataGridRow BankCurrentRow;
+		//private static DataGridRow CustomerCurrentRow;
+		//private static DataGridRow DetailsCurrentRow;
 
 	//*****************************************************************************************//
 		public async  Task<bool> UpdateDbRow (string CurrentDb, object  Row)
 		{
-			///
+			///TRIGGERED when a Cell is EDITED
 			/// After a fight, this is now working and updates the relevant RECORD correctly
 			///
-			int z = 1;
-			if (z < 0)
-				return false;
+			BankAccountViewModel ss = new BankAccountViewModel ( );
+			CustomerViewModel cs = new CustomerViewModel();
+			DetailsViewModel sa = new DetailsViewModel();
+			if ( CurrentDb == "BANKACCOUNT" ) {
+				ss = Row as BankAccountViewModel;
+				if(ss == null) return false;
+			}
+			if ( CurrentDb == "CUSTOMER" ){
+				cs = Row as CustomerViewModel;
+				if ( cs == null ) return false;
+			}
+			if ( CurrentDb == "DETAILS" ){
+				sa = Row as DetailsViewModel;
+				if ( sa == null ) return false;
+			}
 
-//			DataGridRow dg = Row;
-			BankAccountViewModel ss = Row as BankAccountViewModel;
-			CustomerViewModel cs = Row as CustomerViewModel;
-			DetailsViewModel sa = Row as DetailsViewModel;
-//			DataGridRow ss = null;
-//			DataGridRow cs = null;
-//			DataGridRow sa = null;
-
-			//Sort out the data as this Fn is called with null,null as arguments when a/c is "Closed"
-			//if (Row == null)
-			//{
-			//	if (CurrentDb == "BANKACCOUNT" || CurrentDb == "DETAILS")
-			//	{
-			//		if (CurrentDb == "BANKACCOUNT")
-			//		{
-			//			ss =new  BankAccountViewModel() ;
-			//			ss = BankCurrentRow.Item as BankAccountViewModel;
-			//		}
-			//		else
-			//		{
-			//			sa = new DetailsViewModel ();
-			//			sa = DetailsCurrentRow.Item as DetailsViewModel;
-			//		}
-			//	}
-			//	//else if (CurrentDb == "DETAILS")
-			//	//{
-			//	//	sa = new DetailsViewModel ();
-			//	//	sa = DetailsCurrentRow.Item as DetailsViewModel;
-			//	//}
-			//	else if (CurrentDb == "CUSTOMER")
-			//	{
-			//		cs = new CustomerViewModel ();
-			//		cs = CustomerCurrentRow.Item as CustomerViewModel;
-			//	}
-			//}
-			//else
-//			{
-//				if (CurrentDb == "BANKACCOUNT" || CurrentDb == "DETAILS")
-//				{
-//					if (CurrentDb == "BANKACCOUNT")
-//					{
-////						ss = new BankAccountViewModel() ;
-//						ss = Row.Item as BankAccountViewModel;
-//					}
-//					else
-//					{
-//						sa = new DetailsViewModel ();
-//						sa = Row.Item as DetailsViewModel;
-//					}
-//				}
-//				//else if (CurrentDb == "DETAILS")
-//				//{
-//				//	sa = new DetailsViewModel ();
-//				//	sa =Row.Item as DetailsViewModel;
-//				//}
-//				else if (CurrentDb == "CUSTOMER")
-//				{
-//					cs = new CustomerViewModel ();
-//					cs = Row.Item as CustomerViewModel;
-//				}
-//			}
-
-			if (CurrentDb == "BANKACCOUNT" || CurrentDb == "DETAILS")
+			//Sanity checks - are values actualy valid ???
+			//They should be as Grid vlaidate entries itself !!
+			if ( CurrentDb == "BANKACCOUNT" || CurrentDb == "DETAILS")
 			{
+		#region BANK/DETAILS UPDATE PROCESSING
 				try
 				{
-					//Sanity check - are values actualy valid ???
-					//They should be as Grid vlaidate entries itself !!
 					int x;
 					decimal Y;
 					if (CurrentDb == "BANKACCOUNT")
 					{
-//						ss = Row.Item as BankAccountViewModel;
 						x = Convert.ToInt32 (ss.Id);
 						x = Convert.ToInt32 (ss.AcType);
 						//Check for invalid A/C Type
@@ -127,7 +78,6 @@ namespace WPFPages.ViewModels
 					}
 					else if (CurrentDb == "DETAILS")
 					{
-//						sa = Row.Item as DetailsViewModel;
 						x = Convert.ToInt32 (sa.Id);
 						x = Convert.ToInt32 (sa.AcType);
 						//Check for invalid A/C Type
@@ -160,8 +110,6 @@ namespace WPFPages.ViewModels
 				SqlConnection con =  null;
 				string ConString = "";
 				ConString = (string)Properties.Settings.Default["BankSysConnectionString"];
-				//			@"Data Source = (localdb)\MSSQLLocalDB; Initial Catalog = 'C:\USERS\IANCH\APPDATA\LOCAL\MICROSOFT\MICROSOFT SQL SERVER LOCAL DB\INSTANCES\MSSQLLOCALDB\IAN1.MDF'; Integrated Security = True; Connect Timeout = 30; Encrypt = False; TrustServerCertificate = False; ApplicationIntent = ReadWrite; MultiSubnetFailover = False";
-//				con = new SqlConnection (ConString);
 				try
 				{
 					//We need to update BOTH BankAccount AND DetailsViewModel to keep them in parallel
@@ -246,20 +194,19 @@ namespace WPFPages.ViewModels
 				{
 					Console.WriteLine ($"SQL Error UpdateDbRow(180) - BankAccount/Sec" +
 						$"accounts not updated {ex.Message} Data = {ex.Data}");
-#if SHOWSQLERRORMESSAGEBOX
-					MessageBox.Show ("SQL error occurred - See Output for details");
-#endif
 				}
 				finally
 				{
 					con.Close ();
 				}
+	#endregion BANK UPDATE PROCESSING
 			}
 			else if (CurrentDb == "CUSTOMER")
 			{
-				if (Row == null && CurrentDb == "CUSTOMER")
-					cs = CustomerCurrentRow.Item as CustomerViewModel;
+		#region CUSTOMER UPDATE PROCESSING
 
+//				if ( Row == null && CurrentDb == "CUSTOMER")
+//					cs = Row.Item as CustomerViewModel;
 				try
 				{
 					//Sanity check - are values actualy valid ???
@@ -288,7 +235,6 @@ namespace WPFPages.ViewModels
 				SqlConnection con;
 				string ConString = "";
 				ConString = (string)Properties.Settings.Default["BankSysConnectionString"];
-				//			@"Data Source = (localdb)\MSSQLLocalDB; Initial Catalog = 'C:\USERS\IANCH\APPDATA\LOCAL\MICROSOFT\MICROSOFT SQL SERVER LOCAL DB\INSTANCES\MSSQLLOCALDB\IAN1.MDF'; Integrated Security = True; Connect Timeout = 30; Encrypt = False; TrustServerCertificate = False; ApplicationIntent = ReadWrite; MultiSubnetFailover = False";
 				con = new SqlConnection (ConString);
 				try
 				{
@@ -346,9 +292,6 @@ namespace WPFPages.ViewModels
 				{
 					con.Close ();
 					Console.WriteLine ($"SQL Error UpdateDbRow(255)- {ex.Message} Data = {ex.Data}");
-#if SHOWSQLERRORMESSAGEBOX
-					MessageBox.Show ("SQL error occurred - See Output for details");
-#endif
 				}
 				finally
 				{
@@ -356,43 +299,11 @@ namespace WPFPages.ViewModels
 					Console.WriteLine ($"SQL - Updated Row for {CurrentDb}");
 					con.Close();
 				}
-				SqlDbViewer.UpdateAllOpenViewers ();
-
 				return true;
+	#endregion CUSTOMER UPDATE PROCESSING
 			}
-			SqlDbViewer.UpdateAllOpenViewers ();
 			return true;
 
-		}
-
-		public static DataTable  SQLFetchRecord (int RecordToUpdate, string CurrentDb)
-		{
-			DataTable dt = new DataTable();
-			SqlConnection con;
-			string ConString = "";
-			ConString = (string)Properties.Settings.Default["BankSysConnectionString"];
-			//			@"Data Source = (localdb)\MSSQLLocalDB; Initial Catalog = 'C:\USERS\IANCH\APPDATA\LOCAL\MICROSOFT\MICROSOFT SQL SERVER LOCAL DB\INSTANCES\MSSQLLOCALDB\IAN1.MDF'; Integrated Security = True; Connect Timeout = 30; Encrypt = False; TrustServerCertificate = False; ApplicationIntent = ReadWrite; MultiSubnetFailover = False";
-			con = new SqlConnection (ConString);
-			try
-			{
-				//We need to update BOTH BankAccount AND DetailsViewModel to keep them in parallel
-				using (con)
-				{
-					SqlCommand cmd = new SqlCommand ($"Select * from BankAccount where Id = {RecordToUpdate} order by CustNo", con);
-					SqlDataAdapter sda = new SqlDataAdapter (cmd);
-					sda.Fill (dt);
-					con.Close ();
-					return dt;
-				}
-			}
-			catch (Exception ex)
-			{
-				Console.WriteLine ($"SQL Error UpdateDbRow(255)- {ex.Message} Data = {ex.Data}");
-#if SHOWSQLERRORMESSAGEBOX
-					MessageBox.Show ("SQL error occurred - See Output for details");
-#endif
-				return null;
-			}
 		}
 
 	}

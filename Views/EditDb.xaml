@@ -21,6 +21,10 @@
 	<!-- This template explains how to render the list of commands 
 	on the left side in the main window (the 'Control Panel' area). -->
 	<Window.Resources>
+		<!--<MyData:BankAccountViewModel x:Key="BnkModel"/>
+		<MyData:CustomerViewModel x:Key="CustModel"/>
+		<MyData:DetailsViewModel x:Key="DetModel"/>-->
+
 		<DataTemplate x:Key="CommandsTemplate">
 			<ItemsControl ItemsSource="{Binding Path=Commands}">
 				<ItemsControl.ItemTemplate>
@@ -143,7 +147,6 @@
 		<Grid x:Name="BankEditFields"
 					Grid.Row="1" Grid.Column="2"
 					Grid.RowSpan="1"
-					DataContext="DataGrid1"
 					Visibility="Collapsed">
 			<Grid.RowDefinitions>
 				<RowDefinition Height="5"/>
@@ -167,7 +170,6 @@
 								 Background="{StaticResource Gray3}"
 								 HorizontalContentAlignment="Center"
 								 VerticalContentAlignment="Center"
-								DataContext="DataGrid1"
 								 Text="{Binding BankNo, UpdateSourceTrigger=LostFocus, Mode=TwoWay}" LostFocus="BanknoEdit_LostFocus" />
 
 			<TextBox x:Name="CustnoEdit" 
@@ -270,7 +272,9 @@
 	<!--#endregion Bank TEXTBOXES-->
 
 		<!--layout OK-->
-		<!--#region DATAGRID1 - for BankAccounts  -  placed correctly-->
+		
+<!--#region DATAGRID1 - for BankAccounts  -  placed correctly-->
+		
 		<!--Right hand side only-->
 		<DataGrid x:Name="DataGrid1"
 			  Grid.Row="1"
@@ -279,9 +283,11 @@
 			    VerticalAlignment="Stretch"
 				HorizontalAlignment="Stretch"
 				IsReadOnly="False"
+			    PreviewMouseDown="DataGrid1_PreviewMouseDown"
 				SelectionMode="Single"
 				SelectionUnit="FullRow" 
 				AutoGenerateColumns="False"
+				SelectedItem="{Binding BnkModel, Mode=TwoWay}"
 				SelectionChanged="DataGrid1_SelectionChanged" 
 				RowEditEnding="DataGrid1_RowEditEnding"
 				 Visibility="Visible" 
@@ -404,12 +410,12 @@
 		</DataGrid>
 
 	<!--#endregion DATAGRID1 - for BankAccounts-->
-
-			<!--#endregion ALL BANKACCOUNT STUFF-->
+		
+	<!--#endregion ALL BANKACCOUNT STUFF-->
 
 		
 		
-		<!--#region ALL Customer Grid STUFF -->
+	<!--#region ALL Customer Grid STUFF -->
 
 
 		<!--Just for LEFT ONE  COLUMNS ONLY-->
@@ -555,9 +561,7 @@
 			 Grid.Column="2"
 			 Grid.ColumnSpan="1"
 			   Visibility="Visible"	
-			 DataContext="DataGrid2"
 			    >
-			<!--DataContext="DataGrid2"-->
 			<Grid.RowDefinitions>
 				<RowDefinition Height="5"/>
 				<RowDefinition Height="35"/>
@@ -763,24 +767,26 @@
 
 		<!--#region CUSTOMER GRID-->
 			<DataGrid x:Name="DataGrid2"
-					Grid.Row="1"
-					Grid.Column="4"
-					VerticalAlignment="Stretch"
-					HorizontalAlignment="Stretch"
-					IsReadOnly="False"
-					SelectionMode="Single"
-					SelectionUnit="FullRow" 
-					AutoGenerateColumns="False"
-				    PreviewMouseDown="DataGrid2_PreviewMouseDown"
-					RowEditEnding="DataGrid2_RowEditEnding"
-					SelectionChanged="DataGrid2_SelectionChanged"
-					Visibility="Collapsed" 
-				    CellEditEnding="DataGrid2_CellEditEnding"
+				AutoGenerateColumns="False"
+				CellEditEnding="DataGrid2_CellEditEnding"
+				Grid.Row="1"
+				Grid.Column="4"
+				HorizontalAlignment="Stretch"
+				IsReadOnly="False"
+				PreviewMouseDown="DataGrid2_PreviewMouseDown"
+				RowEditEnding="DataGrid2_RowEditEnding"
+				SelectionChanged="DataGrid2_SelectionChanged"
+				SelectedItem="{Binding CustModel, Mode=TwoWay}"
+				SelectionMode="Single"
+				SelectionUnit="FullRow" 
+				Visibility="Collapsed" 
+				VerticalAlignment="Stretch"
 				  >
 				<DataGrid.Resources>
 					<SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightBrushKey}" Color="DarkGray"/>
 				</DataGrid.Resources>
-
+				
+			<!--#region Fields-->
 				<DataGrid.Columns >
 					<DataGridTemplateColumn Header="Id" Width="40"
 									    SortMemberPath="Id" >
@@ -907,29 +913,33 @@
 					</DataGridTemplateColumn>
 
 				</DataGrid.Columns>
+			<!--#endregion Fields-->
 
-			</DataGrid>
+		</DataGrid>
 			<!--#endregion CUSTOMER GRID-->
 			
 
 		
 		<!--Details Grid stuff-->
 		<DataGrid x:Name="DetailsGrid"
-			  Grid.Row="1"
-			  Grid.Column="4"
-			    Grid.RowSpan="1"
-			    VerticalAlignment="Stretch"
-				HorizontalAlignment="Stretch"
-				IsReadOnly="False"
-				SelectionMode="Single"
-				SelectionUnit="FullRow" 
-				AutoGenerateColumns="False"
-				SelectionChanged="DetailsGrid_SelectionChanged" 
-				RowEditEnding="DetailsGrid_RowEditEnding"
-				 Visibility="Visible" CellEditEnding="DetailsGrid_CellEditEnding">
+			AutoGenerateColumns="False"
+			Grid.Row="1"
+			Grid.Column="4"
+			Grid.RowSpan="1"
+			HorizontalAlignment="Stretch"
+			IsReadOnly="False"
+			    PreviewMouseDown="DetailsGrid_PreviewMouseDown"
+			RowEditEnding="DetailsGrid_RowEditEnding"
+			SelectedItem="{Binding DetModel, Mode=TwoWay}"
+			SelectionMode="Single"
+			SelectionUnit="FullRow" 
+			VerticalAlignment="Stretch"
+			Visibility="Visible" CellEditEnding="DetailsGrid_CellEditEnding" SelectionChanged="DetailsGrid_SelectionChanged">
 			<DataGrid.Resources>
 				<SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightBrushKey}" Color="LightBlue"/>
 			</DataGrid.Resources>
+			
+			<!--#region DETAIL GRID FIELDS -->
 
 			<DataGrid.Columns >
 				<DataGridTemplateColumn Header="Id" Width="40"
@@ -1038,13 +1048,13 @@
 				</DataGridTemplateColumn>
 
 			</DataGrid.Columns>
+			<!--#endregion DETAIL GRID FIELDS -->
 
 		</DataGrid>
 
 		<Grid x:Name="DetailsEditFields"
 			Grid.Row="1" Grid.Column="2"
 			Grid.RowSpan="1"
-			DataContext="DetailsGrid"
 			Visibility="Collapsed">
 			<Grid.RowDefinitions>
 				<RowDefinition Height="5"/>

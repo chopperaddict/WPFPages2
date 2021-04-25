@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Windows.Controls;
 
-using WPFPages.ViewModels;
 //using System.Windows.Forms;
 
 namespace WPFPages

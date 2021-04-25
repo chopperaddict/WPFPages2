@@ -7,10 +7,8 @@ using System.Windows;
 using System.Windows.Data;
 using DocumentFormat.OpenXml.Spreadsheet;
 using System;
-using WPFPages.ViewModels;
-using DocumentFormat.OpenXml.Wordprocessing;
 
-namespace WPFPages.Libraries
+namespace WPFPages
 {
 
 	/// <summary>

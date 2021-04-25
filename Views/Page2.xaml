@@ -4,7 +4,6 @@
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
 	 xmlns:local="clr-namespace:WPFPages"
-	 xmlns:Convertors="clr-namespace:WPFPages.Converters"
 	 xmlns:MyData="clr-namespace:WpfUI"
       mc:Ignorable="d" 
       d:DesignHeight="750" d:DesignWidth="1000"
@@ -15,8 +14,8 @@
 
 	<Page.Resources>
 
-		<local:FormatIntValuesConvertor x:Key="formatIntValuesConvertor"/>
-		<Convertors:FormatServicePeriodConvertor x:Key="formatServicePeriodConvertor"/>
+		<!--<local:FormatIntValuesConvertor x:Key="formatIntValuesConvertor"/>
+		<local:FormatServicePeriodConvertor x:Key="formatServicePeriodConvertor"/>-->
 
 		<!--
 		This key is essential to make the Bindings below work, 
@@ -369,7 +368,7 @@
 
 												<TextBlock Text="  "/>
 												<!--<TextBlock Text="{Binding EmployeeId}"/>-->
-												<TextBlock  Text="{Binding Path=EmployeeId, Converter={StaticResource formatIntValuesConvertor}}"
+												<TextBlock  Text="{Binding Path=EmployeeId }"
 													HorizontalAlignment="Left" VerticalAlignment="Center" 
 													FontSize="14" FontWeight="Normal" Margin="1"/>
 											</StackPanel>
@@ -499,7 +498,7 @@
 												<Image Source="{Binding Path=UserPic}"
 												  Height="42" Width="42">
 												</Image>
-												<TextBlock  Text="{Binding Path=EmployeeId, Converter={StaticResource formatIntValuesConvertor}}"
+												<TextBlock  Text="{Binding Path=EmployeeId}"
 														  Style="{StaticResource tblStyle2}"
 													FontSize="11" FontWeight="Normal" Margin="5"/>
 											</WrapPanel>
@@ -512,7 +511,7 @@
 								<GridViewColumn Header="    Id" Width="45">
 									<GridViewColumn.CellTemplate>
 										<DataTemplate>
-											<TextBlock  Text="{Binding Path=EmployeeId, Converter={StaticResource formatIntValuesConvertor}}"
+											<TextBlock  Text="{Binding Path=EmployeeId}"
 													FontSize="11" FontWeight="Normal" Margin="5"/>
 										</DataTemplate>
 									</GridViewColumn.CellTemplate>
@@ -689,7 +688,7 @@
 						<DataTemplate >
 							<WrapPanel Orientation="Horizontal" HorizontalAlignment="Left" Height="20">
 								<TextBlock Text="  "/>
-								<TextBlock  Text="{Binding Path=EmployeeId, Converter={StaticResource formatIntValuesConvertor}}" Foreground="White"/>
+								<TextBlock  Text="{Binding Path=EmployeeId}" Foreground="White"/>
 								<!--<TextBlock Text="{Binding EmployeeId}"
 										Foreground="White"/>-->
 								<TextBlock Text="   |   "/>
@@ -776,7 +775,7 @@
 								<TextBlock Text="  "/>
 								<!--<TextBlock Text="{Binding EmployeeId}"
 									Foreground="White"/>-->
-								<TextBlock  Text="{Binding Path=EmployeeId, Converter={StaticResource formatIntValuesConvertor}}" Foreground="White"/>
+								<TextBlock  Text="{Binding Path=EmployeeId}" Foreground="White"/>
 								<TextBlock Text="   |   "/>
 								<TextBlock Text="{Binding Sex}" Foreground="red" Width="45"/>
 								<TextBlock Text="{Binding EmployeeFirstName}" Foreground="Blue" Width="80"/>
@@ -876,7 +875,7 @@
 											<WrapPanel Orientation="Horizontal"  Grid.Row="1" Grid.Column="0" Margin="5,0,0,0">
 												<TextBlock Text=" Employed   " Foreground="Red" HorizontalAlignment="Left" VerticalAlignment="Center"/>
 												<TextBlock HorizontalAlignment="Right" 									 
-												 Text="{Binding ServicePeriod, Converter={StaticResource formatServicePeriodConvertor}}"  
+												 Text="{Binding ServicePeriod}"  
 												 Foreground="Black"/>
 											</WrapPanel>
 									</Grid>

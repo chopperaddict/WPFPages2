@@ -2,7 +2,7 @@
 using System.ComponentModel;
 using System.Windows.Media.Imaging;
 
-namespace WPFPages.ViewModels
+namespace WPFPages
 {
      public class OurStaff :INotifyPropertyChanged
      {

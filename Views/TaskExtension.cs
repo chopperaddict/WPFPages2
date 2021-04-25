@@ -3,7 +3,7 @@
 using System.Threading.Tasks;
 using System.Timers;
 
-namespace WPFPages.ViewModels
+namespace WPFPages
 {
 	public static class TaskExtensions
 	{
