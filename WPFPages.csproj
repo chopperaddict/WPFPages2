@@ -64,7 +64,7 @@
     </ApplicationDefinition>
     <Compile Include="Behaviours\DataGridBehaviour.cs" />
     <Compile Include="BindingTracer.cs" />
-    <Compile Include="Library.cs" />
+    <Compile Include="Libraries\Library.cs" />
     <Compile Include="Views\RelayCommand.cs" />
     <Compile Include="DateOnlyConverter.cs" />
     <Compile Include="SalaryConvertor.cs" />

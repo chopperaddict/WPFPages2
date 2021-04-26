@@ -7,6 +7,8 @@ using System . Linq;
 using System . Runtime . Serialization . Formatters . Binary;
 using System . Text;
 using System . Threading . Tasks;
+using System.Windows.Navigation;
+using DocumentFormat.OpenXml.Spreadsheet;
 
 namespace WPFPages
 {
@@ -38,6 +40,7 @@ namespace WPFPages
 			return SB;
 		}
 		//-------------------------------------------------------------------------------------------------------//
+
 		public static double stringToDouble ( string str )
 		{
 			double dbl;

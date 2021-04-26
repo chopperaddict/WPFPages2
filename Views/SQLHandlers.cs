@@ -127,7 +127,7 @@ namespace WPFPages .Views
 							cmd.Parameters.AddWithValue ("@intrate", Convert.ToDecimal (ss.IntRate));
 							cmd.Parameters.AddWithValue ("@odate", Convert.ToDateTime (ss.ODate));
 							cmd.Parameters.AddWithValue ("@cdate", Convert.ToDateTime (ss.CDate));
-							await cmd.ExecuteNonQueryAsync ();
+							cmd.ExecuteNonQuery();
 							Console.WriteLine ("SQL Update successful for Bank Account Data...");
 
 							cmd = new SqlCommand ("UPDATE SecAccounts SET BANKNO=@bankno, CUSTNO=@custno, ACTYPE=@actype, BALANCE=@balance, INTRATE=@intrate, ODATE=@odate, CDATE=@cdate WHERE BankNo=@BankNo", con);
@@ -139,7 +139,7 @@ namespace WPFPages .Views
 							cmd.Parameters.AddWithValue ("@intrate", Convert.ToDecimal (ss.IntRate));
 							cmd.Parameters.AddWithValue ("@odate", Convert.ToDateTime (ss.ODate));
 							cmd.Parameters.AddWithValue ("@cdate", Convert.ToDateTime (ss.CDate));
-							await cmd.ExecuteNonQueryAsync ();
+							cmd.ExecuteNonQuery();
 							Console.WriteLine ("SQL Update successful for Secondary Accounts Data...");
 
 							cmd = new SqlCommand ("UPDATE Customer SET BANKNO=@bankno, CUSTNO=@custno, ACTYPE=@actype, ODATE=@odate, CDATE=@cdate WHERE BankNo=@BankNo", con);
@@ -149,7 +149,7 @@ namespace WPFPages .Views
 							cmd.Parameters.AddWithValue ("@actype", Convert.ToInt32 (ss.AcType));
 							cmd.Parameters.AddWithValue ("@odate", Convert.ToDateTime (ss.ODate));
 							cmd.Parameters.AddWithValue ("@cdate", Convert.ToDateTime (ss.CDate));
-							await cmd.ExecuteNonQueryAsync ();
+							cmd.ExecuteNonQuery();
 							Console.WriteLine ("SQL Update successful for Customers Data...");
 						}
 						else if (CurrentDb ==  "DETAILS" )
@@ -163,7 +163,7 @@ namespace WPFPages .Views
 							cmd.Parameters.AddWithValue ("@intrate", Convert.ToDecimal (sa.IntRate));
 							cmd.Parameters.AddWithValue ("@odate", Convert.ToDateTime (sa.ODate));
 							cmd.Parameters.AddWithValue ("@cdate", Convert.ToDateTime (sa.CDate));
-							await cmd.ExecuteNonQueryAsync ();
+							cmd.ExecuteNonQuery();
 							Console.WriteLine ("SQL Update successful for Bank Account Data...");
 
 							cmd = new SqlCommand ("UPDATE SecAccounts SET BANKNO=@bankno, CUSTNO=@custno, ACTYPE=@actype, BALANCE=@balance, INTRATE=@intrate, ODATE=@odate, CDATE=@cdate WHERE BankNo=@BankNo", con);
@@ -175,7 +175,7 @@ namespace WPFPages .Views
 							cmd.Parameters.AddWithValue ("@intrate", Convert.ToDecimal (sa.IntRate));
 							cmd.Parameters.AddWithValue ("@odate", Convert.ToDateTime (sa.ODate));
 							cmd.Parameters.AddWithValue ("@cdate", Convert.ToDateTime (sa.CDate));
-							await cmd.ExecuteNonQueryAsync ();
+							cmd.ExecuteNonQuery();
 							Console.WriteLine ("SQL Update successful for Secondary Accounts Data...");
 
 							cmd = new SqlCommand ("UPDATE Customer SET BANKNO=@bankno, CUSTNO=@custno, ACTYPE=@actype, ODATE=@odate, CDATE=@cdate WHERE BankNo=@BankNo", con);
@@ -185,7 +185,7 @@ namespace WPFPages .Views
 							cmd.Parameters.AddWithValue ("@actype", Convert.ToInt32 (sa.AcType));
 							cmd.Parameters.AddWithValue ("@odate", Convert.ToDateTime (sa.ODate));
 							cmd.Parameters.AddWithValue ("@cdate", Convert.ToDateTime (sa.CDate));
-							await cmd.ExecuteNonQueryAsync ();
+							cmd.ExecuteNonQuery();
 							Console.WriteLine ("SQL Update successful for Customers Data...");
 						}
 					}
@@ -264,7 +264,7 @@ namespace WPFPages .Views
 						cmd.Parameters.AddWithValue ("@dob", Convert.ToDateTime (cs.Dob));
 						cmd.Parameters.AddWithValue ("@odate", Convert.ToDateTime (cs.ODate));
 						cmd.Parameters.AddWithValue ("@cdate", Convert.ToDateTime (cs.CDate));
-						await cmd.ExecuteNonQueryAsync ();
+						cmd.ExecuteNonQuery();
 						Console.WriteLine ("SQL Update successful for Customers Data...");
 
 						cmd = new SqlCommand ("UPDATE BankAccount SET BANKNO=@bankno, CUSTNO=@custno, ACTYPE=@actype, ODATE=@odate, CDATE=@cdate WHERE BankNo=@BankNo", con);
@@ -274,7 +274,7 @@ namespace WPFPages .Views
 						cmd.Parameters.AddWithValue ("@actype", Convert.ToInt32 (cs.AcType));
 						cmd.Parameters.AddWithValue ("@odate", Convert.ToDateTime (cs.ODate));
 						cmd.Parameters.AddWithValue ("@cdate", Convert.ToDateTime (cs.CDate));
-						await cmd.ExecuteNonQueryAsync ();
+						cmd.ExecuteNonQuery();
 						Console.WriteLine ("SQL Update successful for Bank Account Data...");
 
 						cmd = new SqlCommand ("UPDATE SecAccounts SET BANKNO=@bankno, CUSTNO=@custno, ACTYPE=@actype, ODATE=@odate, CDATE=@cdate WHERE BankNo=@BankNo", con);
@@ -284,7 +284,7 @@ namespace WPFPages .Views
 						cmd.Parameters.AddWithValue ("@actype", Convert.ToInt32 (cs.AcType));
 						cmd.Parameters.AddWithValue ("@odate", Convert.ToDateTime (cs.ODate));
 						cmd.Parameters.AddWithValue ("@cdate", Convert.ToDateTime (cs.CDate));
-						await cmd.ExecuteNonQueryAsync ();
+						cmd.ExecuteNonQuery();
 						Console.WriteLine ("SQL Update successful for Secondary Accounts Data...");
 					}
 				}

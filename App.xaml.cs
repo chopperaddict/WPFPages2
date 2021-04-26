@@ -67,10 +67,5 @@ namespace WPFPages
 
 		//	base.OnStartup(e);
 		//}
-		private void TextBox_GotFocus(object sender, RoutedEventArgs e) {
-			TextBox tb = sender as TextBox;
-//				e.Handled = true;
-//			tb.SelectAll();
-		}
 	}
 }

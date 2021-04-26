@@ -13,6 +13,7 @@ namespace WPFPages
 	public sealed class GridViewer
 	{
 		public static readonly GridViewer Viewer_instance = new GridViewer ( );
+
 		public Window [ ] window = { null, null, null };
 		public int MaxViewers = 3;
 		//Save windows Handle

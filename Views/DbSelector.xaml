@@ -12,7 +12,9 @@
 		Topmost="false"
 	   WindowStartupLocation="Manual"
 	  Top="640"  Left="1200"
-	  Closing="Window_Closing" KeyDown="Window_KeyDown">
+	  Closing="Window_Closing" 
+	  WindowStyle="None"
+        KeyDown="Window_KeyDown">
 
 	<Window.Resources>
 
@@ -32,6 +34,17 @@
 			<Setter Property="Control.Background" Value="{StaticResource Gray2}"/>
 			<!--<Setter Property="Control.Foreground" Value="{StaticResource Gray2}"/>-->
 			<Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+			<Setter Property="HorizontalAlignment" Value="Stretch"/>
+			<!--<Setter Property="Template">
+				<Setter.Value>
+					<ControlTemplate TargetType="ListBox">
+						<ScrollViewer x:Name="ScrollViewer"
+						              HorizontalAlignment="Stretch">
+							<ItemsPresenter Height="35" HorizontalAlignment="Stretch"/>
+						</ScrollViewer>
+					</ControlTemplate>
+				</Setter.Value>
+				</Setter>-->
 			<Style.Triggers>
 				<MultiTrigger>
 					<MultiTrigger.Conditions>
@@ -50,10 +63,10 @@
 			</Style.Triggers>
 		</Style>
 
-		<!--Base Style for listbox Items on this form-->
+		<!--Base Style for listbox Items on this form--><!--
 		<Style x:Key="_BaseListBoxItemStyle" 
 			TargetType="ListBoxItem">
-			<!--<Setter Property="MinWidth" Value="545"/>-->
+			--><!--<Setter Property="MinWidth" Value="545"/>--><!--
 			<Setter Property="HorizontalContentAlignment" Value="Stretch"/>
 			<Setter Property="Template">
 				<Setter.Value>
@@ -64,18 +77,17 @@
 							SnapsToDevicePixels="true">
 							<ContentPresenter />
 						</Border>
-						<!--<ControlTemplate.Triggers>
+						--><!--<ControlTemplate.Triggers>
 							<Trigger Property="IsSelected" Value="true">
 								<Setter TargetName="_Border" Property="Background" Value="{StaticResource Gray2}"/>
 								<Setter Property="Foreground" Value="White"/>
 								<Setter Property="FontWeight" Value="SemiBold"/>
 							</Trigger>
-						</ControlTemplate.Triggers>-->
+						</ControlTemplate.Triggers>--><!--
 					</ControlTemplate>
 				</Setter.Value>
-			</Setter>
-
-		</Style>
+			</Setter>		 
+		</Style>-->
 
 		<!--Style for ListBoxItems in (Top) viewer listbox-->
 		<Style x:Key="_ListBoxItemStyle1" 
@@ -84,29 +96,28 @@
 			<Setter Property="Background" Value="{StaticResource Gray2}"/>
 			<Setter Property="Foreground" Value="{StaticResource Black0}"/>
 			<Setter Property="FontWeight" Value="Normal"/>
-			<Setter Property="Width" Value="850"/>
+			<Setter Property="Width" Value="650"/>
 			<Setter Property="FontSize" Value="14"/>
 			<Setter Property="HorizontalContentAlignment" Value="Stretch"/>
 			<Setter Property="Width" Value="{Binding Path=Width, ElementName=ViewersList}"/>
-			<!--Remove focus rectangle-->
+			<!--Remove focus rectangle - IT WORKS-->
 			<Setter Property="FocusVisualStyle" Value="{x:Null}"/>
 			<Setter Property="Template">
 				<Setter.Value>
 					<ControlTemplate TargetType="ListBoxItem">
 						<Border Name="_Border"
 							Padding="3"
-							HorizontalAlignment="Center"
-							SnapsToDevicePixels="true">
+							HorizontalAlignment="Center">
 							<ContentPresenter  />
 						</Border>
 						<ControlTemplate.Triggers>
-							<!--<Trigger Property="IsFocused" Value="true">
+							<Trigger Property="IsFocused" Value="true">
 								<Setter TargetName="_Border" Property="Background" Value="{StaticResource Gray2}"/>
 								<Setter Property="Control.Foreground" Value="{StaticResource White0}"/>
 								<Setter Property="Control.FontWeight" Value="Normal"/>
 								<Setter Property="FontStyle" Value="Italic"/>
 								<Setter Property="FontSize" Value="14"/>
-							</Trigger>-->
+							</Trigger>
 							<Trigger Property="IsMouseOver" Value="true">
 								<Setter TargetName="_Border" Property="Control.Background" Value="{StaticResource Gray2}"/>
 								<Setter TargetName="_Border" Property="Control.Foreground" Value="{StaticResource White0}"/>
@@ -265,29 +276,37 @@
 			FontSize="14"
 			Height="80" 
 			Visibility="Visible"
-			HorizontalContentAlignment="Center"
+			HorizontalContentAlignment="Stretch"
 			MinWidth="455"
 			SelectedIndex="0" 
 			VerticalAlignment="Top"
 			PreviewKeyDown="IsEnterKey"
 			MouseDoubleClick="sqlselector_Select" 
 			GotFocus="SQLlist_Focused"
-		    ItemContainerStyle="{DynamicResource _ListBoxItemStyle1}"
-    		Style="{StaticResource _styletest}"
+			ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+			ScrollViewer.VerticalScrollBarVisibility="Disabled"
+			Style="{StaticResource _styletest}"
 			IsTabStop="True"
 			TabIndex="0">
+			<ListBox.ItemContainerStyle>
+				<Style TargetType="ListBoxItem">
+					<Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+				</Style>
+			</ListBox.ItemContainerStyle>
+
 			<!--This makes the selected row visible when window looses focus - works on any grid-->
 			
 			<ListBox.Resources>
 				<SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightBrushKey}" Color="#96A3FB"/>
 			</ListBox.Resources>
 
-			<ListBoxItem Content="Bank Accounts" Width="{Binding Path=sqlSelector.Width}" 
-					   IsTabStop="false" IsSelected="true"
+			<ListBoxItem Content="Bank Accounts" 
+			             IsTabStop="false" IsSelected="true"
+					 Width="auto"
 						 Style="{StaticResource _ListBoxItemStyle1}"/>
-			<ListBoxItem Content="Customer Accounts"  Width="450" IsTabStop="false"
+			<ListBoxItem Content="Customer Accounts"  IsTabStop="false"
 						 Style="{StaticResource _ListBoxItemStyle1}"/>
-			<ListBoxItem Content="Multi Bank Accounts"  Width="450" IsTabStop="false"
+			<ListBoxItem Content="Multi Bank Accounts" IsTabStop="false"
 						 Style="{StaticResource _ListBoxItemStyle1}"/>
 		</ListBox>
 
@@ -350,11 +369,13 @@
 			ItemContainerStyle="{DynamicResource _ListBoxItemStyle2}"
 			PreviewMouseDown="ViewersList_PreviewMouseDown"
 			MouseDoubleClick="ViewersList_Select" 
+			ScrollViewer.HorizontalScrollBarVisibility="Disabled"
 			TabIndex="3"
 			PreviewKeyDown="IsEnterKey"
 			Style="{StaticResource _styletest}"
 			VerticalAlignment="Stretch"	
 			VerticalContentAlignment="Stretch"
+			ScrollViewer.VerticalScrollBarVisibility="Disabled"
 			Visibility="Visible"
 			>
 			<!--MouseUp="ViewersList_Select"-->

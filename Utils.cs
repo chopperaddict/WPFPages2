@@ -23,6 +23,7 @@ namespace WPFPages
 	/// </summary>
 	public class Utils
 	{
+//		public NewFlags Flags = new NewFlags();
 		//************************************************************************************//
 		/// <summary>
 		///  checks an Enum in Flags.cs andf appends the correct sort 

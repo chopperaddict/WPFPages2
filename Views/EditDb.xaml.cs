@@ -35,12 +35,8 @@ namespace WPFPages . Views
 		// Event we TRIGGER to notify SqlViewer of  a selectedindex change
 		public static event EditDbRowChange EditDbViewerSelectedIndexChanged;
 
-		//		public static event SqlSelectedRowChanged SqlViewerIndexChanged;
-
-
 		DataTable dt = new DataTable ( );
 		SQLDbSupport sqlsupport = new SQLDbSupport ( );
-		public bool RemoteIndexChange = false;
 		int CurrentIndex = -1;
 		object CurrentItem = null;
 		SqlDbViewer sqldbv = null;
@@ -51,6 +47,7 @@ namespace WPFPages . Views
 		public EventHandlers EventHandler = null;
 		public BankAccountViewModel Bank;
 
+		private static bool LocalSelectionChangeOnly = true;
 		//private BankAccountViewModel BankCurrentRowAccount;
 		//private CustomerViewModel CustomerCurrentRowAccount;
 		//private DetailsViewModel DetailsCurrentRowAccount;
@@ -80,20 +77,67 @@ namespace WPFPages . Views
 			thisWindow = this;
 		}
 
-		//		Trigger event to notify SqlDbViewer of index changes
-		private void NotifyViewerofEditIndexChange ( int row, string CurentDb )
+		/// <summary>
+		/// Callback handler for db change notifications sent by another SqlDbViewer
+		/// We have to try to work out whether we have one or more other viewers open
+		/// and update their datagris as relevant
+		/// </summary>
+		/// <param name="sender"></param>
+		public void DbChangedHandler ( SqlDbViewer sender, DataGrid Grid, DataChangeArgs args )
 		{
-			if ( !Flags . EditDbChangeHandled )
-				return;
+			if ( Grid . Name == "BankGrid" )
+			{
+				if ( DataGrid1 . Items . Count > 0 )
+				{
+					int currentrow = DataGrid1 . SelectedIndex;
+					// refresh our grid
+					DataGrid1 . ItemsSource = null;
+					DataGrid1 . ItemsSource = CollectionViewSource . GetDefaultView ( bvm . BankAccountObs );
+					DataGrid1 . SelectedIndex = currentrow;
+				}
 
-			EventHandlers ev = new EventHandlers ( );
-			//			ev . ShowSubscribersCount ( );
+			}
+			else if ( Grid . Name == "CustomerGrid" )
+			{
+				if ( DataGrid2. Items . Count > 0 )
+				{
+					int currentrow = DataGrid2 . SelectedIndex;
+					// refresh our grid
+					DataGrid2 . ItemsSource = null;
+					DataGrid2 . ItemsSource = CollectionViewSource . GetDefaultView ( cvm . CustomersObs );
+					DataGrid2 . SelectedIndex = currentrow;
+				}
+
+			}
+			else if ( Grid . Name == "DetailsGrid" )
+			{
+				if ( DetailsGrid . Items . Count > 0 )
+				{
+					int currentrow = DetailsGrid . SelectedIndex;
+					// refresh our grid
+					DetailsGrid . ItemsSource = null;
+					DetailsGrid . ItemsSource = CollectionViewSource . GetDefaultView ( dvm . DetailsObs );
+					DetailsGrid . SelectedIndex = currentrow;
+				}
+
+			}
+			// Send it to the correct open viewer window
+			//			if ( Flags . SqlBankViewer != null )
+			//				Flags . SqlBankViewer . RefreshBankOnUpdateNotification ( sender, Grid, args );
+			return;
+		}
+		//	We have changed the selected item, so Trigger event to notify SqlDbViewer of index changes
+		private void NotifyViewerofEditIndexChange (bool LocalSelectionChangeOnly, int row, string CurentDb )
+		{
+			if (!LocalSelectionChangeOnly)
+			{
+				if (!Flags.EditDbDataChanged)
+					return;
+			}
 			if ( EventHandlers . EditDbViewerSelectedIndexChanged != null )
 			{
-				//				Flags . EditDbIndexTriggered = true;
-				EventHandlers . EditDbViewerSelectedIndexChanged . Invoke ( row, CurrentDb );
+				EventHandlers . EditDbViewerSelectedIndexChanged . Invoke ( LocalSelectionChangeOnly, row, CurrentDb );
 				Flags . EditDbChangeHandled = false;
-
 			}
 		}
 
@@ -106,37 +150,41 @@ namespace WPFPages . Views
 		/// </summary>
 		/// <param name="row"></param>
 		/// <param name="CurrentDb"></param>
-		public void OnSqlViewerIndexChanged ( int row, string CurrentDb )
+		public void OnSqlViewerIndexChanged ( bool IsEdit, int row, string CurrentDb )
 		{
 			Flags . EditDbChangeHandled = true;
 			if ( CurrentDb == "BANKACCOUNT" )
 			{
 				DataGrid1 . SelectedItem = null;  //Clear current selection to avoid multiple selections
-				RemoteIndexChange = true;
 				DataGrid1 . SelectedIndex = row;
 				DataGrid1 . SelectedItem = row;
-				DataGrid1 . ScrollIntoView ( DataGrid1 . SelectedItem );
+				if ( DataGrid1 . SelectedItem != null )
+					DataGrid1 . ScrollIntoView ( DataGrid1 . SelectedItem );
 				DataGrid1 . Refresh ( );
-				RemoteIndexChange = false;
 			}
 			else if ( CurrentDb == "CUSTOMER" )
 			{
 				DataGrid2 . SelectedItem = null;    //Clear current selection to avoid multiple selections
-				RemoteIndexChange = true;
 				DataGrid2 . SelectedIndex = row;
 				DataGrid2 . SelectedItem = row;
-				DataGrid2 . ScrollIntoView ( DataGrid2 . SelectedItem );
+				if ( DataGrid2 . SelectedItem != null )
+					DataGrid2 . ScrollIntoView ( DataGrid2 . SelectedItem );
 				DataGrid2 . Refresh ( );
-				RemoteIndexChange = false;
 			}
 			else if ( CurrentDb == "DETAILS" )
 			{
+				if ( Flags . SqlDataChanged )
+				{
+					// Need to uppdate our data cos SqlDbViewer has changed it
+					DetailsGrid . ItemsSource = null;
+					DetailsGrid . ItemsSource = CollectionViewSource . GetDefaultView ( dvm . DetailsObs );
+				}
 				DetailsGrid . SelectedItem = null;  //Clear current selection to avoid multiple selections
 				DetailsGrid . SelectedIndex = row;
 				DetailsGrid . SelectedItem = row;
-				DetailsGrid . ScrollIntoView ( DetailsGrid . SelectedItem );
+				if ( DetailsGrid . SelectedItem != null )
+					DetailsGrid . ScrollIntoView ( DetailsGrid . SelectedItem );
 				DetailsGrid . Refresh ( );
-				RemoteIndexChange = false;
 			}
 		}
 		private void TriggerEditOccurred ( string Caller, int index, object datatype )
@@ -161,7 +209,6 @@ namespace WPFPages . Views
 				{
 
 					//We CANNOT ACCESS the Grids because we are in  a Static functoin - GRRRRRRRRRRRRRRRRRRRRR
-
 					//if (DataGrid1.SelectedIndex != e.CurrentIndex)
 					//{
 					//	RowToFind = e.CurrentIndex;
@@ -334,6 +381,7 @@ namespace WPFPages . Views
 
 		private void WindowLoaded ( object sender, RoutedEventArgs e )
 		{
+			// Subscribe to notifications of data changes to SQL data
 			if ( CurrentDb == "BANKACCOUNT" )
 			{
 				BankLabels . Visibility = Visibility . Visible;
@@ -351,13 +399,13 @@ namespace WPFPages . Views
 				this . Title += " Bank Accounts Db";
 
 				// use this or the next one
-				DataGrid1 . ItemsSource = bvm . BankAccountObs;
-				DataGrid1 . DataContext = bvm . BankAccountObs;
-				BankEditFields . DataContext = bvm . BankAccountObs;
+				//				DataGrid1 . ItemsSource = bvm . BankAccountObs;
+				//				DataGrid1 . DataContext = bvm . BankAccountObs;
+				//				BankEditFields . DataContext = bvm . BankAccountObs;
 
-				//DataGrid1 . ItemsSource = CollectionViewSource . GetDefaultView ( bvm . BankAccountObs );
-				//BankEditFields.DataContext = CollectionViewSource.GetDefaultView (bvm.BankAccountObs );
-				//DataGrid1.DataContext = CollectionViewSource.GetDefaultView (bvm.BankAccountObs );
+				DataGrid1 . ItemsSource = CollectionViewSource . GetDefaultView ( bvm . BankAccountObs );
+				BankEditFields . DataContext = CollectionViewSource . GetDefaultView ( bvm . BankAccountObs );
+				DataGrid1 . DataContext = CollectionViewSource . GetDefaultView ( bvm . BankAccountObs );
 
 				DataGrid1 . SelectedIndex = 0;
 				DataGrid1 . SelectedItem = 0;
@@ -366,8 +414,6 @@ namespace WPFPages . Views
 				// But it does work, but only puts it on bottom row of viewer
 				DataGridNavigation . SelectRowByIndex ( DataGrid1, CurrentIndex, -1 );
 
-				// set up our windows dragging
-				this . MouseDown += delegate { DoDragMove ( ); };
 				CurrentGrid = DataGrid1;
 				//Setup the Event handler to notify EditDb viewer of index changes
 				Console . WriteLine ( $"EditDb(242) Window just loaded : getting instance of EventHandlers class with this,DataGrid1,\"EDITDB\"" );
@@ -380,7 +426,6 @@ namespace WPFPages . Views
 
 				Flags . CurrentEditDbViewer = this;
 				Flags . CurrentEditDbViewer . Name = "BankAccount";
-
 
 				DataGrid1 . Focus ( );
 				DataGrid1 . BringIntoView ( );
@@ -400,13 +445,13 @@ namespace WPFPages . Views
 				this . Title += " Customer Accounts Db";
 
 				// use this or the next one
-				DataGrid2 . ItemsSource = cvm . CustomersObs;
-				DataGrid2 . DataContext = cvm . CustomersObs;
-				CustomerEditFields . DataContext = cvm . CustomersObs;
+				//				DataGrid2 . ItemsSource = cvm . CustomersObs;
+				//				DataGrid2 . DataContext = cvm . CustomersObs;
+				//				CustomerEditFields . DataContext = cvm . CustomersObs;
 
-				//DataGrid2 . ItemsSource = CollectionViewSource . GetDefaultView ( cvm . CustomersObs );
-				//DataGrid2 . DataContext = CollectionViewSource . GetDefaultView ( cvm . CustomersObs );
-				//CustomerEditFields . DataContext = CollectionViewSource . GetDefaultView ( cvm . CustomersObs );
+				DataGrid2 . ItemsSource = CollectionViewSource . GetDefaultView ( cvm . CustomersObs );
+				DataGrid2 . DataContext = CollectionViewSource . GetDefaultView ( cvm . CustomersObs );
+				CustomerEditFields . DataContext = CollectionViewSource . GetDefaultView ( cvm . CustomersObs );
 
 				DataGrid2 . SelectedIndex = CurrentIndex;
 				DataGrid2 . SelectedItem = CurrentItem;
@@ -414,7 +459,6 @@ namespace WPFPages . Views
 				//to get it to scroll the record into view we have to go thru this palaver....
 				// But it does work, but only puts it on bottom row of viewer
 				DataGridNavigation . SelectRowByIndex ( DataGrid2, CurrentIndex, -1 );
-				this . MouseDown += delegate { DoDragMove ( ); };
 				CurrentGrid = DataGrid2;
 				//Setup the Event handler to notify EditDb viewer of index changes
 				Console . WriteLine ( $"EditDb(287) Window just loaded :  getting instance of EventHandlers class with this,DataGrid2,\"EDITDB\"" );
@@ -447,13 +491,13 @@ namespace WPFPages . Views
 				this . Title += " Secondary Accounts Db";
 
 				// use this or the next one
-				DetailsGrid . ItemsSource = dvm . DetailsObs;
-				DetailsGrid . DataContext = dvm . DetailsObs;
-				DetailsEditFields . DataContext = dvm . DetailsObs;
+				//				DetailsGrid . ItemsSource = dvm . DetailsObs;
+				//				DetailsGrid . DataContext = dvm . DetailsObs;
+				//				DetailsEditFields . DataContext = dvm . DetailsObs;
 
-				//this . DetailsGrid . ItemsSource = CollectionViewSource . GetDefaultView ( dvm . DetailsObs );
-				//DetailsGrid.DataContext = CollectionViewSource.GetDefaultView (dvm.DetailsObs );
-				//DetailsEditFields.DataContext = CollectionViewSource.GetDefaultView (dvm.DetailsObs );
+				DetailsGrid . ItemsSource = CollectionViewSource . GetDefaultView ( dvm . DetailsObs );
+				DetailsGrid . DataContext = CollectionViewSource . GetDefaultView ( dvm . DetailsObs );
+				DetailsEditFields . DataContext = CollectionViewSource . GetDefaultView ( dvm . DetailsObs );
 
 				DetailsGrid . SelectedIndex = 0;
 				DetailsGrid . SelectedItem = 0;
@@ -461,7 +505,6 @@ namespace WPFPages . Views
 				//to get it to scroll the record into view we have to go thru this palaver....
 				// But it does work, but only puts it on bottom row of viewer
 				DataGridNavigation . SelectRowByIndex ( DetailsGrid, CurrentIndex, -1 );
-				this . MouseDown += delegate { DoDragMove ( ); };
 				CurrentGrid = DetailsGrid;
 				//Setup the Event handler to notify EditDb viewer of index changes
 				Console . WriteLine ( $"EditDb(312) Window just loaded :  getting instance of EventHandlers class with this,DataGrid1,\"EDITDB\"" );
@@ -477,11 +520,18 @@ namespace WPFPages . Views
 				DetailsGrid . BringIntoView ( );
 			}
 
-			MainWindow.gv.SqlCurrentEditViewer = this;
+			MainWindow . gv . SqlCurrentEditViewer = this;
+
+			//+++++++++++++++++++++++++//
+			// Subscribe to relevant Events
+			//+++++++++++++++++++++++++//
 			// subscribe to SqlViewerIndexChanged EVENT. Assign Handling to THIS FILE ->  OnSqlViewerIndexChanged;
 			// SqlViewerIndexChanged  is the Trigger function (In Sqlviewer) we call on index change
 			EventHandlers . SqlViewerIndexChanged += MainWindow . gv . SqlCurrentEditViewer . OnSqlViewerIndexChanged;
+			EventHandlers . NotifyOfDataChange += DbChangedHandler;
 			EventHandlers ev = new EventHandlers ( );
+			// set up our windows dragging
+			this . MouseDown += delegate { DoDragMove ( ); };
 			ev . ShowSubscribersCount ( );
 
 		}
@@ -521,109 +571,135 @@ namespace WPFPages . Views
 		#region RowEdithandlers
 
 		//Bank Grid
-		private void DataGrid1_RowEditEnding ( object sender, DataGridRowEditEndingEventArgs e )
+		private async void DataGrid1_RowEditEnding ( object sender, DataGridRowEditEndingEventArgs e )
 		{
 			//// This ONLY called when a cell is edited
-			//BankAccountViewModel ss = null;
-			//CustomerViewModel cs = null;
-			//DetailsViewModel sa = null;
+			BankAccountViewModel ss = null;
+			CustomerViewModel cs = null;
+			DetailsViewModel sa = null;
+			var sqlh = new SQLHandlers ( );
 
-			////Sort out the data as this Fn is called with null,null as arguments when a/c is "Closed"
-			//if (e == null)
-			//{
-			//	if (CurrentDb == "BANKACCOUNT")
-			//	{
-			//		SQLHandlers.UpdateDbRow ("BANKACCOUNT", e.Row);
-			//		SqlUpdating = true;
-			//		return;
-			//	}
-			//}
-			//else
-			//{
-			//	if (CurrentDb == "BANKACCOUNT")
-			//	{
-			//		BankAccountViewModel.SqlUpdating = true;
-			//		SQLHandlers.UpdateDbRow ("BANKACCOUNT", e.Row);
-			//		return;
-			//	}
-			//}
+			//Sort out the data as this Fn is called with null,null as arguments when a/c is "Closed"
+			if ( e == null )
+			{
+				if ( CurrentDb == "BANKACCOUNT" )
+				{
+					await sqlh . UpdateDbRow ( "BANKACCOUNT", e . Row );
+					SqlUpdating = true;
+					Flags . EditDbDataChanged = true;
+					NotifyViewerofEditIndexChange ( LocalSelectionChangeOnly, DataGrid1 . SelectedIndex, "BANKACCOUNT" );
+					Flags . EditDbDataChanged = false;
+					return;
+				}
+			}
+			else
+			{
+				if ( CurrentDb == "BANKACCOUNT" )
+				{
+					BankAccountViewModel . SqlUpdating = true;
+					await sqlh . UpdateDbRow ( "BANKACCOUNT", e . Row );
+					Flags . EditDbDataChanged = true;
+					NotifyViewerofEditIndexChange ( LocalSelectionChangeOnly, DataGrid1 . SelectedIndex, "BANKACCOUNT" );
+					Flags . EditDbDataChanged = false;
+					return;
+				}
+			}
 		}
 		//Customer grid
-		private void DataGrid2_RowEditEnding ( object sender, DataGridRowEditEndingEventArgs e )
+		private async void DataGrid2_RowEditEnding ( object sender, DataGridRowEditEndingEventArgs e )
 		{
 			//// This ONLY called when a cell is edited
-			//BankAccountViewModel ss = null;
-			//CustomerViewModel cs = null;
-			//DetailsViewModel sa = null;
+			BankAccountViewModel ss = null;
+			CustomerViewModel cs = null;
+			DetailsViewModel sa = null;
+			var sqlh = new SQLHandlers ( );
 
-			////Sort out the data as this Fn is called with null,null as arguments when a/c is "Closed"
-			//if (e == null)
-			//{
-			//	if (CurrentDb == "BANKACCOUNT")
-			//	{
-			//		SQLHandlers.UpdateDbRow ("BANKACCOUNT", e.Row);
-			//		SqlUpdating = true;
-			//		return;
-			//	}
-			//}
-			//else
-			//{
-			//	if (CurrentDb == "BANKACCOUNT")
-			//	{
-			//		BankAccountViewModel.SqlUpdating = true;
-			//		SQLHandlers.UpdateDbRow ("BANKACCOUNT", e.Row);
-			//		return;
-			//	}
-			//}
+			LocalSelectionChangeOnly = false;
+
+			//Sort out the data as this Fn is called with null,null as arguments when a/c is "Closed"
+			if ( e == null )
+			{
+				if ( CurrentDb == "CUSTOMER" )
+				{
+					await sqlh . UpdateDbRow ( "CUSTOMER", e . Row );
+					SqlUpdating = true;
+					Flags . EditDbDataChanged = true;
+					NotifyViewerofEditIndexChange ( LocalSelectionChangeOnly, DataGrid2 . SelectedIndex, "CUSTOMER" );
+					Flags . EditDbDataChanged = false;
+					return;
+				}
+			}
+			else
+			{
+				if ( CurrentDb == "CUSTOMER" )
+				{
+					BankAccountViewModel . SqlUpdating = true;
+					await sqlh . UpdateDbRow ( "CUSTOMER", e . Row );
+					SqlUpdating = true;
+					Flags.EditDbDataChanged = true;
+					NotifyViewerofEditIndexChange ( LocalSelectionChangeOnly, DataGrid2 . SelectedIndex, "CUSTOMER");
+					Flags . EditDbDataChanged = false;
+					return;
+				}
+			}
 		}
 		//Details Grid
-		private void DetailsGrid_RowEditEnding ( object sender, DataGridRowEditEndingEventArgs e )
+		private async void DetailsGrid_RowEditEnding ( object sender, DataGridRowEditEndingEventArgs e )
 		{
 			//// This ONLY called when a cell is edited
-			//BankAccountViewModel ss = null;
-			//CustomerViewModel cs = null;
-			//DetailsViewModel sa = null;
-
-			////Sort out the data as this Fn is called with null,null as arguments when a/c is "Closed"
-			//if (e == null)
-			//{
-			//	if (CurrentDb == "DETAILS")
-			//	{
-			//		SQLHandlers.UpdateDbRow ("DETAILS", e.Row);
-			//		SqlUpdating = true;
-			//	}
-			//}
-			//else
-			//{
-			//	if (CurrentDb == "DETAILS")
-			//	{
-			//		DetailsViewModel.SqlUpdating = true;
-			//		SQLHandlers.UpdateDbRow ("DETAILS", e.Row);
-			//		return;
-			//	}
-			//}
+			BankAccountViewModel ss = null;
+			CustomerViewModel cs = null;
+			DetailsViewModel sa = null;
+			var  sqlh = new SQLHandlers();
+			Flags.EditDbDataChanged = true;
+			//Sort out the data as this Fn is called with null,null as arguments when a/c is "Closed"
+			if ( e == null )
+			{
+				if ( CurrentDb == "DETAILS" )
+				{
+					await sqlh . UpdateDbRow ( "DETAILS", e . Row );
+					SqlUpdating = true;
+					Flags . EditDbDataChanged = true;
+					NotifyViewerofEditIndexChange ( LocalSelectionChangeOnly, DetailsGrid . SelectedIndex, "DETAILS" );
+					Flags . EditDbDataChanged = false;
+				}
+			}
+			else
+			{
+				if ( CurrentDb == "DETAILS" )
+				{
+					DetailsViewModel . SqlUpdating = true;
+					await sqlh . UpdateDbRow ( "DETAILS", e . Row );
+					Flags . EditDbDataChanged = true;
+					NotifyViewerofEditIndexChange ( LocalSelectionChangeOnly, DetailsGrid . SelectedIndex, "DETAILS" );
+					Flags . EditDbDataChanged = false;
+					return;
+				}
+			}
+			Flags . EditDbDataChanged = false;
 		}
 
 		#endregion RowEdithandlers
 
 		#region RowSelection handlers
 
-		public void ViewerHasChangedIndex ( int newRow, string CurrentDb )
-		{
-			if ( CurrentDb == "BANKACCOUNT" )
-			{
-				DataGrid1 . SelectedIndex = newRow;
+		//public void ViewerHasChangedIndex ( int newRow, string CurrentDb )
+		//{
+		//	if ( CurrentDb == "BANKACCOUNT" )
+		//	{
+		//		DataGrid1 . SelectedIndex = newRow;
 
-			}
-			else if ( CurrentDb == "CUSTOMER" )
-			{
+		//	}
+		//	else if ( CurrentDb == "CUSTOMER" )
+		//	{
 
-			}
-			else if ( CurrentDb == "DETAILS" )
-			{
+		//	}
+		//	else if ( CurrentDb == "DETAILS" )
+		//	{
 
-			}
-		}
+		//	}
+		//}
+		// BankAccount
 		/// <summary>
 		/// Receives the notification from the main db viewer that a selection has been changed
 		/// and sends it to that same viewer when changed in this window
@@ -635,66 +711,62 @@ namespace WPFPages . Views
 			if ( !Flags . EditDbChangeHandled )
 				Flags . EditDbChangeHandled = true;
 			if ( sqldbv == null ) return;
-			if ( RemoteIndexChange ) return;
+			LocalSelectionChangeOnly = true;
 			//we need to notify SQLDBVIEWER so it can update its selected index
 			Flags . EditDbChangeHandled = true;
-			NotifyViewerofEditIndexChange ( DataGrid1 . SelectedIndex, "BANKACCOUNT" );
+			NotifyViewerofEditIndexChange ( LocalSelectionChangeOnly, DataGrid1 . SelectedIndex, "BANKACCOUNT" );
+			Flags . EditDbChangeHandled = false;
+			Status . Content = $"Total Records = {DataGrid1 . Items . Count}, Current Record = {DataGrid1.SelectedIndex}";
 		}
 
 		//Customer Db
-		private void DataGrid2_SelectionChanged ( object sender, SelectionChangedEventArgs e )
-		{
-			if ( DataGrid2 . SelectedIndex == -1 ) return;
-			if ( !Flags . EditDbChangeHandled )
-				Flags . EditDbChangeHandled = true;
-
-			// Handle Customer Row selection
-			//Sanity check
-			if ( sqldbv == null ) return;
-			if ( RemoteIndexChange ) return;
-			if (DataGrid2.SelectedIndex == -1) return;
-			{
-				//if ( DataGrid2 . SelectedIndex == -1 ) DataGrid2 . SelectedIndex = 0;
-				//CustomerViewModel objItemToEdit = DataGrid2 . SelectedItem as CustomerViewModel;
-				//DataGrid dg = ( DataGrid ) DataGrid2;
-				//int rowIndex = dg . SelectedIndex;
-				//object item = dg . Items [ rowIndex ]; // = Product X
-				//dg . SelectedItem = item;
-
-				//DataGridRow row = dg . ItemContainerGenerator . ContainerFromIndex ( rowIndex ) as DataGridRow;
-			}
-
-			Flags . EditDbChangeHandled = true;
-			NotifyViewerofEditIndexChange ( DataGrid2 . SelectedIndex, "CUSTOMER" );
-			Flags . EditDbChangeHandled = false;
-		}
-
 		/// <summary>
 		/// Receives the notification from the main db viewer that a selection has been changed
 		/// and sends it to that same viewer when changed in this window
 		/// so both windows update the current row simaltaneously.
 		/// </summary>
+		private void DataGrid2_SelectionChanged ( object sender, SelectionChangedEventArgs e )
+		{
+			if ( DataGrid2 . SelectedIndex == -1 ) return;
+//			if ( !Flags . EditDbChangeHandled )
+//				Flags . EditDbChangeHandled = true;
+
+			// Handle Customer Row selection
+			//Sanity check
+			if ( sqldbv == null ) return;
+
+			//we need to notify SQLDBVIEWER so it can update its selected index
+//			Flags . EditDbChangeHandled = true;
+			NotifyViewerofEditIndexChange ( LocalSelectionChangeOnly, DataGrid2 . SelectedIndex, "CUSTOMER" );
+			Flags . EditDbChangeHandled = false;
+			Status . Content = $"Total Records = {DataGrid2 . Items . Count}, Current Record = {DataGrid2 . SelectedIndex}";
+		}
+
+		// Details
+		/// <summary>
+		/// Receives the notification from the main db viewer that a selection has been changed
+		/// and sends it to that same viewer when changed in this window
+		/// so both windows update the current row simultaneously.
+		/// </summary>
 		public void DetailsGrid_SelectionChanged ( object sender, SelectionChangedEventArgs e )
 		{
 			// THIS WORKS CORRECTLY IN THAT THE MAIN WINDOW SCROLLS CORRECTLY WHEN SELECTION IS CHANGED
-			if ( DetailsGrid. SelectedIndex == -1 ) return;
+			if ( DetailsGrid . SelectedIndex == -1 ) return;
 			if ( !Flags . EditDbChangeHandled )
 				Flags . EditDbChangeHandled = true;
 			// Handle the SecAccounts (DETAILS) Edit Window
 			if ( sqldbv == null ) return;
-			if ( RemoteIndexChange ) return;
-			{
-				////Sanity check
-				//if ( DetailsGrid . SelectedIndex == -1 ) DetailsGrid . SelectedIndex = 0;
-				//DetailsViewModel objItemToEdit = DetailsGrid . SelectedItem as DetailsViewModel;
-				//DataGrid dg = ( DataGrid ) sender;
-				//DataRowView SelRow = dg . SelectedItem as DataRowView;
-				//MainWindow . DgControl . SelectedIndex = DetailsGrid . SelectedIndex;
-				//MainWindow . DgControl . EditSelChange = true;
-			}
-			Flags . EditDbChangeHandled = true;
-			NotifyViewerofEditIndexChange ( DetailsGrid . SelectedIndex, "DETAILS" );
-			Flags . EditDbChangeHandled = false;
+
+			//we need to notify SQLDBVIEWER so it can update its selected index
+			Flags.EditDbChangeHandled = false;
+			NotifyViewerofEditIndexChange ( LocalSelectionChangeOnly, DetailsGrid . SelectedIndex, "DETAILS" );
+//			Flags . EditDbChangeHandled = false;
+			if ( Flags . isMultiMode )
+				Status . Content = $"Total Records = {DetailsGrid . Items . Count}, Current Record = {DetailsGrid . SelectedIndex}, Duplicate A/C's only shown...";
+			else if ( Flags . IsFiltered )
+				Status . Content = $"Total Records = {DetailsGrid . Items . Count}, Current Record = {DetailsGrid . SelectedIndex}, Resullts ARE Filtered";
+			else
+				Status . Content = $"Total Records = {DetailsGrid. Items . Count}, Current Record = {DetailsGrid . SelectedIndex}";
 		}
 		#endregion RowSelection handlers
 
@@ -703,16 +775,6 @@ namespace WPFPages . Views
 		// EVENT HANDLER
 		//*******************************************************************************************************//
 
-
-		public void UpdateSelection ( int row, object Grid )
-		{
-			//Dispatcher.Invoke (() =>
-			//{
-			//	DataGrid1.SelectedIndex = row;
-			//});
-
-
-		}
 		#region EventHandler
 		/// <summary>
 		///  this is called by an ~Event triggered by SqlDBViewer changing it's SelectedIndex
@@ -721,189 +783,195 @@ namespace WPFPages . Views
 		/// <param name="selectedRow"></param>
 		/// <param name="caller"></param>
 		public void resetEditDbindex ( bool self, int RowToFind, DataGrid caller )
+		// UNUSED
 		{
-			int SelectedIdRow = -1;
+			//int SelectedIdRow = -1;
 
-			if ( DataGrid1 . ItemsSource == null ) return;
-			//			if (!Flags.isEditDbCaller)
-			//				return;
-			if ( caller . Name == "BankGrid" )
-			{
-				Console . WriteLine ( $"resetDbIndex : - current {DataGrid1 . SelectedIndex} new - {RowToFind}" );
-				if ( DataGrid1 . SelectedIndex != RowToFind )
-				{
-					DataGrid1 . SelectedIndex = RowToFind;
-					//1st we get the specified row selected in the grid
-					if ( Flags . EventHandlerDebug )
-					{
-						Console . WriteLine ( $"\r\n*** EVENTHANDLER *** - EDITDB (769) RESETETDBINDEX HANDLER() - Current index = {DataGrid1 . SelectedIndex} received row change of {RowToFind} from SqlDbViewer()" );
-					}
-					if ( BankAccountViewModel . CurrentSelectedIndex != -1 )
-					{
-						int temp = BankAccountViewModel . CurrentSelectedIndex;
-						if ( temp == -1 )
-							temp = RowToFind;
-						DataGridNavigation . SelectRowByIndex ( DataGrid1, RowToFind, -1 );
-					}
-					else
-						DataGridNavigation . SelectRowByIndex ( DataGrid1, RowToFind, -1 );
+			//if ( DataGrid1 . ItemsSource == null ) return;
+			////			if (!Flags.isEditDbCaller)
+			////				return;
+			//if ( caller . Name == "BankGrid" )
+			//{
+			//	Console . WriteLine ( $"resetDbIndex : - current {DataGrid1 . SelectedIndex} new - {RowToFind}" );
+			//	if ( DataGrid1 . SelectedIndex != RowToFind )
+			//	{
+			//		DataGrid1 . SelectedIndex = RowToFind;
+			//		//1st we get the specified row selected in the grid
+			//		if ( Flags . EventHandlerDebug )
+			//		{
+			//			Console . WriteLine ( $"\r\n*** EVENTHANDLER *** - EDITDB (769) RESETETDBINDEX HANDLER() - Current index = {DataGrid1 . SelectedIndex} received row change of {RowToFind} from SqlDbViewer()" );
+			//		}
+			//		if ( BankAccountViewModel . CurrentSelectedIndex != -1 )
+			//		{
+			//			int temp = BankAccountViewModel . CurrentSelectedIndex;
+			//			if ( temp == -1 )
+			//				temp = RowToFind;
+			//			DataGridNavigation . SelectRowByIndex ( DataGrid1, RowToFind, -1 );
+			//		}
+			//		else
+			//			DataGridNavigation . SelectRowByIndex ( DataGrid1, RowToFind, -1 );
 
-					//Clear our ID flag
-					//BankAccountViewModel.CurrentSelectedIndex = -1;
+			//		//Clear our ID flag
+			//		//BankAccountViewModel.CurrentSelectedIndex = -1;
 
-					//Do we need to update the grid after an edit by SqlDbViewer ??
-					if ( BankAccountViewModel . SqlUpdating )
-					{
-						//						Console.WriteLine ($"\r\nEDITDB (787) RESETETDBINDEX HANDLER() - Calling CollectionViewSource Function\r\n");
-						//Clear Editing flag
-						BankAccountViewModel . SqlUpdating = false;
-						// update ourselves to show changes made in SqlDbviewer
-						CollectionViewSource . GetDefaultView ( DataGrid1 . ItemsSource ) . Refresh ( );
-					}
-				}
-				//Now scroll it into view if necessary
-				if ( DataGrid1 . SelectedIndex == -1 )
-				{
-					DataGrid1 . SelectedIndex = 0;
-					DataGrid1 . SelectedItem = 0;
-				}
-				DataGrid1 . ScrollIntoView ( DataGrid1 . SelectedItem );
-				var view = CollectionViewSource . GetDefaultView ( DataGrid1 . ItemsSource );
-				Console . WriteLine ( $"CollectionViewSource is type : {view . GetType ( )}" );
-				Console . WriteLine ( $"DataGrid is type : {DataGrid1 . ItemsSource . GetType ( )}" );
+			//		//Do we need to update the grid after an edit by SqlDbViewer ??
+			//		if ( BankAccountViewModel . SqlUpdating )
+			//		{
+			//			//						Console.WriteLine ($"\r\nEDITDB (787) RESETETDBINDEX HANDLER() - Calling CollectionViewSource Function\r\n");
+			//			//Clear Editing flag
+			//			BankAccountViewModel . SqlUpdating = false;
+			//			// update ourselves to show changes made in SqlDbviewer
+			//			CollectionViewSource . GetDefaultView ( DataGrid1 . ItemsSource ) . Refresh ( );
+			//		}
+			//	}
+			//	//Now scroll it into view if necessary
+			//	if ( DataGrid1 . SelectedIndex == -1 )
+			//	{
+			//		DataGrid1 . SelectedIndex = 0;
+			//		DataGrid1 . SelectedItem = 0;
+			//	}
+			//	if ( DataGrid1 . SelectedItem != null )
+			//		DataGrid1 . ScrollIntoView ( DataGrid1 . SelectedItem );
+			//	var view = CollectionViewSource . GetDefaultView ( DataGrid1 . ItemsSource );
+			//	Console . WriteLine ( $"CollectionViewSource is type : {view . GetType ( )}" );
+			//	Console . WriteLine ( $"DataGrid is type : {DataGrid1 . ItemsSource . GetType ( )}" );
 
-			}
-			else if ( caller . Name == "CustomerGrid" )
-			{
-				Console . WriteLine ( $"resetDbIndex : - Caller : {caller . Name}, current Destination row {DataGrid2 . SelectedIndex}, rowToFind- {RowToFind}" );
-				if ( DataGrid2 . SelectedIndex != RowToFind )
-				{
-					if ( Flags . EventHandlerDebug )
-					{
-						Console . WriteLine ( $"\r\n*** EVENTHANDLER *** - EDITDB (804) RESETETDBINDEX HANDLER() - Current index = {DataGrid2 . SelectedIndex} received row change of {RowToFind} from SqlDbViewer()" );
-					}
-					DataGrid2 . SelectedIndex = RowToFind;
-					DataGrid2 . SelectedItem = RowToFind;
-					if ( CustomerViewModel . CurrentSelectedIndex != -1 )
-					{
-						int temp = CustomerViewModel . CurrentSelectedIndex;
-						if ( temp == -1 )
-							temp = RowToFind;
-						//SelectedIdRow = FindRowById (caller, temp);
-						//if (SelectedIdRow != -1)
-						//{
-						//	DataGridNavigation.SelectRowByIndex (DataGrid2, SelectedIdRow, -1);
-						//}
-						//else
-						DataGridNavigation . SelectRowByIndex ( DataGrid2, RowToFind, -1 );
-					}
-					else
-					{
-						//						DataGridNavigation.SelectRowByIndex (DataGrid2, RowToFind, -1);
-					}
+			//}
+			//else if ( caller . Name == "CustomerGrid" )
+			//{
+			//	Console . WriteLine ( $"resetDbIndex : - Caller : {caller . Name}, current Destination row {DataGrid2 . SelectedIndex}, rowToFind- {RowToFind}" );
+			//	if ( DataGrid2 . SelectedIndex != RowToFind )
+			//	{
+			//		if ( Flags . EventHandlerDebug )
+			//		{
+			//			Console . WriteLine ( $"\r\n*** EVENTHANDLER *** - EDITDB (804) RESETETDBINDEX HANDLER() - Current index = {DataGrid2 . SelectedIndex} received row change of {RowToFind} from SqlDbViewer()" );
+			//		}
+			//		DataGrid2 . SelectedIndex = RowToFind;
+			//		DataGrid2 . SelectedItem = RowToFind;
+			//		if ( CustomerViewModel . CurrentSelectedIndex != -1 )
+			//		{
+			//			int temp = CustomerViewModel . CurrentSelectedIndex;
+			//			if ( temp == -1 )
+			//				temp = RowToFind;
+			//			//SelectedIdRow = FindRowById (caller, temp);
+			//			//if (SelectedIdRow != -1)
+			//			//{
+			//			//	DataGridNavigation.SelectRowByIndex (DataGrid2, SelectedIdRow, -1);
+			//			//}
+			//			//else
+			//			DataGridNavigation . SelectRowByIndex ( DataGrid2, RowToFind, -1 );
+			//		}
+			//		else
+			//		{
+			//			//						DataGridNavigation.SelectRowByIndex (DataGrid2, RowToFind, -1);
+			//		}
 
-					//Clear our ID flag
-					CustomerViewModel . CurrentSelectedIndex = -1;
+			//		//Clear our ID flag
+			//		CustomerViewModel . CurrentSelectedIndex = -1;
 
-					//Do we need to update the grid after an edit by SqlDbViewer ??
-					if ( CustomerViewModel . SqlUpdating )
-					{
-						//						Console.WriteLine ($"\r\nEDITDB (787) RESETETDBINDEX HANDLER() - Calling CollectionViewSource Function\r\n");
-						//Clear Editing flag
-						CustomerViewModel . SqlUpdating = false;
-						// update ourselves to show changes made in SqlDbviewer
-						CollectionViewSource . GetDefaultView ( DataGrid2 . ItemsSource ) . Refresh ( );
-					}
-				}
+			//		//Do we need to update the grid after an edit by SqlDbViewer ??
+			//		if ( CustomerViewModel . SqlUpdating )
+			//		{
+			//			//						Console.WriteLine ($"\r\nEDITDB (787) RESETETDBINDEX HANDLER() - Calling CollectionViewSource Function\r\n");
+			//			//Clear Editing flag
+			//			CustomerViewModel . SqlUpdating = false;
+			//			// update ourselves to show changes made in SqlDbviewer
+			//			CollectionViewSource . GetDefaultView ( DataGrid2 . ItemsSource ) . Refresh ( );
+			//		}
+			//	}
 
-				var view = CollectionViewSource . GetDefaultView ( DataGrid2 . ItemsSource );
-				Console . WriteLine ( $"CollectionViewSource is type : {view . GetType ( )}" );
-				Console . WriteLine ( $"DataGrid2 is type : {DataGrid2 . ItemsSource . GetType ( )}" );
-				DataGrid2 . ScrollIntoView ( DataGrid2 . SelectedItem, null );
-				CollectionViewSource . GetDefaultView ( DataGrid2 . ItemsSource ) . Refresh ( );
-			}
-			else if ( caller . Name == "DetailsGrid" )
-			{
-				Console . WriteLine ( $"resetDbIndex : - current {DetailsGrid . SelectedIndex} new - {RowToFind}" );
-				if ( DetailsGrid . SelectedIndex != RowToFind )
-				{
-					if ( Flags . EventHandlerDebug )
-					{
-						Console . WriteLine ( $"\r\n*** EVENTHANDLER *** - EDITDB (839) RESETETDBINDEX HANDLER() - Current index = {DetailsGrid . SelectedIndex} received row change of {RowToFind} from SqlDbViewer()" );
-					}
-					if ( DetailsViewModel . CurrentSelectedIndex != -1 )
-					{
-						int temp = DetailsViewModel . CurrentSelectedIndex;
-						if ( temp == -1 )
-							temp = RowToFind;
-						//						SelectedIdRow = FindRowById (caller, temp);
-						//if (SelectedIdRow != -1)
-						//{
-						//	DataGridNavigation.SelectRowByIndex (DetailsGrid, SelectedIdRow, -1);
-						//}
-						//else
-						DataGridNavigation . SelectRowByIndex ( DetailsGrid, RowToFind, -1 );
-					}
-					else
-						DataGridNavigation . SelectRowByIndex ( DetailsGrid, RowToFind, -1 );
+			//	var view = CollectionViewSource . GetDefaultView ( DataGrid2 . ItemsSource );
+			//	Console . WriteLine ( $"CollectionViewSource is type : {view . GetType ( )}" );
+			//	Console . WriteLine ( $"DataGrid2 is type : {DataGrid2 . ItemsSource . GetType ( )}" );
+			//	if ( DataGrid2 . SelectedItem != null )
+			//		DataGrid2 . ScrollIntoView ( DataGrid2 . SelectedItem, null );
+			//	CollectionViewSource . GetDefaultView ( DataGrid2 . ItemsSource ) . Refresh ( );
+			//}
+			//else if ( caller . Name == "DetailsGrid" )
+			//{
+			//	Console . WriteLine ( $"resetDbIndex : - current {DetailsGrid . SelectedIndex} new - {RowToFind}" );
+			//	if ( DetailsGrid . SelectedIndex != RowToFind )
+			//	{
+			//		if ( Flags . EventHandlerDebug )
+			//		{
+			//			Console . WriteLine ( $"\r\n*** EVENTHANDLER *** - EDITDB (839) RESETETDBINDEX HANDLER() - Current index = {DetailsGrid . SelectedIndex} received row change of {RowToFind} from SqlDbViewer()" );
+			//		}
+			//		if ( DetailsViewModel . CurrentSelectedIndex != -1 )
+			//		{
+			//			int temp = DetailsViewModel . CurrentSelectedIndex;
+			//			if ( temp == -1 )
+			//				temp = RowToFind;
+			//			//						SelectedIdRow = FindRowById (caller, temp);
+			//			//if (SelectedIdRow != -1)
+			//			//{
+			//			//	DataGridNavigation.SelectRowByIndex (DetailsGrid, SelectedIdRow, -1);
+			//			//}
+			//			//else
+			//			DataGridNavigation . SelectRowByIndex ( DetailsGrid, RowToFind, -1 );
+			//		}
+			//		else
+			//			DataGridNavigation . SelectRowByIndex ( DetailsGrid, RowToFind, -1 );
 
-					//Clear our ID flag
-					DetailsViewModel . CurrentSelectedIndex = -1;
+			//		//Clear our ID flag
+			//		DetailsViewModel . CurrentSelectedIndex = -1;
 
-					//Do we need to update the grid after an edit by SqlDbViewer ??
-					if ( DetailsViewModel . SqlUpdating )
-					{
-						//						Console.WriteLine ($"\r\nEDITDB (787) RESETETDBINDEX HANDLER() - Calling CollectionViewSource Function\r\n");
-						//Clear Editing flag
-						DetailsViewModel . SqlUpdating = false;
-						// update ourselves to show changes made in SqlDbviewer
-						var view = CollectionViewSource . GetDefaultView ( DetailsGrid . ItemsSource );
-						CollectionViewSource . GetDefaultView ( DetailsGrid . ItemsSource ) . Refresh ( );
-						Console . WriteLine ( $"CollectionViewSource is type : {view . GetType ( )}" );
-						Console . WriteLine ( $"DataGrid is type : {DetailsGrid . ItemsSource . GetType ( )}" );
-					}
-				}
-				DetailsGrid . ScrollIntoView ( DetailsGrid . SelectedItem );
+			//		//Do we need to update the grid after an edit by SqlDbViewer ??
+			//		if ( DetailsViewModel . SqlUpdating )
+			//		{
+			//			//						Console.WriteLine ($"\r\nEDITDB (787) RESETETDBINDEX HANDLER() - Calling CollectionViewSource Function\r\n");
+			//			//Clear Editing flag
+			//			DetailsViewModel . SqlUpdating = false;
+			//			// update ourselves to show changes made in SqlDbviewer
+			//			var view = CollectionViewSource . GetDefaultView ( DetailsGrid . ItemsSource );
+			//			CollectionViewSource . GetDefaultView ( DetailsGrid . ItemsSource ) . Refresh ( );
+			//			Console . WriteLine ( $"CollectionViewSource is type : {view . GetType ( )}" );
+			//			Console . WriteLine ( $"DataGrid is type : {DetailsGrid . ItemsSource . GetType ( )}" );
+			//		}
+			//	}
+			//	if ( DetailsGrid . SelectedItem != null )
+			//		DetailsGrid . ScrollIntoView ( DetailsGrid . SelectedItem );
 
-			}
-			else
-			{
-				if ( Flags . EventHandlerDebug )
-				{
-					Console . WriteLine ( $"\r\n*** EVENTHANDLER *** - EDITDBVIEWER (797) RESETETDBINDEX HANDLER() - Current index = {DataGrid2 . SelectedIndex} received row change of {RowToFind} from SqlDbViewer() for {caller . CurrentItem}" );
-				}
-				if ( DataGrid2 . SelectedIndex != RowToFind )
-				{
-					DataGrid2 . SelectedIndex = RowToFind;
-					DataGridNavigation . SelectRowByIndex ( DataGrid2, DataGrid2 . SelectedIndex, -1 );
-				}
-				var view = CollectionViewSource . GetDefaultView ( DataGrid2 . ItemsSource );
-				CollectionViewSource . GetDefaultView ( DataGrid2 . ItemsSource ) . Refresh ( );
-				Console . WriteLine ( $"CollectionViewSource is type : {view . GetType ( )}" );
-				Console . WriteLine ( $"DataGrid is type : {DataGrid2 . ItemsSource . GetType ( )}" );
-			}
+			//}
+			//else
+			//{
+			//	if ( Flags . EventHandlerDebug )
+			//	{
+			//		Console . WriteLine ( $"\r\n*** EVENTHANDLER *** - EDITDBVIEWER (797) RESETETDBINDEX HANDLER() - Current index = {DataGrid2 . SelectedIndex} received row change of {RowToFind} from SqlDbViewer() for {caller . CurrentItem}" );
+			//	}
+			//	if ( DataGrid2 . SelectedIndex != RowToFind )
+			//	{
+			//		DataGrid2 . SelectedIndex = RowToFind;
+			//		DataGridNavigation . SelectRowByIndex ( DataGrid2, DataGrid2 . SelectedIndex, -1 );
+			//	}
+			//	var view = CollectionViewSource . GetDefaultView ( DataGrid2 . ItemsSource );
+			//	CollectionViewSource . GetDefaultView ( DataGrid2 . ItemsSource ) . Refresh ( );
+			//	Console . WriteLine ( $"CollectionViewSource is type : {view . GetType ( )}" );
+			//	Console . WriteLine ( $"DataGrid is type : {DataGrid2 . ItemsSource . GetType ( )}" );
+			//}
 		}
 
 		private int FindRowById ( DataGrid caller, int SelectedId )
+		// UNUSED
 		{
-			return -1;
-			//Not needed currently because the columns are always in the
-			////same sort sequence across BOTH SQL and DbEdit windows right now
-			int rowindex = -1;
-			return -1;
+			//return -1;
+			////Not needed currently because the columns are always in the
+			//////same sort sequence across BOTH SQL and DbEdit windows right now
+			//int rowindex = -1;
+			//return -1;
 
-			BankAccountViewModel bvm = caller . ItemsSource as BankAccountViewModel;
-			/// Iterate thru Grid to find the Row for matching ID (SelectedId)
-			for ( int i = 0 ; i < caller . Items . Count ; i++ )
-			{
-				bvm = caller . CurrentItem as BankAccountViewModel;
-				if ( bvm . Id == SelectedId )
-				{
-					rowindex = caller . SelectedIndex;
-					break;
-				}
-			}
-			return rowindex;
+			//BankAccountViewModel bvm = caller . ItemsSource as BankAccountViewModel;
+			///// Iterate thru Grid to find the Row for matching ID (SelectedId)
+			//for ( int i = 0 ; i < caller . Items . Count ; i++ )
+			//{
+			//	bvm = caller . CurrentItem as BankAccountViewModel;
+			//	if ( bvm . Id == SelectedId )
+			//	{
+			//		rowindex = caller . SelectedIndex;
+			//		break;
+			//	}
+			//}
+			//return rowindex;
+			return 0;
 		}
 		#endregion EventHandler
 
@@ -986,6 +1054,8 @@ namespace WPFPages . Views
 
 		private void Window_PreviewKeyDown ( object sender, KeyEventArgs e )
 		{
+			Console.WriteLine($"Key : {e.Key}");
+			DataGrid dg = null;
 			if ( e . Key == Key . Escape )
 			{
 				if ( CurrentDb == "BANKACCOUNT" )
@@ -994,9 +1064,7 @@ namespace WPFPages . Views
 					BankAccountViewModel . ClearFromEditDbList ( DataGrid2, CurrentDb );
 				else if ( CurrentDb == "DETAILS" )
 					BankAccountViewModel . ClearFromEditDbList ( DetailsGrid, CurrentDb );
-				//				EventHandlers . ClearWindowHandles ( this, null );
 				BankAccountViewModel . EditdbWndBank = null;
-				//				tokenSource.Cancel ();
 				Close ( );
 			}
 			else if ( e . Key == Key . RightAlt )
@@ -1004,11 +1072,104 @@ namespace WPFPages . Views
 				Flags . ListGridviewControlFlags ( );
 			}
 			else if ( e . Key == Key . Home )
-				Application . Current . Shutdown ( );
+			{
+				int CurrentRow = 0;
+
+				//	Application . Current . Shutdown ( );
+				if ( CurrentDb == "BANKACCOUNT" )
+					dg = DataGrid1;
+				else if ( CurrentDb == "CUSTOMER" )
+					dg = DataGrid2;
+				else
+					dg = DetailsGrid;
+				dg . SelectedIndex = 0;
+				if ( dg . SelectedItem != null )
+					dg . ScrollIntoView ( dg . SelectedItem );
+			}
+			else if ( e . Key == Key . End )
+			{
+				// DataGrid keyboard navigation = END
+				if ( CurrentDb == "BANKACCOUNT" )
+					dg = DataGrid1;
+				else if ( CurrentDb == "CUSTOMER" )
+					dg = DataGrid2;
+				else
+					dg = DetailsGrid;
+				dg . SelectedIndex = dg . Items . Count - 1;
+				if ( dg . SelectedItem != null )
+					dg . ScrollIntoView ( dg . SelectedItem );
+		}
+			else if ( e . Key == Key . PageDown )
+			{
+				// DataGrid keyboard navigation = PAGE DOWN
+				if ( CurrentDb == "BANKACCOUNT" )
+					dg = DataGrid1;
+				else if ( CurrentDb == "CUSTOMER" )
+					dg = DataGrid2;
+				else
+					dg = DetailsGrid;
+				if ( dg . SelectedIndex < dg . Items . Count - 10 )
+				{
+					dg . SelectedIndex += 10;
+					if ( dg . SelectedItem != null )
+						dg . ScrollIntoView ( dg . SelectedItem );
+				}
+				else
+				{
+					dg . SelectedIndex = dg . Items . Count - 1;
+					if ( dg . SelectedItem != null )
+						dg . ScrollIntoView ( dg . SelectedItem );
+
+				}
+		}
+			else if ( e . Key == Key . PageUp )
+			{
+				// DataGrid keyboard navigation = PAGE UP
+				if ( CurrentDb == "BANKACCOUNT" )
+					dg = DataGrid1;
+				else if ( CurrentDb == "CUSTOMER" )
+					dg = DataGrid2;
+				else
+					dg = DetailsGrid;
+				if ( dg . SelectedIndex >= 10 )
+				{
+					dg . SelectedIndex -= 10;
+					if ( dg . SelectedItem != null )
+						dg . ScrollIntoView ( dg . SelectedItem );
+				}
+				else
+				{
+					dg . SelectedIndex = 0;
+					if ( dg . SelectedItem != null )
+						dg . ScrollIntoView ( dg . SelectedItem );
+				}
+			}
+			else if ( e . Key == Key .OemQuotes)
+			{
+				EventHandler.ShowSubscribersCount();
+			}
+			else if ( e . Key == Key . Delete )
+			{
+				Flags . CurrentSqlViewer . Window_PreviewKeyDown ( sender, e );
+			}
+			if ( dg != null)
+			{
+				// Now process it
+				if (dg == DataGrid1)
+					DataGrid1_SelectionChanged(dg, null);
+				else if (dg == DataGrid2)
+					DataGrid2_SelectionChanged(dg, null);
+				else if (dg == DetailsGrid)
+					DetailsGrid_SelectionChanged(dg, null);
+				if (dg.SelectedItem != null)
+					dg.ScrollIntoView(dg.SelectedItem);
+				e.Handled = true;
+			}
 		}
 
 		private void Button_Click ( object sender, RoutedEventArgs e )
 		{
+			// Window is being closed
 			if ( CurrentDb == "BANKACCOUNT" )
 				BankAccountViewModel . ClearFromEditDbList ( DataGrid1, CurrentDb );
 			else if ( CurrentDb == "CUSTOMER" )
@@ -1041,8 +1202,13 @@ namespace WPFPages . Views
 			//			EventHandlers . ClearWindowHandles ( this, null );
 			// Clear EditDb pointers
 			EventHandlers . SqlViewerIndexChanged -= MainWindow . gv . SqlCurrentEditViewer . OnSqlViewerIndexChanged;
+			EventHandlers . NotifyOfDataChange -= DbChangedHandler;
+//			EventHandlers . EditDbViewerSelectedIndexChanged -= this.EditDbHasChangedIndex;                 // Callback in THIS FILE
+			EventHandlers ev = new EventHandlers ( );
+			ev . ShowSubscribersCount ( );
 			MainWindow . gv . SqlCurrentEditViewer = null;
 			Flags . CurrentEditDbViewer = null;
+
 		}
 
 		private async void DataGrid1_CellEditEnding ( object sender, DataGridCellEditEndingEventArgs e )
@@ -1072,7 +1238,8 @@ namespace WPFPages . Views
 					SQLHandlers sqlh = new SQLHandlers ( );
 					// This call updates the SQL Db and the main viewer is also updated correctly
 					await sqlh . UpdateDbRow ( "BANKACCOUNT", e . Row );
-					Flags . CurrentSqlViewer . BankGrid . ScrollIntoView ( curritem );
+					if ( Flags . CurrentSqlViewer . BankGrid . SelectedItem != null )
+						Flags . CurrentSqlViewer . BankGrid . ScrollIntoView ( curritem );
 					return;
 				}
 			}
@@ -1140,21 +1307,18 @@ namespace WPFPages . Views
 		{
 			// handle flags to let us know WE have triggered the selectedIndex change
 			MainWindow . DgControl . SelectionChangeInitiator = 2; // tells us it is a EditDb initiated the record change
-			RemoteIndexChange = false;
 		}
 
 		private void DataGrid1_PreviewMouseDown ( object sender, MouseButtonEventArgs e )
 		{
 			// handle flags to let us know WE have triggered the selectedIndex change
 			MainWindow . DgControl . SelectionChangeInitiator = 2; // tells us it is a EditDb initiated the record change
-			RemoteIndexChange = false;
 		}
 
 		private void DetailsGrid_PreviewMouseDown ( object sender, MouseButtonEventArgs e )
 		{
 			// handle flags to let us know WE have triggered the selectedIndex change
 			MainWindow . DgControl . SelectionChangeInitiator = 2; // tells us it is a EditDb initiated the record change
-			RemoteIndexChange = false;
 		}
 		#region Task experimentation - NO LONGER USED
 		//***********************************************************************************//

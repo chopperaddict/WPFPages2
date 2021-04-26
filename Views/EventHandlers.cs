@@ -12,41 +12,42 @@ namespace WPFPages . Views
 	//This object will contain information about the triggered event.
 	//	public delegate void SelectionChanged (object source, SelectedEventArgs e);
 	public delegate void SQLViewerGridSelectionChanged ( bool self, int value, DataGrid caller );
-	public delegate void SqlSelectedRowChanged ( int row, string CurentDb );
+	public delegate void SqlSelectedRowChanged ( bool IsEdit, int row, string CurentDb );
 	public delegate void EditDbGridSelectionChanged ( bool self, int value, DataGrid caller );
 
 	//SqlDbViewer.Selectedindex changed - notify EditDb window	
 	public delegate void SqlViewerRowChange ( int row, string CurentDb );
 	//EditDb.Selectedindex changed - notify SqlDbViewer window	
-	public delegate void EditDbRowChange ( int row, string CurentDb );
+	public delegate void EditDbRowChange ( bool LocalSelectionChangeOnly, int row, string CurentDb );
 
 	public delegate void DbUpdated ( SqlDbViewer sender, DataGrid Grid, DataChangeArgs args );
 	public delegate void NotifyViewer ( int status, string info, SqlDbViewer NewSqlViewer );
 
+	// Use with EVENT NotifyOfDataLoaded (TRIGGER EVENT)
+	public delegate bool DbReloaded ( object sender, DataLoadedArgs args );
+
 	public class EventHandlers
 	{
+		//Delegates I AM USING
 		// Event sent by ALL ViewModel classes  to notify of Db changes
-		public  DbUpdated NotifyOfDataChange;
+		public static DbUpdated NotifyOfDataChange;
+		//Declare our Event that hopefully will call us back ponce the data has been loaded Asynchronously
+		public static DbReloaded NotifyOfDataLoaded;
 		// Event sent by SqlDbViewer to notify EditDb of index change
 		public static SqlSelectedRowChanged SqlViewerIndexChanged;
 		// Event sent by EditDb to notify SqlDbViewer of index change
 		public static EditDbGridSelectionChanged EditDbSelChange;
 		//public static event SqlViewerRowChange SqlViewerSelectedIndexChanged;
 		public static EditDbRowChange EditDbViewerSelectedIndexChanged;
+
+		//Delegates I AM NOT USING RIGHT NOW ??
 		public static SQLViewerGridSelectionChanged SqlViewerGridChanged;
-
 		public static SqlViewerRowChange SqlViewerRowChanged;
-		public static EditDbRowChange EditDbRowchanged ;
-
-
+		public static EditDbRowChange EditDbRowchanged;
+		
 		public MainWindow mw = null;
 
-		//		public DbUpdated NotifyOfDataChange;
-
-		//public static EditDb edDb { get; set; }
-		//public static SqlDbViewer sqlDb { get; set; }
-
-		public EventHandlers()
+		public EventHandlers ( )
 		{
 
 		}
@@ -62,14 +63,14 @@ namespace WPFPages . Views
 			int count2 = 0;
 			//if ( Flags . EventHandlerDebug )
 			//{
-				Console . WriteLine ( $"EventHandler.EventHandlers(51) : In Constructor - CallerName = {CallerName}." );
-				//if ( CallerName == "SQLDBVIEWER" )
-				//	Console . WriteLine ( $"EventHandler.EventHandlers(59) : Subscribing to Event SQLVSelChange - CallerName = {CallerName}, hWnd={sqlDb}." );
-				//if ( CallerName == "CUSTOMER" )
-				//	Console . WriteLine ( $"EventHandler.EventHandlers(59) : Subscribing to Event SQLVSelChange - CallerName = {CallerName}, hWnd={sqlDb}." );
-				//else
-				//	Console . WriteLine ( $"EventHandler.EventHandlers(63) : Subscribing to Event EditDbSelChange - CallerName = {CallerName}, hWnd={edDb}." );
-				//				ShowSubscribersCount ( );
+			Console . WriteLine ( $"EventHandler.EventHandlers(51) : In Constructor - CallerName = {CallerName}." );
+			//if ( CallerName == "SQLDBVIEWER" )
+			//	Console . WriteLine ( $"EventHandler.EventHandlers(59) : Subscribing to Event SQLVSelChange - CallerName = {CallerName}, hWnd={sqlDb}." );
+			//if ( CallerName == "CUSTOMER" )
+			//	Console . WriteLine ( $"EventHandler.EventHandlers(59) : Subscribing to Event SQLVSelChange - CallerName = {CallerName}, hWnd={sqlDb}." );
+			//else
+			//	Console . WriteLine ( $"EventHandler.EventHandlers(63) : Subscribing to Event EditDbSelChange - CallerName = {CallerName}, hWnd={edDb}." );
+			//				ShowSubscribersCount ( );
 			//}
 		}
 
@@ -96,7 +97,7 @@ namespace WPFPages . Views
 			}
 		}
 
-		public  void ShowSubscribersCount ( )
+		public void ShowSubscribersCount ( )
 		{
 			int count = -1;
 			int count2 = -1;
@@ -130,41 +131,40 @@ namespace WPFPages . Views
 				{ count4 = EditDbSelChange . GetInvocationList ( ) . Length; }
 				catch { }
 			}
-			//if ( DetailsDataCanBeLoaded != null )
-			//{
-			//	try
-			//	{ count5 = DetailsDataCanBeLoaded . GetInvocationList ( ) . Length; }
-			//	catch { }
-			//}
-			//if ( NotifyOfDataChange != null )
-			//{
-			//	try
-			//	{ count6 = NotifyOfDataChange . GetInvocationList ( ) . Length; }
-			//	catch { }
-			//}
+			Console . WriteLine ( $"\nEventHandler(98) Subscribed Events :\nNotifyOfDataChange =				{count},\nSqlViewerIndexChanged =				{count2}, \nEditDbViewerSelectedIndexChanged =	{count3} \nEditDbSelChange = 				{count4} \n" );
 
-//			if ( Flags . EventHandlerDebug )
-				Console . WriteLine ( $"\nEventHandler(98) Subscribed Events:\nNotifyOfDataChange =				{count},\nSqlViewerIndexChanged =				{count2}, \nEditDbViewerSelectedIndexChanged =	{count3} \nEditDbSelChange =					{count4} " );
-
-			Delegate [ ] dglist = NotifyOfDataChange?.GetInvocationList ( );
-			if ( Flags . EventHandlerDebug )
+			Delegate [ ] dglist2 = NotifyOfDataChange?.GetInvocationList ( );
+			if ( dglist2 != null )
 			{
-				//if ( dglist != null )
-				//{
-				//	foreach ( var item in dglist )
-				//	{ Console . WriteLine ( $"SQLVSelChange - {item . Target . ToString ( )}\r\nMethod = {item . Method . ToString ( )}" ); }
-				//}
-				Delegate [ ] dglist2 = EditDbSelChange?.GetInvocationList ( );
-				if ( dglist2 != null )
-				{
-					foreach ( var item in dglist2 )
-					{ Console . WriteLine ( $"EditDbSelChange - {item . Target . ToString ( )}\r\nMethod = {item . Method . ToString ( )}" ); }
-				}
-//				Console . WriteLine ( $"SQLVSelChange = {SQLVSelChange?.ToString ( )},\r\nEditDbSelChange = {EditDbSelChange?.ToString ( )}" );
+				foreach ( var item in dglist2 )
+				{ Console . WriteLine ( $"Delegate : NotifyOfDataChange : {item . Target . ToString ( )}\nMethod = {item . Method . ToString ( )}\n" ); }
 			}
+			dglist2 = SqlViewerIndexChanged?.GetInvocationList ( );
+			if ( dglist2 != null )
+			{
+				foreach ( var item in dglist2 )
+				{ Console . WriteLine ( $"Delegate : SqlViewerIndexChanged- {item . Target . ToString ( )}\nMethod = {item . Method . ToString ( )}\n" ); }
+			}
+			dglist2 = EditDbViewerSelectedIndexChanged?.GetInvocationList ( );
+			if ( dglist2 != null )
+			{
+				foreach ( var item in dglist2 )
+				{ Console . WriteLine ( $"Delegate : EditDbViewerSelectedIndexChanged : {item . Target . ToString ( )}\nMethod = {item . Method . ToString ( )}\n" ); }
+			}
+			dglist2 = EditDbSelChange?.GetInvocationList ( );
+			if ( dglist2 != null )
+			{
+				foreach (var item in dglist2)
+				{
+					Console . WriteLine ( $"Delegate : EditDbSelChange : {item . Target . ToString ( )}\nMethod = {item . Method . ToString ( )}\n" );
+//					Console . WriteLine ( $"{item .}" );
+				}
+
+
+			}
+			//				Console . WriteLine ( $"SQLVSelChange = {SQLVSelChange?.ToString ( )},\r\nEditDbSelChange = {EditDbSelChange?.ToString ( )}" );
 		}
 	}
-
 } // End namespace
 
 

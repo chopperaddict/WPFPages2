@@ -25,7 +25,7 @@
 		<MyData:CustomerViewModel x:Key="CustModel"/>
 		<MyData:DetailsViewModel x:Key="DetModel"/>-->
 
-		<DataTemplate x:Key="CommandsTemplate">
+		<!--<DataTemplate x:Key="CommandsTemplate">
 			<ItemsControl ItemsSource="{Binding Path=Commands}">
 				<ItemsControl.ItemTemplate>
 					<DataTemplate>
@@ -37,7 +37,7 @@
 					</DataTemplate>
 				</ItemsControl.ItemTemplate>
 			</ItemsControl>
-		</DataTemplate>
+		</DataTemplate>-->
 
 	
 	</Window.Resources>
@@ -145,9 +145,9 @@
 		<!--#region Bank TEXTBOXES - Name = BANKEDITFIELDS -->
 		<!--Left Column 2ND ONLY-->
 		<Grid x:Name="BankEditFields"
-					Grid.Row="1" Grid.Column="2"
-					Grid.RowSpan="1"
-					Visibility="Collapsed">
+				Grid.Row="1" Grid.Column="2"
+				Grid.RowSpan="1"
+				Visibility="Collapsed">
 			<Grid.RowDefinitions>
 				<RowDefinition Height="5"/>
 				<RowDefinition Height="35"/>
@@ -277,6 +277,7 @@
 		
 		<!--Right hand side only-->
 		<DataGrid x:Name="DataGrid1"
+			    CanUserAddRows="False"
 			  Grid.Row="1"
 			  Grid.Column="4"
 			    Grid.RowSpan="1"
@@ -768,6 +769,7 @@
 		<!--#region CUSTOMER GRID-->
 			<DataGrid x:Name="DataGrid2"
 				AutoGenerateColumns="False"
+				CanUserAddRows="False"
 				CellEditEnding="DataGrid2_CellEditEnding"
 				Grid.Row="1"
 				Grid.Column="4"
@@ -923,17 +925,20 @@
 		<!--Details Grid stuff-->
 		<DataGrid x:Name="DetailsGrid"
 			AutoGenerateColumns="False"
+			CanUserAddRows="False"
+			CellEditEnding="DetailsGrid_CellEditEnding" 
 			Grid.Row="1"
 			Grid.Column="4"
 			Grid.RowSpan="1"
 			HorizontalAlignment="Stretch"
 			IsReadOnly="False"
-			    PreviewMouseDown="DetailsGrid_PreviewMouseDown"
+			PreviewMouseDown="DetailsGrid_PreviewMouseDown"
 			RowEditEnding="DetailsGrid_RowEditEnding"
+			SelectionChanged="DetailsGrid_SelectionChanged"
 			SelectionMode="Single"
 			SelectionUnit="FullRow" 
 			VerticalAlignment="Stretch"
-			Visibility="Visible" CellEditEnding="DetailsGrid_CellEditEnding" SelectionChanged="DetailsGrid_SelectionChanged">
+			Visibility="Visible" >
 			<!--SelectedItem="{Binding DetModel, Mode=TwoWay}"-->
 			<DataGrid.Resources>
 				<SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightBrushKey}" Color="LightBlue"/>
@@ -1169,7 +1174,7 @@
 		<!--</Grid>-->
 
 		<!--#region Close button panel-->
-		<StackPanel Grid.Row="9"
+		<StackPanel Grid.Row="2"
 				  Margin="0,0,0,0"
 				Grid.Column="1"
 				Grid.ColumnSpan="2"
@@ -1201,6 +1206,22 @@
 				</Button.Style>-->
 			</Button>
 		</StackPanel>
+		<StackPanel Grid.Row="2"
+		            Margin="0,0,0,0"
+		            Grid.Column="3"
+		            Grid.ColumnSpan="2"
+				HorizontalAlignment="Center"
+		            VerticalAlignment="Center">
+			<Label x:Name ="Status"
+				     Background="DarkSlateGray"
+				     Foreground="AliceBlue"
+				     HorizontalContentAlignment="Center"
+			           Content="Total Records = , Current Record = "
+				     Margin="15,5,0,5"
+				     Width="405"/>
+			
+		</StackPanel>
+
 		<!--#endregion Close button panel-->
 		<!--END - Outer grid-->
 	</Grid>

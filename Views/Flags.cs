@@ -6,16 +6,8 @@
 
 //using System;
 using System;
-using System . Collections . Generic;
-using System . Diagnostics;
-using System . Linq;
-using System . Text;
-using System . Threading . Tasks;
+using System.Diagnostics;
 using System . Windows . Controls;
-using System . Windows . Data;
-
-using DocumentFormat . OpenXml . ExtendedProperties;
-
 using WPFPages . Views;
 
 namespace WPFPages
@@ -23,12 +15,6 @@ namespace WPFPages
 
 	public static class Flags
 	{
-
-		// declare a delegate to be used by the various ObservableCollections to notify
-		// each other when one or other makes a change to the data because all the 
-		// Db's are inter-related
-
-		//		public static DataGrid CurrentActiveGrid = null;
 
 		// Viewer Handle and Grid pointers for each Type of grid that is open somewhere
 		/// Used as  Pairs so we can access window and grid
@@ -40,9 +26,6 @@ namespace WPFPages
 
 		public static DataGrid SqlDetGrid = null;
 		public static SqlDbViewer SqlDetViewer = null;
-
-		// Current active SQL Viewer pointer and Name
-		public static SqlDbViewer ActiveSqlViewer = null;
 
 		// Current active Grid pointer and Name - Used as a pointer to the currently active DataGrid
 		public static DataGrid ActiveSqlGrid = null;
@@ -64,6 +47,9 @@ namespace WPFPages
 #pragma TODO add other Edit Db windows 2/4/21
 
 		public static bool isEditDbCaller = false;
+		public static bool SqlDataChanged = false;
+		public static bool EditDbDataChanged = false;
+
 
 		//Flags to hold pointers to current DbSelector & SqlViewer Windows
 		// Needed to avoi dInstance issues when calling methods from inside Static methods
@@ -73,6 +59,8 @@ namespace WPFPages
 		public static SqlDbViewer CurrentSqlViewer = null;
 		public static SqlDbViewer SqlUpdateOriginatorViewer = null;
 		public static bool EditDbChangeHandled = false;
+
+		public static bool IsFiltered = false;
 		public static string FilterCommand = "";
 
 		//Control CW output of event handlers
@@ -127,7 +115,7 @@ namespace WPFPages
 		public static void SetGridviewControlFlags ( SqlDbViewer instance, DataGrid Grid )
 		{
 			//Setup global flags - first clear them all as relevant
-			Flags . ActiveSqlViewer = instance;
+			Flags . CurrentSqlViewer = instance;
 			//only do this if we are not closing a windows (Sends Grid=null)
 			if ( Grid != null )
 			{
@@ -182,10 +170,139 @@ namespace WPFPages
 			}
 			else
 			{
-				//Remove a SINGLE Viewer Windows data
-				SqlDbViewer . DeleteViewerAndFlags ( );
+				//Remove a SINGLE Viewer Windows data from Flags & gv[]
+				DeleteViewerAndFlags ( );
 				Flags . CurrentSqlViewer . UpdateDbSelectorBtns ( Flags . CurrentSqlViewer );
 			}
+		}
+		//Remove a SINGLE Viewer Windows data from Flags & gv[]
+		public static bool DeleteViewerAndFlags ( int x = -1 )
+		{
+			SqlDbViewer sqlv;                        // x = GridView[] index if received
+			Guid tag = ( Guid ) Flags . CurrentSqlViewer?.Tag;
+			ListBoxItem lbi = new ListBoxItem ( );
+			if ( x == -1 )
+			{ // Delete all
+				for ( int z = 0 ; z < MainWindow . gv . MaxViewers ; z++ )
+				{
+					MainWindow . gv . CurrentDb [ z ] = "";
+					MainWindow . gv . ListBoxId [ z ] = Guid . Empty;
+					MainWindow . gv . Datagrid [ z ] = null;
+					MainWindow . gv . window [ z ] = null;
+				}
+				MainWindow . gv . ViewerCount = 0;
+				MainWindow . gv . PrettyDetails = "";
+				MainWindow . gv . SqlBankViewer = null;
+				MainWindow . gv . SqlCustViewer = null;
+				MainWindow . gv . SqlDetViewer = null;
+				MainWindow . gv . SqlViewerGuid = Guid . Empty;
+				MainWindow . gv . SqlViewerWindow = null;
+
+				MainWindow . gv . Bankviewer = Guid . Empty;
+				MainWindow . gv . Custviewer = Guid . Empty;
+				MainWindow . gv . Detviewer = Guid . Empty;
+
+				Flags . ActiveSqlGrid = null;
+				Flags . SqlBankViewer = null;
+				Flags . SqlCustViewer = null;
+				Flags . SqlDetViewer = null;
+				Flags . CurrentSqlViewer = null;
+
+				// ALL entries in our GridView structure are now cleared  ** totally **
+				return true;
+			}
+			else
+			{
+				// we have received the index of the viewer in the list
+				// so  get the Tag of that selected Entry
+				lbi = Flags . DbSelectorOpen . ViewersList . Items [ x ] as ListBoxItem;
+				Guid lbtag = ( Guid ) lbi . Tag;
+				// Get a pointer to the window so we can close it
+				sqlv = Flags . CurrentSqlViewer as SqlDbViewer;
+				//See if it matches the one we are closing down
+				if ( ( Guid ) lbtag == ( Guid ) tag )
+				{
+
+					// We know which gv[] entry  we need to clear, so do it and return
+					MainWindow . gv . ViewerCount--;
+					MainWindow . gv . CurrentDb [ x ] = "";
+					MainWindow . gv . ListBoxId [ x ] = Guid . Empty;
+					MainWindow . gv . Datagrid [ x ] = null;
+					// Actually close thre Viewer window here, before we delete the relevant pointers
+					sqlv . Close ( );
+					MainWindow . gv . window [ x ] = null;
+				}
+				MainWindow . gv . PrettyDetails = "";
+				MainWindow . gv . SqlViewerGuid = Guid . Empty;
+				//Finally we can remove this entry from ViewersList
+				lbi = Flags . DbSelectorOpen . ViewersList . Items [ x ] as ListBoxItem;
+				lbi . Content = "";
+				Flags . DbSelectorOpen . ViewersList . Items . RemoveAt ( x );
+				// Set selectedIndex pointer to current position in list
+				int currentIndex = x - 1;
+				if ( x <= 1 )             // List is basically empty (No viewers in  the list)
+					return true;
+				if ( Flags . DbSelectorOpen . ViewersList . Items . Count > currentIndex )
+				{
+					Flags . DbSelectorOpen . ViewersList . SelectedIndex = currentIndex;
+					Flags . DbSelectorOpen . ViewersList . SelectedItem = currentIndex;
+				}
+				else if ( Flags . DbSelectorOpen . ViewersList . Items . Count == currentIndex )
+				{
+					Flags . DbSelectorOpen . ViewersList . SelectedIndex = currentIndex - 1;
+					Flags . DbSelectorOpen . ViewersList . SelectedItem = currentIndex - 1;
+				}
+				sqlv . Close ( );
+				return true;
+			}
+			// Now sort out the  global gv[] flags
+			for ( int y = 1 ; y < Flags . DbSelectorOpen . ViewersList . Items . Count ; y++ )
+			{
+				// Get the Tag of eaxch Viewer in the list
+				lbi = Flags . DbSelectorOpen . ViewersList . Items [ y ] as ListBoxItem;
+				Guid lbtag = ( Guid ) lbi . Tag;
+				//See if it matches the one we are closing down
+				if ( ( Guid ) lbtag == ( Guid ) tag )
+				{
+					//Yes, we have got a match, so go ahead and remove its gv[] entries first
+					for ( int z = 0 ; z < MainWindow . gv . MaxViewers ; z++ )
+					{
+						if ( MainWindow . gv . ListBoxId [ z ] == lbtag )
+						{
+							MainWindow . gv . ViewerCount--;
+							MainWindow . gv . CurrentDb [ z ] = "";
+							MainWindow . gv . ListBoxId [ z ] = Guid . Empty;
+							MainWindow . gv . Datagrid [ z ] = null;
+							MainWindow . gv . window [ z ] = null;
+							break;
+						}
+
+					}
+					MainWindow . gv . PrettyDetails = "";
+					//Finally we can remove this entry from ViewersList
+					lbi = Flags . DbSelectorOpen . ViewersList . Items [ y ] as ListBoxItem;
+					lbi . Content = "";
+					Flags . DbSelectorOpen . ViewersList . Items . RemoveAt ( y );
+					// Set selectedIndex pointer to current position in list
+					int currentIndex = y - 1;
+					if ( y <= 1 )             // List is basically empty (No viewers in  the list)
+						return true;
+					if ( Flags . DbSelectorOpen . ViewersList . Items . Count > currentIndex )
+					{
+						Flags . DbSelectorOpen . ViewersList . SelectedIndex = currentIndex;
+						Flags . DbSelectorOpen . ViewersList . SelectedItem = currentIndex;
+					}
+					else if ( Flags . DbSelectorOpen . ViewersList . Items . Count == currentIndex )
+					{
+						Flags . DbSelectorOpen . ViewersList . SelectedIndex = currentIndex - 1;
+						Flags . DbSelectorOpen . ViewersList . SelectedItem = currentIndex - 1;
+					}
+					return true;
+				}
+			}
+			MainWindow . gv . SqlViewerGuid = Guid . Empty;
+
+			return false;
 		}
 
 		public static void ListGridviewControlFlags ( int mode = 0 )
@@ -196,7 +313,6 @@ namespace WPFPages
 				"#################################################################\n" +
 				$"FULL INFO\n" +
 				"#################################################################\n" +
-				//$"ActiveSqlViewer =          {ActiveSqlViewer.Name}\n" +
 				$"\nMAJOR FLAGS :\n===========\n" +
 				$"CurrentSqlViewer :-		 [{CurrentSqlViewer?.Tag}]\n" +
 				$"\nBANKACCOUNT SqlBankCurrentIndex :- [{SqlBankCurrentIndex}]\n" +
@@ -235,13 +351,11 @@ namespace WPFPages
 				$"\nDETAILS     SqlDetCurrentIndex:-   [{SqlDetCurrentIndex }]\n" +
 #endif
 			"-----------------------------------------------------------------\n" +
-			$"CurrentEditDbViewer		[{CurrentEditDbViewer?.Name}]\n" +
 			$"ActiveSqlGrid  =		[{ActiveSqlGrid?.Name}]\n" +
 			$"CurrentSqlViewer :-		[{CurrentSqlViewer?.Tag}]\n" +
-			//				$"\nCurrentSqlViewer :- [{ActiveDbGridStr}]\n" +
+			$"CurrentEditDbViewer		[{CurrentEditDbViewer?.Name}]\n" +
 			$"\nACTIVE VIEWERS:\n===============\n" +
 			$"CurrentSqlViewer :-		 [ {CurrentSqlViewer?.Tag} ]\n" +
-			$"ActiveSqlViewer :-		 [ {ActiveSqlViewer?.Tag} ]\n" +
 			$"ALL VIEWERS:\n===========\n" +
 			$"BANK     SqlBankViewer:- [ {SqlBankViewer?.Tag} ]\n" +
 			$"CUST     SqlCustViewer:- [ {SqlCustViewer?.Tag} ]\n" +

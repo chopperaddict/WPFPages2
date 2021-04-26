@@ -26,7 +26,8 @@ namespace WPFPages
 		public static CustomerViewModel cvm = MainWindow.cvm;
 		public static DetailsViewModel dvm = MainWindow.dvm;
 
-
+//		public static NewFlags flags;
+//		public  static AllFlags Flags;
 		public static EditEventArgs EditArgs = new EditEventArgs ();
 		public static DataGridController DgControl = new DataGridController();
 
@@ -62,7 +63,9 @@ namespace WPFPages
 			RandomText1 = "button1";
 			RandomText2 = "button2";
 			gv = GridViewer.Viewer_instance;
-	}
+//			NewFlags flags = new NewFlags ( );
+			//*Flags = NewFlags;
+		}
 
 	private void OnClosing (object sender, CancelEventArgs e)
 		{

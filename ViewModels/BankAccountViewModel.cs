@@ -56,11 +56,10 @@ namespace WPFPages . ViewModels
 		}
 		public void SubscribeToChangeEvents ( )
 		{
-			// subscribe to Data chngned event fired by SqlDbviewer
+			// subscribe to Data changed event fired by SqlDbviewer
 			SqlDbViewer sqlv = new SqlDbViewer ( 'A' );
 			// assign event handler function
 			NotifyOfDataChange += DbHasChangedHandler;
-			//			CollectionChanged += test;
 			BankAccountObs . CollectionChanged += BankAccountObsChanged;
 			EventHandlers ev = new EventHandlers ( );
 			ev . ShowSubscribersCount ( );
@@ -339,8 +338,6 @@ namespace WPFPages . ViewModels
 				OnPropertyChanged ( BankAccountObs . ToString ( ) );
 				OnPropertyChanged ( cvm . CustomersObs . ToString ( ) );
 				OnPropertyChanged ( dvm . DetailsObs . ToString ( ) );
-
-				//				OnPropertyChanged (BankAccountObs.ToString (); if (NotifyOfDataChange != null) NotifyOfDataChange (this);
 			}
 		}
 
