@@ -1,88 +1,87 @@
-﻿using System.ComponentModel;
-using System.Runtime.CompilerServices;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Input;
+﻿using System . ComponentModel;
+using System . Runtime . CompilerServices;
+using System . Windows;
+using System . Windows . Controls;
+using System . Windows . Input;
 using WPFPages . Views;
 using WPFPages . ViewModels;
 
 using WpfUI;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement.Window;
+using static System . Windows . Forms . VisualStyles . VisualStyleElement . Window;
 
 namespace WPFPages
 {
 
-	delegate void DbEditOcurred (object Sender, EditEventArgs e);
-	delegate void SQLEditOcurred (object Sender, EditEventArgs e);
-//	BankAccountViewModel bvm = BankAccountViewModel.bvm;
+	delegate void DbEditOcurred ( object Sender, EditEventArgs e );
+	delegate void SQLEditOcurred ( object Sender, EditEventArgs e );
+	//	BankAccountViewModel bvm = BankAccountViewModel.bvm;
 
 	/// <summary>
 	/// Interaction logic for MainWindow.xaml
 	/// </summary>
-	public partial class MainWindow: INotifyPropertyChanged
+	public partial class MainWindow : INotifyPropertyChanged
 	{
 		// Global pointers to Viewmodel classes
-		public static BankAccountViewModel bvm = MainWindow.bvm;
-		public static CustomerViewModel cvm = MainWindow.cvm;
-		public static DetailsViewModel dvm = MainWindow.dvm;
+		public static BankAccountViewModel bvm = MainWindow . bvm;
+		public static CustomerViewModel cvm = MainWindow . cvm;
+		public static DetailsViewModel dvm = MainWindow . dvm;
 
-//		public static NewFlags flags;
-//		public  static AllFlags Flags;
-		public static EditEventArgs EditArgs = new EditEventArgs ();
-		public static DataGridController DgControl = new DataGridController();
+		//		public static NewFlags flags;
+		//		public  static AllFlags Flags;
+		public static EditEventArgs EditArgs = new EditEventArgs ( );
+		public static DataGridController DgControl = new DataGridController ( );
 
 
 		public Frame theFrame;
-		public static Page _Blank = new BlankPage ();
-		public static Page _Page0 = new Page0 ();
-		public static Page _Page1 = new Page1 ();
-		public static Page _Page2 = new Page2 ();
-		public static Page _Page3 = new Page3 ();
-		public static Page _Page4 = new Page4 ();
-		public static Page _Page5 = new Page5 ();
+		public static Page _Blank = new BlankPage ( );
+		public static Page _Page0 = new Page0 ( );
+		public static Page _Page1 = new Page1 ( );
+		public static Page _Page2 = new Page2 ( );
+		public static Page _Page3 = new Page3 ( );
+		public static Page _Page4 = new Page4 ( );
+		public static Page _Page5 = new Page5 ( );
 		public static string _baseDataText;
 		private string _randomText1 = "button1";
 		private string _randomText2 = "button2";
 		public bool Autoload = false;
-		
 
-		public static GridViewer gv = new GridViewer ();
+
+		public static GridViewer gv = new GridViewer ( );
 		public static DbSelector dbs = null;
-			      
+
 		public SqlDbViewer tw = null;
 
-		public MainWindow ()
+		public MainWindow ( )
 		{
 			// Set this as the main dataContext
-//			DataContext = this;
-			InitializeComponent ();
+			//			DataContext = this;
+			InitializeComponent ( );
 			Loaded += MainWindowLoaded;
-			EventHandlers ev = new EventHandlers ( );
-			ev . ShowSubscribersCount ( );
+			EventHandlers . ShowSubscribersCount ( );
 			BaseDataText = "Starting text";
 			RandomText1 = "button1";
 			RandomText2 = "button2";
-			gv = GridViewer.Viewer_instance;
-//			NewFlags flags = new NewFlags ( );
+			gv = GridViewer . Viewer_instance;
+			//			NewFlags flags = new NewFlags ( );
 			//*Flags = NewFlags;
 		}
 
-	private void OnClosing (object sender, CancelEventArgs e)
+		private void OnClosing ( object sender, CancelEventArgs e )
 		{
 
 		}
-		private void Loaded_click (object sender, RoutedEventArgs e)
+		private void Loaded_click ( object sender, RoutedEventArgs e )
 		{
-			MainPageHolder.NavigationService.Navigate (MainWindow._Blank);
-			this.MouseDown += delegate { DoDragMove (); };			
+			MainPageHolder . NavigationService . Navigate ( MainWindow . _Blank );
+			this . MouseDown += delegate { DoDragMove ( ); };
 		}
-		private void DoDragMove ()
+		private void DoDragMove ( )
 		{
 			//Handle the button NOT being the left mouse button
 			// which will crash the DragMove Fn.....
 			try
 			{
-				this.DragMove ();
+				this . DragMove ( );
 			}
 			catch
 			{
@@ -96,10 +95,10 @@ namespace WPFPages
 			get { return _boundNumber; }
 			set
 			{
-				if (_boundNumber != value)
+				if ( _boundNumber != value )
 				{
 					_boundNumber = value;
-					OnPropertyChanged ();
+					OnPropertyChanged ( );
 				}
 			}
 		}
@@ -108,10 +107,10 @@ namespace WPFPages
 			get { return _randomText1; }
 			set
 			{
-				if (_randomText1 != value)
+				if ( _randomText1 != value )
 				{
 					_randomText1 = value;
-					OnPropertyChanged ();
+					OnPropertyChanged ( );
 				}
 			}
 		}
@@ -121,7 +120,7 @@ namespace WPFPages
 			set
 			{
 				_randomText2 = value;
-				OnPropertyChanged ();
+				OnPropertyChanged ( );
 			}
 		}
 
@@ -129,83 +128,83 @@ namespace WPFPages
 
 		// Setup a generic Notifier so property changes are broadcast automatically
 		public event PropertyChangedEventHandler PropertyChanged;
-		private void OnPropertyChanged ([CallerMemberName] string PropertyName = null)
+		private void OnPropertyChanged ( [CallerMemberName] string PropertyName = null )
 		{
-			PropertyChanged?.Invoke (this, new PropertyChangedEventArgs (PropertyName));
+			PropertyChanged?.Invoke ( this, new PropertyChangedEventArgs ( PropertyName ) );
 		}
 
 		//This is how to declare properties for binding
 		public string BaseDataText
 		{
-			get { return (string)GetValue (BaseDataTextProperty); }
-			set { SetValue (BaseDataTextProperty, value); }
+			get { return ( string ) GetValue ( BaseDataTextProperty ); }
+			set { SetValue ( BaseDataTextProperty, value ); }
 		}
 
 		// Using a DependencyProperty as the backing store for BaseDataText.  This enables animation, styling, binding, etc...
 		public static readonly DependencyProperty BaseDataTextProperty =
-			DependencyProperty.Register ("BaseDataText", typeof (string), typeof (MainWindow), new PropertyMetadata (default));
+			DependencyProperty . Register ( "BaseDataText", typeof ( string ), typeof ( MainWindow ), new PropertyMetadata ( default ) );
 
 		public string Button1Text
 		{
-			get { return (string)GetValue (Button1TextProperty); }
-			set { SetValue (Button1TextProperty, value); }
+			get { return ( string ) GetValue ( Button1TextProperty ); }
+			set { SetValue ( Button1TextProperty, value ); }
 		}
 
 		// Using a DependencyProperty as the backing store for BaseDataText.  This enables animation, styling, binding, etc...
 		public static readonly DependencyProperty Button1TextProperty =
-			DependencyProperty.Register ("Button1Text", typeof (string), typeof (MainWindow), new PropertyMetadata (default));
+			DependencyProperty . Register ( "Button1Text", typeof ( string ), typeof ( MainWindow ), new PropertyMetadata ( default ) );
 
 		public string Button2Text
 		{
-			get { return (string)GetValue (Button2TextProperty); }
-			set { SetValue (Button2TextProperty, value); }
+			get { return ( string ) GetValue ( Button2TextProperty ); }
+			set { SetValue ( Button2TextProperty, value ); }
 		}
 
 		// Using a DependencyProperty as the backing store for BaseDataText.  This enables animation, styling, binding, etc...
 		public static readonly DependencyProperty Button2TextProperty =
-			DependencyProperty.Register ("Button2Text", typeof (string), typeof (MainWindow), new PropertyMetadata (default));
+			DependencyProperty . Register ( "Button2Text", typeof ( string ), typeof ( MainWindow ), new PropertyMetadata ( default ) );
 
-		public void MainWindowLoaded (object sender, RoutedEventArgs e)
+		public void MainWindowLoaded ( object sender, RoutedEventArgs e )
 		{
 			//_frame.NavigationService.Navigate(_Page1);
 			BaseDataText = "Hello World";
 		}
 
-		private void Button1_Click (object sender, RoutedEventArgs e)
+		private void Button1_Click ( object sender, RoutedEventArgs e )
 		{
 
 		}
 
-		private void Page0_Click (object sender, RoutedEventArgs e)
+		private void Page0_Click ( object sender, RoutedEventArgs e )
 		{
 			//Button btn = (Button)sender;
 			//btn.FontSize = 28;
-			MainPageHolder.NavigationService.Navigate (MainWindow._Page0);
+			MainPageHolder . NavigationService . Navigate ( MainWindow . _Page0 );
 		}
-		private void Page1_Click (object sender, RoutedEventArgs e)
+		private void Page1_Click ( object sender, RoutedEventArgs e )
 		{
 			//Button btn = (Button)sender;
 			//btn.FontSize = 28;
-			MainPageHolder.NavigationService.Navigate (MainWindow._Page1);
+			MainPageHolder . NavigationService . Navigate ( MainWindow . _Page1 );
 		}
-		private void Page2_Click (object sender, RoutedEventArgs e)
+		private void Page2_Click ( object sender, RoutedEventArgs e )
 		{
-			MainPageHolder.NavigationService.Navigate (MainWindow._Page2);
+			MainPageHolder . NavigationService . Navigate ( MainWindow . _Page2 );
 		}
-		private void Page3_Click (object sender, RoutedEventArgs e)
+		private void Page3_Click ( object sender, RoutedEventArgs e )
 		{
-			MainPageHolder.NavigationService.Navigate (MainWindow._Page3);
+			MainPageHolder . NavigationService . Navigate ( MainWindow . _Page3 );
 		}
-		private void Page4_Click (object sender, RoutedEventArgs e)
+		private void Page4_Click ( object sender, RoutedEventArgs e )
 		{
-			MainPageHolder.NavigationService.Navigate (MainWindow._Page4);
+			MainPageHolder . NavigationService . Navigate ( MainWindow . _Page4 );
 		}
-		private void Page5_Click (object sender, RoutedEventArgs e)
+		private void Page5_Click ( object sender, RoutedEventArgs e )
 		{
-			MainPageHolder.NavigationService.Navigate (MainWindow._Page5);
+			MainPageHolder . NavigationService . Navigate ( MainWindow . _Page5 );
 		}
 
-		private void Page6_Click (object sender, RoutedEventArgs e)
+		private void Page6_Click ( object sender, RoutedEventArgs e )
 		{
 			//	this allows the loading of up to 10 different Db Viewer Windows
 			//	and to select between them if needed
@@ -213,111 +212,112 @@ namespace WPFPages
 			// first we have some preapration to get done with pointers tpo the various Classes we are going to access
 
 			// setup globakl STATIC pointers to Viewmodels
-			dvm = new DetailsViewModel (); ;
-			cvm = new CustomerViewModel ();
-			bvm = new BankAccountViewModel ();
-//			Flags.DetailsModel = dvm;
-			
+			dvm = new DetailsViewModel ( ); ;
+			cvm = new CustomerViewModel ( );
+			bvm = new BankAccountViewModel ( );
+			//			Flags.DetailsModel = dvm;
+
 			// Ok hpousekeeping over, lets go
-			
+
 			int selected = 0;
-			if (MainWindow.gv.DbSelectorWindow != null)
+			if ( MainWindow . gv . DbSelectorWindow != null )
 			{
-				if (MainWindow.gv.DbSelectorWindow.ViewersList.Items.Count > 0)
+				if ( MainWindow . gv . DbSelectorWindow . ViewersList . Items . Count > 0 )
 				{
 					// Been opened before, so just show it again
-					MainWindow.gv.DbSelectorWindow.Visibility = Visibility.Visible;
-					if (Flags.DbSelectorOpen.ViewersList.Items.Count > 1)
+					MainWindow . gv . DbSelectorWindow . Visibility = Visibility . Visible;
+					if ( Flags . DbSelectorOpen . ViewersList . Items . Count > 1 )
 					{
-						Flags.DbSelectorOpen.ViewerDeleteAll.IsEnabled = true;
-						Flags.DbSelectorOpen.ViewerDelete.IsEnabled = true;
-						Flags.DbSelectorOpen.SelectBtn.IsEnabled = true;
+						Flags . DbSelectorOpen . ViewerDeleteAll . IsEnabled = true;
+						Flags . DbSelectorOpen . ViewerDelete . IsEnabled = true;
+						Flags . DbSelectorOpen . SelectBtn . IsEnabled = true;
 					}
 
-					MainWindow.gv.DbSelectorWindow.Focus ();
-					MainWindow.gv.DbSelectorWindow.BringIntoView ();
-					MainWindow.gv.DbSelectorWindow.Focus ();
+					MainWindow . gv . DbSelectorWindow . Focus ( );
+					MainWindow . gv . DbSelectorWindow . BringIntoView ( );
+					MainWindow . gv . DbSelectorWindow . Focus ( );
 				}
-				Mouse.OverrideCursor = Cursors.Arrow;
+				Mouse . OverrideCursor = Cursors . Arrow;
 				return;
 			}
 			else
 			{
 				//Create a new Db Selector Window system.
-				DbSelector dbs = new DbSelector ();
-				gv.DbSelectorWindow = dbs;
-				dbs.Show ();
+				DbSelector dbs = new DbSelector ( );
+				gv . DbSelectorWindow = dbs;
+				dbs . Show ( );
 				//Store the "Handle" to this Db Selector window
-				Flags.DbSelectorOpen = dbs;
+				Flags . DbSelectorOpen = dbs;
 				// Load and display a new viewer for the selected Db Type
 				// (returned in the selected var from dbSelector window)
-				Mouse.OverrideCursor = Cursors.Wait;
-//				tw = new SqlDbViewer (selected);
-				if (Autoload) {
+				Mouse . OverrideCursor = Cursors . Wait;
+				//				tw = new SqlDbViewer (selected);
+				if ( Autoload )
+				{
 
 					// find first blank entry of the 10 available slots we have
 					// and save our details into it
-					for (int x = 0; x < MainWindow.gv.MaxViewers; x++)
+					for ( int x = 0 ; x < MainWindow . gv . MaxViewers ; x++ )
 					{
-						if (gv.window[x] == null)
+						if ( gv . window [ x ] == null )
 						{
 							//						gv.SelectedViewerType = selected; // store the Db type in our "current" viewer type variable
-							gv.ViewerSelectiontype = -1;  // reset flag field for next time
-							gv.ViewerCount++;
+							gv . ViewerSelectiontype = -1;  // reset flag field for next time
+							gv . ViewerCount++;
 
 #pragma warning TODO			
 							// THIS TAKES FOR EVER ON 1ST LOAD
-							tw.Show ();
-							tw.Focus ();
+							tw . Show ( );
+							tw . Focus ( );
 							//Save the Window handle in the Viewer Window itself - Now done in window loaded
-							tw.Tag = gv.window[x];
+							tw . Tag = gv . window [ x ];
 							//break;
 							break;
 						}
 					}
 				}
-//				Flags.DbSelectorOpen.Show ();
-				Mouse.OverrideCursor = Cursors.Arrow;
-//				return;
+				//				Flags.DbSelectorOpen.Show ();
+				Mouse . OverrideCursor = Cursors . Arrow;
+				//				return;
 			}
 			//Store window handle to DbSelector window in control structure (GridViewer)
-//			DbSelectorOpen.Show ();
+			//			DbSelectorOpen.Show ();
 
-			Mouse.OverrideCursor = Cursors.Arrow;
+			Mouse . OverrideCursor = Cursors . Arrow;
 			return;
 
-			if (gv.ViewerSelectiontype == 1)
-				{
-				selected = gv.SelectedViewerType;
+			if ( gv . ViewerSelectiontype == 1 )
+			{
+				selected = gv . SelectedViewerType;
 				// Load and display a new viewer for the selected Db Type
 				// (returned in the selected var from dbSelector window)
-				Mouse.OverrideCursor = Cursors.Wait;
+				Mouse . OverrideCursor = Cursors . Wait;
 
-//				tw = SqlDbViewer.GetSqlInstance ().SqlDbViewer (selected);
-//				tw = new SqlDbViewer (selected);
+				//				tw = SqlDbViewer.GetSqlInstance ().SqlDbViewer (selected);
+				//				tw = new SqlDbViewer (selected);
 
 				// find first blank entry of the 5 available slots we have
 				// and save our details into it
-				for (int x = 0; x < MainWindow.gv.MaxViewers; x++)
+				for ( int x = 0 ; x < MainWindow . gv . MaxViewers ; x++ )
 				{
-					if (gv.window[x] == null)
+					if ( gv . window [ x ] == null )
 					{
-						gv.SelectedViewerType = selected; // store the Db type in our "current" viewer type variable
-						gv.ViewerSelectiontype = -1;  // reset flag field for next time
-						gv.ViewerCount++;
+						gv . SelectedViewerType = selected; // store the Db type in our "current" viewer type variable
+						gv . ViewerSelectiontype = -1;  // reset flag field for next time
+						gv . ViewerCount++;
 
 #pragma warning TODO			
 						// THIS TAKES FOR EVER ON 1ST LOAD
-						tw.Show ();
-						tw.Focus ();
+						tw . Show ( );
+						tw . Focus ( );
 						//Save the Window handle in the Viewer Window itself - Now done in window loaded
-						tw.Tag = gv.window[x];
+						tw . Tag = gv . window [ x ];
 						//break;
-						Mouse.OverrideCursor = Cursors.Arrow;
+						Mouse . OverrideCursor = Cursors . Arrow;
 						return;
 					}
 				}
-				Mouse.OverrideCursor = Cursors.Arrow;
+				Mouse . OverrideCursor = Cursors . Arrow;
 				return;
 			}
 			//else if (gv.ViewerSelectiontype == 2)
@@ -365,42 +365,44 @@ namespace WPFPages
 			//						//}
 			//					}
 			//				}
-			else if (gv.ViewerSelectiontype == 4)
+			else if ( gv . ViewerSelectiontype == 4 )
+			{
+				// Close/Delete ALL open viewers
+				for ( int x = 0 ; x < MainWindow . gv . MaxViewers ; x++ )
 				{
-					// Close/Delete ALL open viewers
-					for (int x = 0; x < MainWindow.gv.MaxViewers; x++)
-					{
-						//Close the viewer
-						if(gv.window[x] != null)
-							gv.window[x].Close ();
-						//remove all record of it's very existence
-						gv.window[x] = null;
-						gv.CurrentDb[x] = "";
-						//							gv.CurrentGrid[x] = null;
-//						gv.SelectedViewerType = -1; // store the Db type in our "current" viewer type variable
-						gv.ViewerSelectiontype = -1;  // reset flag field for next time
-//						gv.ChosenViewer = null;
-//						gv.DbSelectorWindow = null;
-//						gv.ViewerListIndex[x] = -1;
-//						gv.ViewerCount--;
-					}               //return;
-				gv.ViewerCount = 0;
+					//Close the viewer
+					if ( gv . window [ x ] != null )
+						gv . window [ x ] . Close ( );
+					//remove all record of it's very existence
+					gv . window [ x ] = null;
+					gv . CurrentDb [ x ] = "";
+					//							gv.CurrentGrid[x] = null;
+					//						gv.SelectedViewerType = -1; // store the Db type in our "current" viewer type variable
+					gv . ViewerSelectiontype = -1;  // reset flag field for next time
+									//						gv.ChosenViewer = null;
+									//						gv.DbSelectorWindow = null;
+									//						gv.ViewerListIndex[x] = -1;
+									//						gv.ViewerCount--;
+				}               //return;
+				gv . ViewerCount = 0;
 			}
-//			} // end Do while
+			//			} // end Do while
 		}
-		private void ExitButton_Click (object sender, RoutedEventArgs e) { App.Current.Shutdown (); }
+		private void ExitButton_Click ( object sender, RoutedEventArgs e ) { App . Current . Shutdown ( ); }
 
-		private void Blank_Click (object sender, RoutedEventArgs e)
+		private void Blank_Click ( object sender, RoutedEventArgs e )
 		{
-			MainPageHolder.NavigationService.Navigate (MainWindow._Blank);
+			MainPageHolder . NavigationService . Navigate ( MainWindow . _Blank );
 		}
 
-		private void Main_PreviewKeyDown (object sender, KeyEventArgs e)
+		private void Main_PreviewKeyDown ( object sender, KeyEventArgs e )
 		{
-			if (e.Key == Key.RightCtrl || e.Key == Key.Home)
-				Page6_Click (sender, null);
-			else if (e.Key == Key.Escape)
-				Application.Current.Shutdown();
+			if ( e . Key == Key . RightCtrl || e . Key == Key . Home )
+				Page6_Click ( sender, null );
+			else if ( e . Key == Key . OemQuotes )
+				EventHandlers . ShowSubscribersCount ( );
+			else if ( e . Key == Key . Escape )
+				Application . Current . Shutdown ( );
 
 		}
 	}

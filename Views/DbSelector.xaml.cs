@@ -38,17 +38,11 @@ namespace WPFPages . Views
 		private static CustomerViewModel cvm = MainWindow . cvm;
 		private static DetailsViewModel dvm = MainWindow . dvm;
 
-		//********************************************************************************************//
-		// I can now just use this : SendViewerCommand(x, "");
-		//to send messages to SqlDbViewer window
 		//*********************DELEGATE STUFF **************************************************//
+		// I can now just use this : SendViewerCommand(x, "") to send messages to SqlDbViewer window
 		//		EVent trigger for public delegate void NotifyViewer ( int status, string info, SqlDbViewer NewSqlViewer );
 		public NotifyViewer SendViewerCommand = null;
 		//*********************DELEGATE STUFF **************************************************//
-
-		//Declare public for SqlDbViewer
-		//		public SqlDbViewer NewSqlViewer;
-		//		public DbSelector ThisDbSelector = MainWindow.gv.DbSelectorWindow;
 
 		#region Receive  notifications into MyNotification() from SqlViewer - WORKS JUST FINE
 		//*****************************************************//
@@ -129,7 +123,9 @@ namespace WPFPages . Views
 			//Flags.CurrentSqlViewer = sqlv;
 			//sqlv.DataLoaded += OnDataLoaded;
 
-			SqlViewerNotify notifier = new SqlViewerNotify ( DbSelectorMessage );
+			// Assign Handler to delegate SqlViewerNotify			
+			SqlViewerNotify notifier = DbSelectorMessage ;
+			
 			SendViewerCommand = SqlDbViewer . DbSelectorMessage;
 
 			// set a pointer to this window in GridViewer control struct
@@ -769,42 +765,35 @@ namespace WPFPages . Views
 		private void OnWindowLoaded ( object sender, RoutedEventArgs e )
 		{
 #pragma LOADING  now in HandleSelection()
-			////Subscribe to delegate in SqlDbViewer to receive various status reports
-			//// These are handled in MyNotification() in this file
-			////			SqlDbViewer sqldbv = new SqlDbViewer ();
-			//SqlDbViewer NewSqlViewer = new SqlDbViewer ();
-			//ApplicationState.Viewer = NewSqlViewer;
-			//SqlViewerNotify notifier = new SqlViewerNotify (NewSqlViewer.DbSelectorMessage);
-			//SendViewerCommand = NewSqlViewer.DbSelectorMessage;
 
 			SendViewerCommand ( 102, ">>> Starting OnWindowLoaded()", Flags . CurrentSqlViewer );
 			int counter = 0;
 
+			{
+				//			AddViewerToList (MainWindow.gv.PrettyDetails, Flags.CurrentSqlViewer);
 
+				//Try to populate our list of existing Viewers
+				//for (int x = 0; x < MainWindow.gv.MaxViewers; x++)
+				//{
+				//	if (MainWindow.gv.window[x] != null)
+				//	{
+				//		ListBoxItem lbi = new ListBoxItem ();
 
-			//			AddViewerToList (MainWindow.gv.PrettyDetails, Flags.CurrentSqlViewer);
+				//		Binding binding = new Binding ("ListBoxItemText");
+				//		binding.Source = ListBoxItemText;
+				//		//lbi.SetBinding (ContentProperty, binding);
+				//		lbi.Content = MainWindow.gv.PrettyDetails;
 
-			//Try to populate our list of existing Viewers
-			//for (int x = 0; x < MainWindow.gv.MaxViewers; x++)
-			//{
-			//	if (MainWindow.gv.window[x] != null)
-			//	{
-			//		ListBoxItem lbi = new ListBoxItem ();
+				//		ViewersList.SelectedIndex = ViewersList.Items.Add (lbi);
 
-			//		Binding binding = new Binding ("ListBoxItemText");
-			//		binding.Source = ListBoxItemText;
-			//		//lbi.SetBinding (ContentProperty, binding);
-			//		lbi.Content = MainWindow.gv.PrettyDetails;
-
-			//		ViewersList.SelectedIndex = ViewersList.Items.Add (lbi);
-
-			//		//Inital values going into our listbox item (entry)!!
-			//		lbi.Tag = MainWindow.gv.ListBoxId[x];
-			//		counter++;
-			//		//					ViewerDelete.IsEnabled = true;
-			//		//					SelectViewerBtn.IsEnabled = true;
-			//	}
-			//}
+				//		//Inital values going into our listbox item (entry)!!
+				//		lbi.Tag = MainWindow.gv.ListBoxId[x];
+				//		counter++;
+				//		//					ViewerDelete.IsEnabled = true;
+				//		//					SelectViewerBtn.IsEnabled = true;
+				//	}
+				//}
+			}
 			//Set default active item to 1st valid entry
 			counter = ViewersList . Items . Count;
 
@@ -982,6 +971,10 @@ namespace WPFPages . Views
 				if ( lb . SelectedIndex < lb . Items . Count - 1 )
 					lb . SelectedIndex++;
 				return;
+			}
+			else if ( e . Key == Key . OemQuotes )
+			{
+				EventHandlers . ShowSubscribersCount ( );
 			}
 			else if ( e . Key == Key . NumPad8 || e . Key == Key . Up )
 			{

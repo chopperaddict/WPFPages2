@@ -40,7 +40,7 @@ namespace WPFPages
 	}
 	#endregion EventArg Declarations
 
-	public partial class SqlDbViewer : Window, INotifyPropertyChanged
+	public partial class SqlDbViewer : Window,  INotifyPropertyChanged
 	{
 		public DbUpdated NotifyOfDataChange;
 
@@ -53,6 +53,7 @@ namespace WPFPages
 		//*********************************************************************************************************//
 
 		private static bool LocalIndexChange = true;
+
 		#region SqlDbViewer Class Constructors
 		//Dummy Constructor for Event handlers
 		//*********************************************************************************************************//
@@ -75,8 +76,10 @@ namespace WPFPages
 			if ( Flags . CurrentSqlViewer != this )
 				Flags . CurrentSqlViewer = this;
 
-			NotifyViewer SendCommand = new NotifyViewer ( DbSelector . MyNotification );
+			// assign handler to delegate
+			NotifyViewer SendCommand = DbSelector . MyNotification ;
 			SendDbSelectorCommand = DbSelector . MyNotification;
+			
 			//This DOES call handler in DbSelector !!
 			SendDbSelectorCommand ( 103, "<<< SqlDbViewer() Constructor  completed....", Flags . CurrentSqlViewer );
 			Utils . GetWindowHandles ( );
@@ -85,24 +88,24 @@ namespace WPFPages
 		private void SubscribeToEvents ( )
 		{
 			////subscribing viewmodels to data changed event !!!
-			// point to our callback functions in REMOTE FILES DbHasChangedHandler(Viewer, Grid, , DatachangedArgs)
-			EventHandlers ev = new EventHandlers ( );
-			EventHandlers . NotifyOfDataChange += bvm . DbHasChangedHandler;                // Callback in REMOTE FILE
-			EventHandlers . NotifyOfDataChange += cvm . DbHasChangedHandler;                // Callback in REMOTE FILE
-			EventHandlers . NotifyOfDataChange += dvm . DbHasChangedHandler;                // Callback in REMOTE FILE
+			if (EventHandlers.NotifyOfDataChange == null)
+			{
+				EventHandlers.NotifyOfDataChange += bvm.DbHasChangedHandler; // Callback in REMOTE FILE
+				EventHandlers.NotifyOfDataChange += cvm.DbHasChangedHandler; // Callback in REMOTE FILE
+				EventHandlers.NotifyOfDataChange += dvm.DbHasChangedHandler; // Callback in REMOTE FILE
+			}
 
 			// point to callback function in THIS FILE - DbDataLoadedHandler(object, DataLoadedArgs)
-			EventHandlers . NotifyOfDataLoaded += DbDataLoadedHandler;              // Callback in THIS FILE
-										// point to callback function in THIS FILE - EditDbHasChangedIndex(( int row, string CurrentDb )
-										// EVENT  DECLARATION = EditDbRowChange EditDbViewerSelectedIndexChanged;
-										// if ( EventHandlers . EditDbViewerSelectedIndexChanged == null )
-
-			EventHandlers . EditDbViewerSelectedIndexChanged += EditDbHasChangedIndex;                 // Callback in THIS FILE
+			if(EventHandlers . NotifyOfDataLoaded == null)
+				EventHandlers . NotifyOfDataLoaded += DbDataLoadedHandler;         // Callback in THIS FILE
+			// point to callback function in THIS FILE - EditDbHasChangedIndex()
+			if( EventHandlers . EditDbViewerSelectedIndexChanged  == null)
+				EventHandlers . EditDbViewerSelectedIndexChanged += EditDbHasChangedIndex;      // Callback in THIS FILE
+			// Handle window dragging
 			this . MouseDown += delegate { DoDragMove ( ); };
-			ev . ShowSubscribersCount ( );
-
-			// used by Exception handler
-			DataGridBase dgb = new DataGridBase ( );
+			//Show current Event Subscriptions
+			// point to callback functions in REMOTE FILES.  All use - DbHasChangedHandler(Viewer, Grid, , DatachangedArgs)
+			EventHandlers . ShowSubscribersCount ( );
 		}
 
 
@@ -119,7 +122,7 @@ namespace WPFPages
 			if ( Flags . CurrentSqlViewer != this )
 				Flags . CurrentSqlViewer = this;
 			//Setup our delegate receive function to get messages form DbSelector
-			NotifyViewer SendCommand = new NotifyViewer ( DbSelector . MyNotification );
+			NotifyViewer SendCommand =  DbSelector . MyNotification ;
 			SendDbSelectorCommand = DbSelector . MyNotification;
 			//This DOES call handler in DbSelector !!
 			SendDbSelectorCommand ( 102, ">>> SqlDbviewer(int) (Full) Constructor loading ....", Flags . CurrentSqlViewer );
@@ -170,9 +173,10 @@ namespace WPFPages
 			IsViewerLoaded = false;
 			InitializeComponent ( );
 			//Setup our delegate receive function to get messages form DbSelector
-			NotifyViewer SendCommand = new NotifyViewer ( DbSelector . MyNotification );
+			NotifyViewer SendCommand = DbSelector . MyNotification;
 			SendDbSelectorCommand = DbSelector . MyNotification;
-			////subscribing viewmodels to data changed event !!!
+
+			//subscribing viewmodels to data changed event !!!
 			SubscribeToEvents ( );
 			//This DOES call handler in DbSelector !!
 			sqldbForm = this;
@@ -216,20 +220,12 @@ namespace WPFPages
 		}
 		#endregion Constructors
 
-
-		#region  Declare our Delegates & Events
+		#region CallBack/Delegate stuff - SqlViewerNotify (int status, string info, SqlDbViewer NewSqlViewer)
 
 		// Use with EVENT NotifyOfDataChange (TRIGGER EVENT)
 		//Declare our Event
 		//declared in NameSpace
-		//public delegate void DbUpdated ( SqlDbViewer sender, DataGrid Grid, DataChangeArgs args );
 		public DataChangeArgs dca = new DataChangeArgs ( );
-
-
-		#endregion  Declare our Delegates 
-		//*********************************************************************************************************//
-
-		#region CallBack/Delegate stuff - SqlViewerNotify (int status, string info, SqlDbViewer NewSqlViewer)
 
 		//EVENT Callback for when SQL data has been full loaded Aynchronously
 		// Even on initial load of a viewer window
@@ -305,7 +301,7 @@ namespace WPFPages
 
 		//*************************************************************************//
 		// delegate object for others to access (listen for notifications sent by THIS CLASS)
-		public delegate void SqlViewerNotify ( int status, string info, SqlDbViewer NewSqlViewer );
+//		public delegate void SqlViewerNotify ( int status, string info, SqlDbViewer NewSqlViewer );
 		public SqlViewerNotify Notifier = null;
 
 		public NotifyViewer SendDbSelectorCommand;
@@ -327,11 +323,6 @@ namespace WPFPages
 		///Event Callback handler for SqlDbViewer
 		public async static void DbSelectorMessage ( int status, string info, SqlDbViewer NewSqlViewer )
 		{
-			switch ( status )
-			{
-				case 100:
-					break;
-			}
 			if ( status == 100 )
 			{
 				//instruction received from DbSelector to load relevant data
@@ -342,11 +333,10 @@ namespace WPFPages
 				if ( info == "BANKACCOUNT" )
 				{
 					Flags . CurrentSqlViewer . SendDbSelectorCommand ( 102, ">>> Starting load of Bank Data", Flags . CurrentSqlViewer );
-
 					Flags . CurrentSqlViewer . GetData ( info );
 					Flags . CurrentSqlViewer . SendDbSelectorCommand ( 103, $"<<< Bank Data Loaded {Flags . SqlBankGrid . Items . Count} records..", Flags . CurrentSqlViewer );
 					Flags . CurrentSqlViewer . SetGridVisibility ( "BANKACCOUNT" );
-					var BnkTuple = CreateTuple ( info );
+//					var BnkTuple = CreateTuple ( info );
 					Flags . CurrentSqlViewer . UpdateViewersList ( );
 					Flags . SqlBankGrid . SelectedIndex = 0;
 				}
@@ -356,7 +346,7 @@ namespace WPFPages
 					Flags . CurrentSqlViewer . GetData ( info );
 					Flags . CurrentSqlViewer . SendDbSelectorCommand ( 103, $"<<< Customer Data Loaded {Flags . SqlCustGrid . Items . Count} records...", Flags . CurrentSqlViewer );
 					Flags . CurrentSqlViewer . SetGridVisibility ( "CUSTOMERS" );
-					var CustTuple = CreateTuple ( info );
+//					var CustTuple = CreateTuple ( info );
 					Flags . CurrentSqlViewer . UpdateViewersList ( );
 					Flags . SqlCustGrid . SelectedIndex = 0;
 				}
@@ -366,7 +356,7 @@ namespace WPFPages
 					Flags . CurrentSqlViewer . GetData ( info );
 					Flags . CurrentSqlViewer . SendDbSelectorCommand ( 103, $"<<< Details Data Loaded {Flags . SqlDetGrid . Items . Count} records...", Flags . CurrentSqlViewer );
 					Flags . CurrentSqlViewer . SetGridVisibility ( "DETAILS" );
-					var DetTuple = CreateTuple ( info );
+//					var DetTuple = CreateTuple ( info );
 					Flags . CurrentSqlViewer . UpdateViewersList ( );
 					Flags . SqlDetGrid . SelectedIndex = 0;
 				}
@@ -375,7 +365,6 @@ namespace WPFPages
 		}
 
 		#endregion CallBack/Delegate stuff
-		//*********************************************************************************************************//
 
 		#region Class setup - General Declarations
 
@@ -469,14 +458,6 @@ namespace WPFPages
 		}
 
 		#endregion setup
-		//*********************************************************************************************************//
-
-		/// <summary>
-		/// supposed to intercept keystrokes in the window ????
-		/// </summary>
-		/// <param name="sender"></param>
-		/// <param name="e"></param>
-		//*********************************************************************************************************//
 
 		#region Callback response functions
 		/// <summary>
@@ -495,14 +476,13 @@ namespace WPFPages
 				}
 				ExtensionMethods . Refresh ( this );
 				ExtensionMethods . Refresh ( BankGrid );
-				//This calls  LoadcustomerTask for us after sorting out the command line sort order requested
-				// It also broadcasts to any other viewer to update  if needed
 				Console . WriteLine ( $"BANKACCOUNT: {BankGrid . Items?.Count}" );
-				// The Fn handles the Task.Run()
+
+				//This calls  LoadBankTask for us after sorting out the command line sort order requested
+				// It also broadcasts to any other viewer to update  if needed
+				// The Fn handles the Task.Run() to LOAD DATA from Db
 				await bvm . LoadBankTaskInSortOrder ( true, 0 );
-				//List<Task<bool>> tasks = new List<Task<bool>> ( );
-				//tasks . Add ( bvm . LoadBankTaskInSortOrder ( true, 0 ) );
-				//var Results = await Task . WhenAll ( tasks );
+
 				Console . WriteLine ( $"BANKACCOUNT: {BankGrid . Items?.Count}" );
 				//ExtensionMethods . Refresh ( BankGrid );
 			}
@@ -515,13 +495,13 @@ namespace WPFPages
 				}
 				ExtensionMethods . Refresh ( this );
 				ExtensionMethods . Refresh ( CustomerGrid );
+				Console . WriteLine ( $"CUSTOMER: {CustomerGrid . Items?.Count}" );
+
 				//This calls  LoadcustomerTask for us after sorting out the command line sort order requested
 				// It also broadcasts to any other viewer to update  if needed
-				Console . WriteLine ( $"CUSTOMER: {CustomerGrid . Items?.Count}" );
+				// The Fn handles the Task.Run() to LOAD DATA from Db
 				await cvm . LoadCustomerTaskInSortOrder ( true, 0 );
-				//List<Task<bool>> tasks = new List<Task<bool>> ( );
-				//tasks . Add ( cvm . LoadCustomerTaskInSortOrder ( true, 0 ) );
-				//var Results = await Task . WhenAll ( tasks );
+
 				Console . WriteLine ( $"CUSTOMER: {CustomerGrid . Items?.Count}" );
 				//ExtensionMethods . Refresh ( CustomerGrid );
 			}
@@ -534,16 +514,14 @@ namespace WPFPages
 				//Loads the data Asynchronously
 				ExtensionMethods . Refresh ( this );
 				ExtensionMethods . Refresh ( DetailsGrid );
-				//This calls  LoadcustomerTask for us after sorting out the command line sort order requested
+				Console . WriteLine ( $"DETAILS : {DetailsGrid . Items?.Count}" );
+
+				// The Fn handles the Task.Run() to LOAD DATA from Db
+				//This calls  LoadDetailsTask for us after sorting out the command line sort order requested
 				// It also broadcasts to any other viewer to update  if needed
-				Console . WriteLine ( $"DETAILS : {DetailsGrid . Items?.Count}" );
 				dvm . LoadDetailsTaskInSortOrder ( true, 0 );
-				//List<Task<bool>> tasks = new List<Task<bool>> ( );
-				//tasks . Add ( dvm . LoadDetailsTaskInSortOrder ( true, 0 ) );
-				//var Results = await Task . WhenAll ( tasks );
+
 				Console . WriteLine ( $"DETAILS : {DetailsGrid . Items?.Count}" );
-				//await dvm . LoadDetailsTaskInSortOrder (true, 0 );
-				//ExtensionMethods . Refresh ( DetailsGrid );
 			}
 		}
 		//*********************************************************************************************************//
@@ -577,7 +555,6 @@ namespace WPFPages
 
 		}
 		#endregion Callback response functions
-		//*********************************************************************************************************//
 
 		#region load/startup
 		//*********************************************************************************************************//
@@ -684,7 +661,6 @@ namespace WPFPages
 		}
 
 		#endregion load/startup
-		//*********************************************************************************************************//
 
 		#region EVENTHANDLERS
 
@@ -837,13 +813,11 @@ namespace WPFPages
 			if ( Flags . EditDbChangeHandled )
 				return;
 
-			EventHandlers ev = new EventHandlers ( );
-			ev . ShowSubscribersCount ( );
+			EventHandlers . ShowSubscribersCount ( );
 			if ( EventHandlers . SqlViewerIndexChanged != null )
 			{
 				EventHandlers . SqlViewerIndexChanged ( LocalSelectionChangeOnly, row, CurrentDb );
 				LocalSelectionChangeOnly = false;
-
 			}
 		}
 
@@ -857,7 +831,6 @@ namespace WPFPages
 		{
 			dca . SenderName = o . ToString ( );
 			dca . DbName = dbName;
-			EventHandlers ev = new EventHandlers ( );
 			if ( EventHandlers . NotifyOfDataChange != null )
 			{
 				EventHandlers . NotifyOfDataChange ( o, Grid, dca );
@@ -879,7 +852,6 @@ namespace WPFPages
 			}
 		}
 		#endregion EVENTHANDLERS
-		//*********************************************************************************************************//
 
 		#region load all data base data
 
@@ -959,7 +931,6 @@ namespace WPFPages
 		}
 		//*********************************************************************************************************//
 		#endregion load all data base data
-		//*********************************************************************************************************//
 
 		#region Load/show selected data base data
 
@@ -1299,7 +1270,6 @@ namespace WPFPages
 		//*********************************************************************************************************//
 
 		#endregion Load/show selected data base data
-		//*********************************************************************************************************//
 
 		#region Standard Click Events
 		private void ExitFilter_Click ( object sender, RoutedEventArgs e )
@@ -1437,7 +1407,6 @@ namespace WPFPages
 		}
 
 		#endregion Standard Click Events
-		//*********************************************************************************************************//
 
 		#region grid row selection code
 
@@ -1543,7 +1512,6 @@ namespace WPFPages
 			}
 		}
 		#endregion grid row selection code
-		//*********************************************************************************************************//
 
 		#region CellEdit Checker functions
 		private void BankGrid_BeginningEdit ( object sender, DataGridBeginningEditEventArgs e )
@@ -1727,7 +1695,6 @@ namespace WPFPages
 			}
 		}
 		#endregion CellEdit Checker functions
-		//*********************************************************************************************************//
 
 		#region Keyboard /Mousebutton handlers
 		private void Window_MouseDown ( object sender, MouseButtonEventArgs e )
@@ -1862,6 +1829,10 @@ namespace WPFPages
 		//*********************************************************************************************************//
 		protected override void OnKeyDown ( KeyEventArgs e )
 		{
+			if ( e . Key == Key . OemQuotes )
+			{
+				EventHandlers . ShowSubscribersCount ( );
+			}
 			//if ( e . Key == Key . Enter )
 
 			//	return;
@@ -1940,6 +1911,10 @@ namespace WPFPages
 				if ( dg . SelectedItem != null )
 					dg . ScrollIntoView ( dg . SelectedItem );
 				e . Handled = true;
+			}
+			else if ( e . Key == Key . OemQuotes )
+			{
+				EventHandlers . ShowSubscribersCount ( );
 			}
 			else if ( e . Key == Key . Up )
 			{       // DataGrid keyboard navigation = UP
@@ -2255,7 +2230,6 @@ namespace WPFPages
 		//}
 
 		#endregion Keyboard handlers
-		//*********************************************************************************************************//
 
 		#region Tuple Handlers
 		/// <returns>A fully populated Tuple</returns>
@@ -2308,7 +2282,6 @@ namespace WPFPages
 		}
 
 		#endregion Tuple Handlers
-		//*********************************************************************************************************//
 
 		#region Focus handling
 		private void BankGrid_GotFocus ( object sender, RoutedEventArgs e )
@@ -2338,7 +2311,7 @@ namespace WPFPages
 			Flags . SetGridviewControlFlags ( this, this . DetailsGrid );
 		}
 		#endregion Focus handling
-		//*********************************************************************************************************//
+
 		static void HandleEdit ( object sender, EditEventArgs e )
 		{
 			//Handler for Datagrid Edit occurred delegate
@@ -2346,13 +2319,9 @@ namespace WPFPages
 				Console . WriteLine ( $"\r\nRecieved by SQLDBVIEWER (150) Caller={e . Caller}, Index = {e . CurrentIndex},  Grid = {e . ToString ( )}\r\n " );
 		}
 
-		/// <summary>
-		/// handle clearing down the data to allow a switch to a different Db view
-		/// </summary>
-		//*********************************************************************************************************//
 
 		/// <summary>
-		///  This is aMASSIVE Function that handles updating the Dbs via SQl plu sorting the current grid
+		///  This is aMASSIVE Function that handles updating the Dbs via SQL plus sorting the current grid
 		///  out & notifying all other viewers that a change has occurred so they can (& in fact do) update 
 		///  their own data grids rather nicely right now - 22/4/21
 		/// </summary>
@@ -2360,18 +2329,13 @@ namespace WPFPages
 		/// <param name="e">Unused</param>
 		public async void ViewerGrid_RowEditEnding ( object sender, DataGridRowEditEndingEventArgs e )
 		{
-			///
 			/// This ONLY gets called when a cell is edited in THIS viewer
-			/// After a fight, this is now working and updates the relevant RECORD correctly
 
 			int currentrow = 0;
 			BankAccountViewModel ss = bvm;
 			CustomerViewModel cs = cvm;
 			DetailsViewModel sa = dvm;
 
-			//CustomerViewModel cv = cvm as CustomerViewModel;
-			//	BankAccountViewModel bv = bvm as BankAccountViewModel;
-			//	DetailsViewModel dv = e.Row.Item as DetailsViewModel;
 			//if data has NOT changed, do NOT bother updating the Db
 			// Clever stuff Eh - saves lots of processing time?
 			if ( !SelectionhasChanged )
@@ -2387,6 +2351,7 @@ namespace WPFPages
 			//Only called whn an edit has been completed
 			if ( e == null )
 			{
+				// Update Db's via SQL
 				SQLHandlers sqlh = new SQLHandlers ( );
 				Task t1;
 				if ( CurrentDb == "BANKACCOUNT" )
@@ -2425,8 +2390,10 @@ namespace WPFPages
 					BankAccountViewModel . SqlUpdating = true;
 					//This updates  the Sql Db
 					await sqlh . UpdateDbRow ( "BANKACCOUNT", ( object ) ss );
+
 					// Notify Other viewers of the data change
 					SendDataChanged ( this, BankGrid, CurrentDb );
+
 					BankGrid . SelectedIndex = currentrow;
 					Mouse . OverrideCursor = Cursors . Arrow;
 					this . Focus ( );
@@ -2442,8 +2409,10 @@ namespace WPFPages
 					BankAccountViewModel . SqlUpdating = true;
 					//This updates  the Sql Db
 					await sqlh . UpdateDbRow ( "CUSTOMER", ( object ) cs );
+
 					// Notify Other viewers of the data change
 					SendDataChanged ( this, CustomerGrid, CurrentDb );
+					
 					CustomerGrid . SelectedIndex = currentrow;
 					Mouse . OverrideCursor = Cursors . Arrow;
 					this . Focus ( );
@@ -2460,8 +2429,10 @@ namespace WPFPages
 					//This updates  the Sql Db
 					await sqlh . UpdateDbRow ( "DETAILS", ( object ) sa );
 					Flags . SqlDataChanged = true;
+					
 					// Notify Other viewers of the data change
 					SendDataChanged ( this, DetailsGrid, CurrentDb );
+					
 					Flags . SqlDataChanged = true;
 					DetailsGrid . SelectedIndex = currentrow;
 					Mouse . OverrideCursor = Cursors . Arrow;
@@ -3236,7 +3207,6 @@ namespace WPFPages
 			UpdateDbSelectorBtns ( Flags . CurrentSqlViewer );
 
 			// Unsubscribe form relevant events here
-			EventHandlers ev = new EventHandlers ( );
 			NotifyOfDataChange -= bvm . DbHasChangedHandler;
 			NotifyOfDataChange -= cvm . DbHasChangedHandler;
 			NotifyOfDataChange -= dvm . DbHasChangedHandler;
@@ -4245,6 +4215,47 @@ namespace WPFPages
 
 		#endregion NotifyPropertyChanged
 		//*********************************************************************************************************//
+		private void DataGrid2_PreviewMouseDown ( object sender, MouseButtonEventArgs e )
+		{
+			// handle flags to let us know WE have triggered the selectedIndex change
+			MainWindow . DgControl . SelectionChangeInitiator = 2; // tells us it is a EditDb initiated the record change
+			if ( e . ChangedButton == MouseButton . Right )
+			{
+				DataGridRow RowData;
+				int row = DataGridSupport . GetDataGridRowFromTree ( e, out RowData );
+				RowInfoPopup rip = new RowInfoPopup ( "CUSTOMER" );
+				rip . Show ( );
+				rip . DataContext = RowData;
+			}
+		}
+
+		private void DataGrid1_PreviewMouseDown ( object sender, MouseButtonEventArgs e )
+		{
+			// handle flags to let us know WE have triggered the selectedIndex change
+			MainWindow . DgControl . SelectionChangeInitiator = 2; // tells us it is a EditDb initiated the record change
+			if ( e . ChangedButton == MouseButton . Right )
+			{
+				DataGridRow RowData;
+				int row = DataGridSupport . GetDataGridRowFromTree ( e, out RowData );
+				RowInfoPopup rip = new RowInfoPopup ( "BANKACCOUNT" );
+				rip . Show ( );
+				rip . DataContext = RowData;
+			}
+		}
+
+		private void DetailsGrid_PreviewMouseDown ( object sender, MouseButtonEventArgs e )
+		{
+			// handle flags to let us know WE have triggered the selectedIndex change
+			MainWindow . DgControl . SelectionChangeInitiator = 2; // tells us it is a EditDb initiated the record change
+			if ( e . ChangedButton == MouseButton . Right )
+			{
+				DataGridRow RowData;
+				int row = DataGridSupport . GetDataGridRowFromTree ( e, out RowData );
+				RowInfoPopup rip = new RowInfoPopup ( "DETAILS" );
+				rip . Show ( );
+				rip . DataContext = RowData;
+			}
+		}
 	}
 
 }

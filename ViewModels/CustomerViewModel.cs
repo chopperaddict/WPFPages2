@@ -12,6 +12,7 @@ using System . Windows;
 using System . Windows . Controls;
 using System . Windows . Input;
 using WPFPages . ViewModels;
+using System.Reflection;
 
 namespace WPFPages . Views
 
@@ -43,9 +44,11 @@ namespace WPFPages . Views
 		//==================
 		public CustomerViewModel ( )
 		{
-			CustomersObs . CollectionChanged += CustomersObs_CollectionChanged1;
-//			EventHandlers . ShowSubscribersCount ( );
-
+			if (!IsSubscribedToObsNotifications)
+			{
+				CustomersObs.CollectionChanged += CustomersObs_CollectionChanged1;
+				IsSubscribedToObsNotifications = true;
+			}
 		}
 		#endregion CONSTRUCTORS
 
@@ -73,8 +76,8 @@ namespace WPFPages . Views
 		{
 			Type t = sender . GetType ( );
 			//Something has changed my ItemsSource.  No need to do anything really ?
-			if ( !t . FullName . Contains ( "ViewModels.CustomerViewModel" ) )
-				Console . WriteLine ( $"Customer Obs Collection has changed" );
+			//if ( !t . FullName . Contains ( "ViewModels.CustomerViewModel" ) )
+			//	Console . WriteLine ( $"Customer Obs Collection has changed" );
 		}
 		public void SubscribeToChangeEvents ( )
 		{
@@ -141,6 +144,8 @@ namespace WPFPages . Views
 		private string FilterCommand = "";
 		private string PrettyDetails = "";
 		public bool isMultiMode = false;
+
+		private static bool IsSubscribedToObsNotifications = false;
 
 		// one and only dtCust instance
 		public static DataTable dtCust = new DataTable ( );
@@ -485,11 +490,7 @@ namespace WPFPages . Views
 
 
 		#endregion SQL data handling
-
-		#region CallBacks
-
-		#endregion CallBacks
-
+    
 		static async Task HandleTask ( Task task )
 		{
 			await ( task );

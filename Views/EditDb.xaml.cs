@@ -42,19 +42,10 @@ namespace WPFPages . Views
 		SqlDbViewer sqldbv = null;
 		public static DataGrid CurrentGrid = null;
 		public string CurrentDb = "";
-		//		bool bDirty = false;
-		//		bool testing = false;
 		public EventHandlers EventHandler = null;
 		public BankAccountViewModel Bank;
 
 		private static bool LocalSelectionChangeOnly = true;
-		//private BankAccountViewModel BankCurrentRowAccount;
-		//private CustomerViewModel CustomerCurrentRowAccount;
-		//private DetailsViewModel DetailsCurrentRowAccount;
-		//private DataGridRow BankCurrentRow;
-		//private DataGridRow CustomerCurrentRow;
-		//private DataGridRow DetailsCurrentRow;
-
 		private SQLEditOcurred SqlEditOccurred = HandleSQLEdit;
 		private EditEventArgs EditArgs = null;
 		public Task mainTask = null;
@@ -99,7 +90,7 @@ namespace WPFPages . Views
 			}
 			else if ( Grid . Name == "CustomerGrid" )
 			{
-				if ( DataGrid2. Items . Count > 0 )
+				if ( DataGrid2 . Items . Count > 0 )
 				{
 					int currentrow = DataGrid2 . SelectedIndex;
 					// refresh our grid
@@ -127,11 +118,11 @@ namespace WPFPages . Views
 			return;
 		}
 		//	We have changed the selected item, so Trigger event to notify SqlDbViewer of index changes
-		private void NotifyViewerofEditIndexChange (bool LocalSelectionChangeOnly, int row, string CurentDb )
+		private void NotifyViewerofEditIndexChange ( bool LocalSelectionChangeOnly, int row, string CurentDb )
 		{
-			if (!LocalSelectionChangeOnly)
+			if ( !LocalSelectionChangeOnly )
 			{
-				if (!Flags.EditDbDataChanged)
+				if ( !Flags . EditDbDataChanged )
 					return;
 			}
 			if ( EventHandlers . EditDbViewerSelectedIndexChanged != null )
@@ -527,12 +518,13 @@ namespace WPFPages . Views
 			//+++++++++++++++++++++++++//
 			// subscribe to SqlViewerIndexChanged EVENT. Assign Handling to THIS FILE ->  OnSqlViewerIndexChanged;
 			// SqlViewerIndexChanged  is the Trigger function (In Sqlviewer) we call on index change
-			EventHandlers . SqlViewerIndexChanged += MainWindow . gv . SqlCurrentEditViewer . OnSqlViewerIndexChanged;
-			EventHandlers . NotifyOfDataChange += DbChangedHandler;
-			EventHandlers ev = new EventHandlers ( );
+			if ( EventHandlers . SqlViewerIndexChanged == null )
+				EventHandlers . SqlViewerIndexChanged += MainWindow . gv . SqlCurrentEditViewer . OnSqlViewerIndexChanged;
+			if ( EventHandlers . NotifyOfDataChange == null )
+				EventHandlers . NotifyOfDataChange += DbChangedHandler;
 			// set up our windows dragging
 			this . MouseDown += delegate { DoDragMove ( ); };
-			ev . ShowSubscribersCount ( );
+			EventHandlers . ShowSubscribersCount ( );
 
 		}
 
@@ -636,8 +628,8 @@ namespace WPFPages . Views
 					BankAccountViewModel . SqlUpdating = true;
 					await sqlh . UpdateDbRow ( "CUSTOMER", e . Row );
 					SqlUpdating = true;
-					Flags.EditDbDataChanged = true;
-					NotifyViewerofEditIndexChange ( LocalSelectionChangeOnly, DataGrid2 . SelectedIndex, "CUSTOMER");
+					Flags . EditDbDataChanged = true;
+					NotifyViewerofEditIndexChange ( LocalSelectionChangeOnly, DataGrid2 . SelectedIndex, "CUSTOMER" );
 					Flags . EditDbDataChanged = false;
 					return;
 				}
@@ -650,8 +642,8 @@ namespace WPFPages . Views
 			BankAccountViewModel ss = null;
 			CustomerViewModel cs = null;
 			DetailsViewModel sa = null;
-			var  sqlh = new SQLHandlers();
-			Flags.EditDbDataChanged = true;
+			var sqlh = new SQLHandlers ( );
+			Flags . EditDbDataChanged = true;
 			//Sort out the data as this Fn is called with null,null as arguments when a/c is "Closed"
 			if ( e == null )
 			{
@@ -716,7 +708,7 @@ namespace WPFPages . Views
 			Flags . EditDbChangeHandled = true;
 			NotifyViewerofEditIndexChange ( LocalSelectionChangeOnly, DataGrid1 . SelectedIndex, "BANKACCOUNT" );
 			Flags . EditDbChangeHandled = false;
-			Status . Content = $"Total Records = {DataGrid1 . Items . Count}, Current Record = {DataGrid1.SelectedIndex}";
+			Status . Content = $"Total Records = {DataGrid1 . Items . Count}, Current Record = {DataGrid1 . SelectedIndex}";
 		}
 
 		//Customer Db
@@ -728,15 +720,15 @@ namespace WPFPages . Views
 		private void DataGrid2_SelectionChanged ( object sender, SelectionChangedEventArgs e )
 		{
 			if ( DataGrid2 . SelectedIndex == -1 ) return;
-//			if ( !Flags . EditDbChangeHandled )
-//				Flags . EditDbChangeHandled = true;
+			//			if ( !Flags . EditDbChangeHandled )
+			//				Flags . EditDbChangeHandled = true;
 
 			// Handle Customer Row selection
 			//Sanity check
 			if ( sqldbv == null ) return;
 
 			//we need to notify SQLDBVIEWER so it can update its selected index
-//			Flags . EditDbChangeHandled = true;
+			//			Flags . EditDbChangeHandled = true;
 			NotifyViewerofEditIndexChange ( LocalSelectionChangeOnly, DataGrid2 . SelectedIndex, "CUSTOMER" );
 			Flags . EditDbChangeHandled = false;
 			Status . Content = $"Total Records = {DataGrid2 . Items . Count}, Current Record = {DataGrid2 . SelectedIndex}";
@@ -758,15 +750,15 @@ namespace WPFPages . Views
 			if ( sqldbv == null ) return;
 
 			//we need to notify SQLDBVIEWER so it can update its selected index
-			Flags.EditDbChangeHandled = false;
+			Flags . EditDbChangeHandled = false;
 			NotifyViewerofEditIndexChange ( LocalSelectionChangeOnly, DetailsGrid . SelectedIndex, "DETAILS" );
-//			Flags . EditDbChangeHandled = false;
+			//			Flags . EditDbChangeHandled = false;
 			if ( Flags . isMultiMode )
 				Status . Content = $"Total Records = {DetailsGrid . Items . Count}, Current Record = {DetailsGrid . SelectedIndex}, Duplicate A/C's only shown...";
 			else if ( Flags . IsFiltered )
 				Status . Content = $"Total Records = {DetailsGrid . Items . Count}, Current Record = {DetailsGrid . SelectedIndex}, Resullts ARE Filtered";
 			else
-				Status . Content = $"Total Records = {DetailsGrid. Items . Count}, Current Record = {DetailsGrid . SelectedIndex}";
+				Status . Content = $"Total Records = {DetailsGrid . Items . Count}, Current Record = {DetailsGrid . SelectedIndex}";
 		}
 		#endregion RowSelection handlers
 
@@ -1054,7 +1046,7 @@ namespace WPFPages . Views
 
 		private void Window_PreviewKeyDown ( object sender, KeyEventArgs e )
 		{
-			Console.WriteLine($"Key : {e.Key}");
+			Console . WriteLine ( $"Key : {e . Key}" );
 			DataGrid dg = null;
 			if ( e . Key == Key . Escape )
 			{
@@ -1098,7 +1090,7 @@ namespace WPFPages . Views
 				dg . SelectedIndex = dg . Items . Count - 1;
 				if ( dg . SelectedItem != null )
 					dg . ScrollIntoView ( dg . SelectedItem );
-		}
+			}
 			else if ( e . Key == Key . PageDown )
 			{
 				// DataGrid keyboard navigation = PAGE DOWN
@@ -1119,9 +1111,8 @@ namespace WPFPages . Views
 					dg . SelectedIndex = dg . Items . Count - 1;
 					if ( dg . SelectedItem != null )
 						dg . ScrollIntoView ( dg . SelectedItem );
-
 				}
-		}
+			}
 			else if ( e . Key == Key . PageUp )
 			{
 				// DataGrid keyboard navigation = PAGE UP
@@ -1144,26 +1135,26 @@ namespace WPFPages . Views
 						dg . ScrollIntoView ( dg . SelectedItem );
 				}
 			}
-			else if ( e . Key == Key .OemQuotes)
+			else if ( e . Key == Key . OemQuotes )
 			{
-				EventHandler.ShowSubscribersCount();
+				EventHandlers . ShowSubscribersCount ( );
 			}
 			else if ( e . Key == Key . Delete )
 			{
 				Flags . CurrentSqlViewer . Window_PreviewKeyDown ( sender, e );
 			}
-			if ( dg != null)
+			if ( dg != null )
 			{
 				// Now process it
-				if (dg == DataGrid1)
-					DataGrid1_SelectionChanged(dg, null);
-				else if (dg == DataGrid2)
-					DataGrid2_SelectionChanged(dg, null);
-				else if (dg == DetailsGrid)
-					DetailsGrid_SelectionChanged(dg, null);
-				if (dg.SelectedItem != null)
-					dg.ScrollIntoView(dg.SelectedItem);
-				e.Handled = true;
+				if ( dg == DataGrid1 )
+					DataGrid1_SelectionChanged ( dg, null );
+				else if ( dg == DataGrid2 )
+					DataGrid2_SelectionChanged ( dg, null );
+				else if ( dg == DetailsGrid )
+					DetailsGrid_SelectionChanged ( dg, null );
+				if ( dg . SelectedItem != null )
+					dg . ScrollIntoView ( dg . SelectedItem );
+				e . Handled = true;
 			}
 		}
 
@@ -1203,9 +1194,8 @@ namespace WPFPages . Views
 			// Clear EditDb pointers
 			EventHandlers . SqlViewerIndexChanged -= MainWindow . gv . SqlCurrentEditViewer . OnSqlViewerIndexChanged;
 			EventHandlers . NotifyOfDataChange -= DbChangedHandler;
-//			EventHandlers . EditDbViewerSelectedIndexChanged -= this.EditDbHasChangedIndex;                 // Callback in THIS FILE
-			EventHandlers ev = new EventHandlers ( );
-			ev . ShowSubscribersCount ( );
+			//			EventHandlers . EditDbViewerSelectedIndexChanged -= this.EditDbHasChangedIndex;                 // Callback in THIS FILE
+			EventHandlers . ShowSubscribersCount ( );
 			MainWindow . gv . SqlCurrentEditViewer = null;
 			Flags . CurrentEditDbViewer = null;
 

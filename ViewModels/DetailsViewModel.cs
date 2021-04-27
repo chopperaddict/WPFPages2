@@ -11,13 +11,15 @@ using System . Diagnostics;
 using System . Linq;
 using System . Text;
 using System . Threading . Tasks;
-using System . Windows . Controls;
 using System . Windows . Data;
+using System.Windows.Forms;
 using System . Windows . Input;
 
 using DocumentFormat . OpenXml . Office2010 . Excel;
 
 using WPFPages . Views;
+using Cursors = System.Windows.Input.Cursors;
+using DataGrid = System.Windows.Controls.DataGrid;
 
 namespace WPFPages . ViewModels
 {
@@ -46,14 +48,22 @@ namespace WPFPages . ViewModels
 			}
 		}
 
+		// CONSTRUCTOR
+		public DetailsViewModel ( )
+		{
+			if ( !IsSubscribedToObsNotifications )
+			{
+				DetailsObs . CollectionChanged += DetailsObs_CollectionChanged;
+				IsSubscribedToObsNotifications = true;
+			}
+		}
+
 		private void DetailsObs_CollectionChanged ( object sender, System . Collections . Specialized . NotifyCollectionChangedEventArgs e )
 		{
 			//Something has changed my ItemsSource.  No need to do anything really ?
 			Type t = sender . GetType ( );
-			if ( !t . FullName . Contains ( "ViewModels.DetailsViewModel" ) )
-				Console . WriteLine ( $"DetailsViewModel has received a notification that  the Customer Obs collection has changed..... YEAH" );
-			//			else
-			//				Console . WriteLine ( $"DetailsViewModel has received a notification that  another collection has been changed..... WOW" );
+//			if ( !t . FullName . Contains ( "ViewModels.DetailsViewModel" ) )
+//				Console . WriteLine ( $"DetailsViewModel has received a notification that  the Customer Obs collection has changed..... YEAH" );
 		}
 		/// <summary>
 		/// Callback for db change notifications
@@ -73,30 +83,16 @@ namespace WPFPages . ViewModels
 		public static bool SqlUpdating = false;
 		public static int CurrentSelectedIndex = 0;
 		public static DataTable dtDetails = null;
+		private static bool IsSubscribedToObsNotifications = false;
+//		LayoutSettings;
 
 		//==================================
 		//Delegate & Event handler for Db Updates
 		//==================================
-//		public delegate void DbUpdated ( SqlDbViewer sender, DataGrid Grid, DataChangeArgs args );
-//		public DbUpdated NotifyOfDataChange;
-
-		/// <summary>
-		///  A Delegate declared in SqlDbViewer to notify all ViewModels when a data change occurs
-		/// </summary>
-
-		private static void RefreshObs ( object sender )
-		{
-			Console . WriteLine ( $"\n()()()()()()()()()()()()()()()()()()()()   Message received in CustomerView Model due to a Db Update" );
-		}
-
-		// CONSTRUCTOR
-		public DetailsViewModel ( )
-		{
-			DetailsObs . CollectionChanged += DetailsObs_CollectionChanged;
-//			EventHandlers . ShowSubscribersCount ( );
+		//		public delegate void DbUpdated ( SqlDbViewer sender, DataGrid Grid, DataChangeArgs args );
+		//		public DbUpdated NotifyOfDataChange;
 
 
-		}
 		#region properties
 
 		private int id;

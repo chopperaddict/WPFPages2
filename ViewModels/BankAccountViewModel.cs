@@ -26,6 +26,8 @@ namespace WPFPages . ViewModels
 {
 	public partial class BankAccountViewModel : INotifyPropertyChanged
 	{
+
+		private static bool IsSubscribedToObsNotifications = false;
 		//==================================
 		//Delegate & Event handler for Db Updates
 		//==================================
@@ -34,9 +36,12 @@ namespace WPFPages . ViewModels
 		// CONSTRUCTOR
 		public BankAccountViewModel ( )
 		{
-			BankAccountObs . CollectionChanged += BankAccountObs_CollectionChanged1;
-//			EventHandlers . ShowSubscribersCount ( );
-
+			if (!IsSubscribedToObsNotifications)
+			{
+				//Subscribe to Notifications of changes made to BankAccountObs
+				BankAccountObs.CollectionChanged += BankAccountObs_CollectionChanged1;
+				IsSubscribedToObsNotifications = true;
+			}
 		}
 
 		private void BankAccountObs_CollectionChanged1 ( object sender, NotifyCollectionChangedEventArgs e )
@@ -48,25 +53,6 @@ namespace WPFPages . ViewModels
 				Console . WriteLine ( $"BankAccountViewModel has received a notofication that collection \"{t . FullName}\"has changed..... YEAH" );
 			//			else
 			//				Console . WriteLine ( $"BankAccountViewModel has received a notification that  another collection has been changed..... WOW" );
-		}
-
-		public void BankAccountObsChanged ( object o, NotifyCollectionChangedEventArgs e )
-		{
-			int y = 0;
-		}
-		public void SubscribeToChangeEvents ( )
-		{
-			// subscribe to Data changed event fired by SqlDbviewer
-			SqlDbViewer sqlv = new SqlDbViewer ( 'A' );
-			// assign event handler function
-			NotifyOfDataChange += DbHasChangedHandler;
-			BankAccountObs . CollectionChanged += BankAccountObsChanged;
-			EventHandlers ev = new EventHandlers ( );
-			ev . ShowSubscribersCount ( );
-		}
-		public void test ( object o, EventArgs e )
-		{
-			int y = 0;
 		}
 
 		/// <summary>
@@ -341,30 +327,9 @@ namespace WPFPages . ViewModels
 			}
 		}
 
-
-
-
-
+     
 		#region SQL data loading - including special Task handler code
-		//static async Task HandleTask (Task task)
-		//{
-		//	Task.Await (OnCompleted);
-		//	int x = 0;
-		//	if (x != 0)
-		//	{
-		//		//These two work
-		//		//			var t =  Task.Run (() => FillBankAccountDataGrid (dtBank));
-		//		//			t.Wait ();
-
-		//		//So do these two, (or first one alone id load is done externally)
-		//		// This uses a special Class Taskextensions.cs that handles the AWAIT of whatever task is passed  into it
-		//		//using the syntax 
-		//		//			FillBankAccountDataGrid (dtBank).Await ();
-		//		//			LoadBankAccountIntoList (BankList, dtBank);
-		//	}
-		//}
-
-
+	
 
 		/// <summary>
 		/// Load SQL Db from SQL Server
