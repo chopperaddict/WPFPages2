@@ -37,19 +37,19 @@ namespace WpfUI
 		{
 			//Button btn = (Button)sender;
 			//btn.FontSize = 28;
-			this.NavigationService.Navigate(MainWindow._Page1);
+//			this.NavigationService.Navigate(MainWindow._Page1);
 		}
 		private void Page2_Click(object sender, RoutedEventArgs e)
 		{
-			this.NavigationService.Navigate(MainWindow._Page2);
+//			this.NavigationService.Navigate(MainWindow._Page2);
 		}
 		private void Page3_Click(object sender, RoutedEventArgs e)
 		{
-			this.NavigationService.Navigate(MainWindow._Page3);
+///			this.NavigationService.Navigate(MainWindow._Page3);
 		}
 		private void Page4_Click(object sender, RoutedEventArgs e)
 		{
-			this.NavigationService.Navigate(MainWindow._Page4);
+//			this.NavigationService.Navigate(MainWindow._Page4);
 		}
 
 		private void Page5_Click(object sender, RoutedEventArgs e)

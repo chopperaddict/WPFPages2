@@ -41,7 +41,7 @@ namespace WPFPages . Views
 		//*********************DELEGATE STUFF **************************************************//
 		// I can now just use this : SendViewerCommand(x, "") to send messages to SqlDbViewer window
 		//		EVent trigger for public delegate void NotifyViewer ( int status, string info, SqlDbViewer NewSqlViewer );
-		public NotifyViewer SendViewerCommand = null;
+		//		public NotifyViewer SendViewerCommand = null;
 		//*********************DELEGATE STUFF **************************************************//
 
 		#region Receive  notifications into MyNotification() from SqlViewer - WORKS JUST FINE
@@ -83,7 +83,7 @@ namespace WPFPages . Views
 			{
 				// VERY IMPORTANT MSG - Send 100 Command to Tell Viewer to load data 
 				Console . WriteLine ( $"\r\nDBSELECTOR COMMAND : [{status}] -  Calling InitialLoad() to load data in SqlDbv\r\n" );
-				Flags . DbSelectorOpen . SendViewerCommand ( 100, $"{info}", null );
+				EventHandlers . SendViewerCommand ( 100, $"{info}", null );
 			}
 			else if ( status == 99 )
 			{
@@ -124,20 +124,20 @@ namespace WPFPages . Views
 			//sqlv.DataLoaded += OnDataLoaded;
 
 			// Assign Handler to delegate SqlViewerNotify			
-			SqlViewerNotify notifier = DbSelectorMessage ;
-			
-			SendViewerCommand = SqlDbViewer . DbSelectorMessage;
+			SqlViewerNotify notifier = DbSelectorMessage;
+
+			EventHandlers . SendViewerCommand = SqlDbViewer . DbSelectorMessage;
 
 			// set a pointer to this window in GridViewer control struct
 			//			MainWindow.gv.DbSelectorWindow = this;
 
 			this . MouseDown += delegate { DoDragMove ( ); };
 			//This DOES send a message to SqlDbViewer !!
-			SendViewerCommand ( 103, "<<< Completed DbSelector basic Constructor", null );
+			EventHandlers . SendViewerCommand ( 103, "<<< Completed DbSelector basic Constructor", null );
 #if USEDETAILEDEXCEPTIONHANDLER
 			Console.WriteLine ($" \r\n%%%%%%%%%%%%%%% DbSelector Constructor completed %%%%%%%%%%%%%%\r\n");
 #endif
-			                                               Utils . GetWindowHandles ( );
+			Utils . GetWindowHandles ( );
 
 		}
 
@@ -183,6 +183,27 @@ namespace WPFPages . Views
 			// Get the first empty set of structures  and fill them out ofr this NEW Viewer Window
 			for ( x = 0 ; x < 3 ; x++ )
 			{
+				// inserted here 29/4/21 to clear Viewerslist when a viewer window closes
+				if ( caller == null && callertype == null )
+				{
+					ListBoxItem lbi = new ListBoxItem ( );
+
+					for ( int i = 1 ; i < MainWindow . gv . DbSelectorWindow . ViewersList . Items . Count ; i++ )
+					{
+						if ( i >= MainWindow . gv . DbSelectorWindow . ViewersList . Items . Count )
+							return;
+						if ( MainWindow . gv . PrettyDetails == PrettyString )
+						{
+							lbi = Flags . DbSelectorOpen . ViewersList . Items [ i ] as ListBoxItem;
+							if ( lbi != null )
+								lbi . Content = "";
+							Flags . DbSelectorOpen . ViewersList . Items . RemoveAt ( i );
+							Flags . DbSelectorOpen . ViewersList . Refresh ( );
+							break;
+						}
+					}
+					return;
+				}
 				if ( MainWindow . gv . ListBoxId [ x ] == Guid . Empty )
 				{
 					MainWindow . gv . PrettyDetails = PrettyString;
@@ -253,8 +274,8 @@ namespace WPFPages . Views
 					callertype = 2;
 					CallingType = "DETAILS";
 					// LOADS THE WINDOW HERE - it RETURNS IMMEDIATELY even though the data is not yet fully loaded
-//					Flags . CurrentSqlViewer = new SqlDbViewer ( "DETAILS" );
-					Flags . CurrentSqlViewer= new SqlDbViewer ( "DETAILS" );
+					//					Flags . CurrentSqlViewer = new SqlDbViewer ( "DETAILS" );
+					Flags . CurrentSqlViewer = new SqlDbViewer ( "DETAILS" );
 					Flags . CurrentSqlViewer . BringIntoView ( );
 					Flags . CurrentSqlViewer . Show ( );
 					ExtensionMethods . Refresh ( Flags . CurrentSqlViewer );
@@ -271,7 +292,7 @@ namespace WPFPages . Views
 					//
 					var tuple = SqlDbViewer . CreateTuple ( "DETAILS" );
 					//					Flags . CurrentSqlViewer . GetTupleData ( ( Tuple<SqlDbViewer, string, int> ) tuple );
-					SendViewerCommand ( 103, "\nNew Details Viewer Fully loaded....\n", null );
+					EventHandlers . SendViewerCommand ( 103, "\nNew Details Viewer Fully loaded....\n", null );
 					callertype = 2;
 					CallingType = "DETAILS";
 				}
@@ -282,7 +303,7 @@ namespace WPFPages . Views
 						SetFocusToExistingViewer ( MainWindow . gv . Bankviewer );
 						return;
 					}
-//					Flags . CurrentSqlViewer = new SqlDbViewer ( "BANKACCOUNT" );
+					//					Flags . CurrentSqlViewer = new SqlDbViewer ( "BANKACCOUNT" );
 					Flags . CurrentSqlViewer = new SqlDbViewer ( "BANKACCOUNT" );
 					Flags . CurrentSqlViewer . BringIntoView ( );
 					Flags . CurrentSqlViewer . Show ( );
@@ -301,7 +322,7 @@ namespace WPFPages . Views
 					//					Flags.CurrentSqlViewer.UpdateSqlControl ((Tuple<SqlDbViewer, string, int>)tuple);
 					Flags . CurrentSqlViewer . GetTupleData ( ( Tuple<SqlDbViewer, string, int> ) tuple );
 					//					Console.WriteLine ($"\nTuple created successfully....");
-					SendViewerCommand ( 103, "\nNew BankAccount Viewer Fully loaded....\n", null );
+					EventHandlers . SendViewerCommand ( 103, "\nNew BankAccount Viewer Fully loaded....\n", null );
 					callertype = 0;
 					CallingType = "BANKACCOUNT";
 
@@ -314,7 +335,7 @@ namespace WPFPages . Views
 						SetFocusToExistingViewer ( MainWindow . gv . Custviewer );
 						return;
 					}
-//					Flags . CurrentSqlViewer = new SqlDbViewer ( "CUSTOMER" );
+					//					Flags . CurrentSqlViewer = new SqlDbViewer ( "CUSTOMER" );
 					Flags . CurrentSqlViewer = new SqlDbViewer ( "CUSTOMER" );
 					Flags . CurrentSqlViewer . BringIntoView ( );
 					Flags . CurrentSqlViewer . Show ( );
@@ -333,7 +354,7 @@ namespace WPFPages . Views
 					var tuple = SqlDbViewer . CreateTuple ( "CUSTOMER" );
 					//					Flags.CurrentSqlViewer.UpdateSqlControl ((Tuple<SqlDbViewer, string, int>)tuple);
 					Flags . CurrentSqlViewer . GetTupleData ( ( Tuple<SqlDbViewer, string, int> ) tuple );
-					SendViewerCommand ( 103, "\nNew Customer Viewer Fully loaded....\n", null );
+					EventHandlers . SendViewerCommand ( 103, "\nNew Customer Viewer Fully loaded....\n", null );
 					callertype = 1;
 					CallingType = "CUSTOMER";
 				}
@@ -552,13 +573,11 @@ namespace WPFPages . Views
 				}
 			}
 
-			//Remove a SINGLE Viewer Windows data from Flags & gv[]
-			Flags . DeleteViewerAndFlags ( );
+			//Remove all Viewer Windows data from Flags & gv[]
+			Flags . DeleteViewerAndFlags ( -1);
 			//UpdateDataGridController ( null );
-			for ( int x = ViewersList . Items . Count ; x > 1 ; x-- )
-			{
-				ViewersList . Items . RemoveAt ( x - 1 );
-			}
+			
+			// This is done in the call above
 			ViewersList . Refresh ( );
 			//			MainWindow . gv . SqlViewerWindow = null;
 			return;
@@ -602,7 +621,7 @@ namespace WPFPages . Views
 				else
 				{
 					//Remove a SINGLE Viewer Windows data from Flags & gv[]
-					Flags . DeleteViewerAndFlags ( );
+					Flags . DeleteViewerAndFlags ( y);
 					break;
 					//if (lbtag == (Guid)Tag)
 					//{
@@ -766,7 +785,7 @@ namespace WPFPages . Views
 		{
 #pragma LOADING  now in HandleSelection()
 
-			SendViewerCommand ( 102, ">>> Starting OnWindowLoaded()", Flags . CurrentSqlViewer );
+			EventHandlers . SendViewerCommand ( 102, ">>> Starting OnWindowLoaded()", Flags . CurrentSqlViewer );
 			int counter = 0;
 
 			{
@@ -823,7 +842,7 @@ namespace WPFPages . Views
 			this . BringIntoView ( );
 			this . Topmost = true;
 			//Send commands to SqlDbViewer !!!!!
-			SendViewerCommand ( 103, ">>> Ended OnWindowLoaded()", Flags . CurrentSqlViewer );
+			EventHandlers . SendViewerCommand ( 103, ">>> Ended OnWindowLoaded()", Flags . CurrentSqlViewer );
 		}
 
 		//*****************************************************************************************//
@@ -1048,8 +1067,20 @@ namespace WPFPages . Views
 				// find Tag that matches our Tag in ViewersList  
 				if ( MainWindow . gv . ListBoxId [ x ] == tag )
 				{
-					Flags . DbSelectorOpen . ViewersList . SelectedIndex = x + 1;
-					Flags . DbSelectorOpen . ViewersList . Refresh ( );
+					for ( int i = 1 ; i < Flags . DbSelectorOpen . ViewersList.Items.Count ; i++ )
+					{
+						ListBoxItem lbi = Flags . DbSelectorOpen . ViewersList . Items [ i ] as ListBoxItem;
+						if ( (Guid)lbi.Tag == tag )
+						{
+							Flags . DbSelectorOpen . ViewersList . SelectedIndex = i;
+							Flags . DbSelectorOpen . ViewersList . SelectedItem = i;
+							Flags . DbSelectorOpen . ViewersList . Refresh ( );
+							break;
+						}
+					}
+//					Flags . DbSelectorOpen . ViewersList . SelectedIndex = x ;
+//					Flags . DbSelectorOpen . ViewersList . SelectedItem = x ;
+//					Flags . DbSelectorOpen . ViewersList . Refresh ( );
 					break;
 				}
 			}
@@ -1198,17 +1229,17 @@ namespace WPFPages . Views
 			// When this gets hre, all data will have been loaded, and we get a notifiication from SqlDbViewer
 			// so we should Functionalise this lot so we can have the viewer window shown fuly painted.
 			//and we need to do the same in SqlDbViewer
-			SendViewerCommand ( 102, ">>> Starting TriggerBankDataLoad()", Flags . CurrentSqlViewer );
+			EventHandlers . SendViewerCommand ( 102, ">>> Starting TriggerBankDataLoad()", Flags . CurrentSqlViewer );
 			// The Fn handles the Task.Run()
 			await bvm . LoadBankTaskInSortOrder ( true, -1 );
-			SendViewerCommand ( 103, "<<< Ended TriggerBankDataLoad()", Flags . CurrentSqlViewer );
+			EventHandlers . SendViewerCommand ( 103, "<<< Ended TriggerBankDataLoad()", Flags . CurrentSqlViewer );
 		}
 		private async Task TriggerCustomerDataLoad ( SqlDbViewer NewSqlViewer )
 		{
 			// When this gets hre, all data will have been loaded, and we get a notifiication from SqlDbViewer
 			// so we should Functionalise this lot so we can have the viewer window shown fuly painted.
 			//and we need to do the same in SqlDbViewer
-			SendViewerCommand ( 102, ">>> Starting TriggerCustomerDataLoad()", Flags . CurrentSqlViewer );
+			EventHandlers . SendViewerCommand ( 102, ">>> Starting TriggerCustomerDataLoad()", Flags . CurrentSqlViewer );
 			//This calls  LoadcustomerTask for us after sorting out the command line sort order requested
 			try
 			{
@@ -1218,14 +1249,14 @@ namespace WPFPages . Views
 			}
 			catch ( Exception ex )
 			{ Console . WriteLine ( $"Error occured in LoadBankTaskSortOrder Task\n{ex . Message}\n{ex . Data}" ); }
-			SendViewerCommand ( 103, "<<< Ended TriggerCustomerDataLoad()", Flags . CurrentSqlViewer );
+			EventHandlers . SendViewerCommand ( 103, "<<< Ended TriggerCustomerDataLoad()", Flags . CurrentSqlViewer );
 		}
 		private async Task TriggerDetailsDataLoad ( SqlDbViewer NewSqlViewer )
 		{
 			// When this gets hre, all data will have been loaded, and we get a notifiication from SqlDbViewer
 			// so we should Functionalise this lot so we can have the viewer window shown fuly painted.
 			//and we need to do the same in SqlDbViewer
-			SendViewerCommand ( 102, ">>> Starting TriggerDetailsDataLoad()", Flags . CurrentSqlViewer );
+			EventHandlers . SendViewerCommand ( 102, ">>> Starting TriggerDetailsDataLoad()", Flags . CurrentSqlViewer );
 			//This calls  LoadDetailsTask for us after sorting out the command line sort order requested
 			try
 			{
@@ -1236,7 +1267,7 @@ namespace WPFPages . Views
 			}
 			catch ( Exception ex )
 			{ Console . WriteLine ( $"Error occured in LoadBankTaskSortOrder Task\n{ex . Message}\n{ex . Data}" ); }
-			SendViewerCommand ( 102, ">>> Ended  TriggerDetailsDataLoad()", Flags . CurrentSqlViewer );
+			EventHandlers . SendViewerCommand ( 102, ">>> Ended  TriggerDetailsDataLoad()", Flags . CurrentSqlViewer );
 		}
 		#endregion Task loading for each Grid type
 
@@ -1307,7 +1338,7 @@ namespace WPFPages . Views
 						Flags . CurrentSqlViewer . WaitMessage . Visibility = Visibility . Visible;
 						Flags . CurrentSqlViewer . WaitMessage . BringIntoView ( );
 						Mouse . OverrideCursor = Cursors . Arrow;
-						SendViewerCommand ( 102, ">>> Start Data Loading for viewer", Flags . CurrentSqlViewer );
+						EventHandlers . SendViewerCommand ( 102, ">>> Start Data Loading for viewer", Flags . CurrentSqlViewer );
 
 						if ( selecteditem == 0 )
 						{
@@ -1316,11 +1347,11 @@ namespace WPFPages . Views
 							//							bvm.BankAccountObs = new ObservableCollection<BankAccountViewModel> (BankAccountViewModel.BankList);
 							await TriggeBankDataLoad ( Flags . CurrentSqlViewer );
 							Flags . SqlBankGrid . SelectedIndex = 0;
-							SendViewerCommand ( 103, $"<<< Completed Data Loading for BankAccount [{Flags . SqlBankGrid . Items . Count}]", Flags . CurrentSqlViewer );
+							EventHandlers . SendViewerCommand ( 103, $"<<< Completed Data Loading for BankAccount [{Flags . SqlBankGrid . Items . Count}]", Flags . CurrentSqlViewer );
 							Flags . SqlBankGrid . Visibility = Visibility . Visible;
 							Flags . CurrentSqlViewer . Focus ( );
 							//Tell SQLDbViewer to load SQL data
-							SendViewerCommand ( 100, "BANKACCOUNT", Flags . CurrentSqlViewer );
+							EventHandlers . SendViewerCommand ( 100, "BANKACCOUNT", Flags . CurrentSqlViewer );
 						}
 						else if ( selecteditem == 1 )
 						{
@@ -1329,10 +1360,10 @@ namespace WPFPages . Views
 							await TriggerCustomerDataLoad ( Flags . CurrentSqlViewer );
 							// This triggers a selectionChanged event in SQLDbViewer
 							Flags . SqlCustGrid . SelectedIndex = 0;
-							SendViewerCommand ( 111, $"Completed Data Loading for Customer  [{Flags . SqlCustGrid . Items . Count}]", Flags . CurrentSqlViewer );
+							EventHandlers . SendViewerCommand ( 111, $"Completed Data Loading for Customer  [{Flags . SqlCustGrid . Items . Count}]", Flags . CurrentSqlViewer );
 							Flags . SqlCustGrid . Visibility = Visibility . Visible;
 							Flags . CurrentSqlViewer . Focus ( );
-							SendViewerCommand ( 100, "CUSTOMER", Flags . CurrentSqlViewer );
+							EventHandlers . SendViewerCommand ( 100, "CUSTOMER", Flags . CurrentSqlViewer );
 						}
 						else if ( selecteditem == 2 )
 						{
@@ -1340,10 +1371,10 @@ namespace WPFPages . Views
 							//								dvm.DetailsObs = new ObservableCollection<DetailsViewModel> (DetailsViewModel.DetailsList);
 							await TriggerDetailsDataLoad ( Flags . CurrentSqlViewer );
 							Flags . SqlDetGrid . SelectedIndex = 0;
-							SendViewerCommand ( 103, $"<<< Completed Data Loading for Details  [{Flags . SqlDetGrid . Items . Count}]", Flags . CurrentSqlViewer );
+							EventHandlers . SendViewerCommand ( 103, $"<<< Completed Data Loading for Details  [{Flags . SqlDetGrid . Items . Count}]", Flags . CurrentSqlViewer );
 							Flags . SqlDetGrid . Visibility = Visibility . Visible;
 							Flags . CurrentSqlViewer . Focus ( );
-							SendViewerCommand ( 100, "DETAILS", Flags . CurrentSqlViewer );
+							EventHandlers . SendViewerCommand ( 100, "DETAILS", Flags . CurrentSqlViewer );
 						}
 						//Now we can Get the data from the current row
 						currentRowText = MainWindow . gv . CurrentDb [ x ];
@@ -1354,7 +1385,7 @@ namespace WPFPages . Views
 						Flags . SqlViewerIsLoading = false;
 
 						//Create/Add new viewer entry (ListBoxItem) to Selection viewer Listbox
-						SendViewerCommand ( 103, "<<< DbSelector has Completed Window Loading", Flags . CurrentSqlViewer );
+						EventHandlers . SendViewerCommand ( 103, "<<< DbSelector has Completed Window Loading", Flags . CurrentSqlViewer );
 						int mx = 0;
 						if ( mx == 1 )
 						{
@@ -1457,7 +1488,7 @@ namespace WPFPages . Views
 					lbi = ViewersList . Items [ selindex ] as ListBoxItem;
 
 
-					// THIS IALL WRONG - INDEXING DOES NOT MATCH BETWEEN VIEWER AND GV[]
+					// THIS IS ALL WRONG - INDEXING DOES NOT MATCH BETWEEN VIEWER AND GV[]
 					for ( int x = 0 ; x < MainWindow . gv . MaxViewers ; x++ )
 					{
 						try
@@ -1527,5 +1558,47 @@ namespace WPFPages . Views
 		}
 		#endregion UNUSED FUNCTIONS
 
+		private void sqlSelector_MouseUp ( object sender, MouseButtonEventArgs e )
+		{
+			//ListBoxItem lbi = new ListBoxItem ( );
+			//Guid tag = Guid . Empty;
+			//lbi = listbox . SelectedItem as ListBoxItem;
+			//if ( lbi == null ) return;
+			//tag = ( Guid ) lbi . Tag;
+			//for ( int x = 0 ; x < ViewersList . Items . Count ; x++ )
+			//{
+			//	if ( MainWindow . gv . ListBoxId [ x ] == tag )
+			//	{
+			//		MainWindow . gv . window [ x ] . Focus ( );
+			//		MainWindow . gv . SqlViewerWindow = MainWindow . gv . window [ x ] as SqlDbViewer;
+			//		//Ensure our global viewer pointer is set to last viewer selected
+			//		Flags . CurrentSqlViewer = MainWindow . gv . window [ x ] as SqlDbViewer;
+			//		break;
+			//	}
+			//}
+		}
+
+		private void sqlSelector_SelectionChanged ( object sender, SelectionChangedEventArgs e )
+		{
+			//ListBoxItem lbi = new ListBoxItem ( );
+			//var v = e . Source;
+			//Guid tag = Guid . Empty;
+			//ListBox listbox = sqlSelector;
+			//lbi = listbox . SelectedItem as ListBoxItem;
+			//if ( lbi == null ) return;
+			//if ( lbi . Tag == null ) return;
+			//tag = ( Guid ) lbi . Tag;
+			//for ( int x = 0 ; x < ViewersList . Items . Count ; x++ )
+			//{
+			//	if ( MainWindow . gv . ListBoxId [ x ] == tag )
+			//	{
+			//		MainWindow . gv . window [ x ] . Focus ( );
+			//		MainWindow . gv . SqlViewerWindow = MainWindow . gv . window [ x ] as SqlDbViewer;
+			//		//Ensure our global viewer pointer is set to last viewer selected
+			//		Flags . CurrentSqlViewer = MainWindow . gv . window [ x ] as SqlDbViewer;
+			//		break;
+			//	}
+			//}
+		}
 	}
 }

@@ -28,7 +28,7 @@ namespace WPFPages.UserControls
 		private void CloseButton_Click(object sender, MouseButtonEventArgs e)
 		{
 			NavigationService ns = NavigationService.GetNavigationService(this);
-			ns.Navigate(MainWindow._Page1);
+//			ns.Navigate(MainWindow._Page1);
 
 		}
 	}

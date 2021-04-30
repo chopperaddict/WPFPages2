@@ -19,6 +19,28 @@ namespace WPFPages
 	/// </summary>
 	public class DataGridSupport
 	{
+		public static int GetDataGridRowFromTree ( MouseButtonEventArgs e, out DataGridRow RowData )
+		{
+			int currentRow = -1;
+			DependencyObject dep = ( DependencyObject ) e . OriginalSource;
+			dep = VisualTreeHelper . GetParent ( dep );
+
+			//I have found that we can still get the current row
+			{
+				DataGridCell cell = dep as DataGridCell;
+				// navigate further up the tree
+				while ( ( dep != null ) && !( dep is DataGridRow ) )
+				{
+					dep = VisualTreeHelper . GetParent ( dep );
+				}
+				DataGridRow row = dep as DataGridRow;
+				currentRow = FindRowIndex ( row );
+				RowData = row;
+				return currentRow;
+			}
+
+		}
+
 		public static object GetCellContent (object sender, MouseButtonEventArgs e,   string CurrentDb, out int currentRow, out int currentColumn, out string columnName, out object rowdata)
 		{
 			currentRow = -1;

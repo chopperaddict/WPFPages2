@@ -11,7 +11,7 @@
 		MinHeight="640" MinWidth="700"
 		Loaded="WindowLoaded"	  
 		PreviewKeyDown="Window_PreviewKeyDown"
-		Closed="Window_Closed">
+		Closed="Window_Closed" Closing="Window_Closing">
 
 	<!-- 
 	#pragma MVVM TODO
@@ -21,25 +21,8 @@
 	<!-- This template explains how to render the list of commands 
 	on the left side in the main window (the 'Control Panel' area). -->
 	<Window.Resources>
-		<!--<MyData:BankAccountViewModel x:Key="BnkModel"/>
-		<MyData:CustomerViewModel x:Key="CustModel"/>
-		<MyData:DetailsViewModel x:Key="DetModel"/>-->
 
-		<!--<DataTemplate x:Key="CommandsTemplate">
-			<ItemsControl ItemsSource="{Binding Path=Commands}">
-				<ItemsControl.ItemTemplate>
-					<DataTemplate>
-						<TextBlock Margin="2,6"> 
-                    <Hyperlink Command="{Binding Path=Command}"> 
-                    <TextBlock Text="{Binding Path=DisplayName}" /> 
-                    </Hyperlink> 
-                </TextBlock>
-					</DataTemplate>
-				</ItemsControl.ItemTemplate>
-			</ItemsControl>
-		</DataTemplate>-->
-
-	
+															    	
 	</Window.Resources>
 	
 	
@@ -74,7 +57,9 @@
 		</Grid.ColumnDefinitions>
 
 		<!--layout OK-->
+		
 		<!--#region Inner grid for Bank/Details - Name=BankEditGrid Stays OPEN / VISIBLE at all times-->
+		
 		<!--LEFT Column, ONE only-->
 		<Grid  x:Name="BankLabels"
 			Grid.Row="1"
@@ -168,6 +153,7 @@
 								 Height="25"
 								 IsEnabled="True"
 								 Background="{StaticResource Gray3}"
+								HorizontalAlignment="Left"
 								 HorizontalContentAlignment="Center"
 								 VerticalContentAlignment="Center"
 								 Text="{Binding BankNo, UpdateSourceTrigger=LostFocus, Mode=TwoWay}" LostFocus="BanknoEdit_LostFocus" />
@@ -181,6 +167,7 @@
 								 IsReadOnly="False"
 								 Background="{StaticResource Gray3}"
 								 Foreground="{StaticResource Black0}"
+								HorizontalAlignment="Left"
 								 HorizontalContentAlignment="Center"
 								 VerticalContentAlignment="Center"
 								Text="{Binding CustNo, UpdateSourceTrigger=LostFocus, Mode=TwoWay}" LostFocus="CustNoEdit_LostFocus" />
@@ -194,9 +181,12 @@
 								 IsReadOnly="False"
 								 Background="{StaticResource Gray3}"
 								 Foreground="{StaticResource Black0}"
+								HorizontalAlignment="Left"
 								 HorizontalContentAlignment="Center"
 								 VerticalContentAlignment="Center"
-								Text="{Binding AcType, UpdateSourceTrigger=LostFocus, Mode=TwoWay}" LostFocus="ActypeEdit_LostFocus" 
+								Text="{Binding AcType, UpdateSourceTrigger=LostFocus, Mode=TwoWay}" 
+								LostFocus="ActypeEdit_LostFocus" 
+								Width="35"
 							   />
 
 			<TextBox Name="BalanceEdit" 
@@ -241,6 +231,7 @@
 								 Text="{Binding ODate, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay, StringFormat='dd/MM/yyyy'}"  LostFocus="OpenDateEdit_LostFocus" />-->
 				<DatePicker 
 									Margin="6"
+									HorizontalAlignment="Left"
 									SelectedDate="{Binding ODate, 
 									Mode=TwoWay, 
 									UpdateSourceTrigger=PropertyChanged}"
@@ -250,6 +241,7 @@
 			<Grid Grid.Row="7" Grid.Column="2">
 				<DatePicker 
 									Margin="5"
+									HorizontalAlignment="Left"
 									SelectedDate="{Binding CDate, 
 									Mode=TwoWay, 
 									UpdateSourceTrigger=PropertyChanged}"
@@ -371,7 +363,7 @@
 						<DataTemplate>
 							<TextBlock Text="{Binding ODate, 
 									Mode=TwoWay, 
-									UpdateSourceTrigger=LostFocus}"
+									UpdateSourceTrigger=LostFocus, StringFormat='dd/MM/yyyy'}"
  									HorizontalAlignment="Center"
 									VerticalAlignment="Top"/>
 						</DataTemplate>
@@ -380,7 +372,7 @@
 						<DataTemplate>
 							<DatePicker SelectedDate="{Binding Path=ODate, 
 									Mode=TwoWay, 
-									UpdateSourceTrigger=PropertyChanged}">
+									UpdateSourceTrigger=LostFocus, StringFormat='dd/MM/yyyy'}">
 							</DatePicker>
 						</DataTemplate>
 					</DataGridTemplateColumn.CellEditingTemplate>
@@ -401,7 +393,7 @@
 						<DataTemplate>
 							<DatePicker SelectedDate="{Binding Path=CDate, 
 									Mode=TwoWay, 
-									UpdateSourceTrigger=PropertyChanged}"/>
+									UpdateSourceTrigger=PropertyChanged, StringFormat='dd/MM/yyyy'}"/>
 						</DataTemplate>
 					</DataGridTemplateColumn.CellEditingTemplate>
 				</DataGridTemplateColumn>
@@ -611,7 +603,7 @@
 				 Grid.Row="3"
 				 Margin="1"				 
 				 Height="25"
-					 Width="25"
+				 Width="25"
 				 IsEnabled="True"
 				 IsReadOnly="False"
 				 Background="{StaticResource Gray3}"
@@ -619,7 +611,9 @@
 				 HorizontalAlignment="Left"
 				 HorizontalContentAlignment="Center"
 				 VerticalContentAlignment="Center"
-				Text="{Binding AcType, UpdateSourceTrigger=LostFocus, Mode=TwoWay}"  LostFocus="AcTypeEdit2_LostFocus" />
+				Text="{Binding AcType, UpdateSourceTrigger=LostFocus, Mode=TwoWay}"  
+				LostFocus="AcTypeEdit2_LostFocus" 
+				   />
 
 			<TextBox x:Name="Firstname2" 
 				 Grid.Row="4"
@@ -1017,7 +1011,7 @@
 						<DataTemplate>
 							<TextBlock Text="{Binding ODate, 
 									Mode=TwoWay, 
-									UpdateSourceTrigger=LostFocus}"
+									UpdateSourceTrigger=LostFocus, StringFormat='dd/MM/yyyy'}"
  									HorizontalAlignment="Center"
 									VerticalAlignment="Top"/>
 						</DataTemplate>
@@ -1026,7 +1020,7 @@
 						<DataTemplate>
 							<DatePicker SelectedDate="{Binding Path=ODate, 
 									Mode=TwoWay, 
-									UpdateSourceTrigger=PropertyChanged}">
+									UpdateSourceTrigger=LostFocus, StringFormat='dd/MM/yyyy'}">
 							</DatePicker>
 						</DataTemplate>
 					</DataGridTemplateColumn.CellEditingTemplate>
@@ -1076,45 +1070,49 @@
 			</Grid.RowDefinitions>
 			<TextBox Name="BanknoEdit3" 
 								 Grid.Row="1"
-								 Grid.Column="1"
 								 Margin="3,3,3,3"	
 								 Height="25"
 								 IsEnabled="True"
 								 Background="{StaticResource Gray3}"
+								HorizontalAlignment="Left"
 								 HorizontalContentAlignment="Center"
 								 VerticalContentAlignment="Center"
-								 Text="{Binding BankNo, UpdateSourceTrigger=LostFocus, Mode=TwoWay}" LostFocus="BanknoEdit3_LostFocus" />
+								 Text="{Binding BankNo, UpdateSourceTrigger=LostFocus, Mode=TwoWay}"/>
+								<!--Text="{Binding BankNo, UpdateSourceTrigger=LostFocus, Mode=TwoWay}" LostFocus="BanknoEdit3_LostFocus" />-->
 
 			<TextBox x:Name="CustnoEdit3" 
 								 Grid.Row="2"
-								 Grid.Column="1"
 								 Margin="1"				 
 								 Height="25"
 								 IsEnabled="True"
 								 IsReadOnly="False"
 								 Background="{StaticResource Gray3}"
 								 Foreground="{StaticResource Black0}"
+								HorizontalAlignment="Left"
 								 HorizontalContentAlignment="Center"
 								 VerticalContentAlignment="Center"
-								Text="{Binding Path=CustNo, UpdateSourceTrigger=LostFocus, Mode=TwoWay}" LostFocus="CustnoEdit3_LostFocus" />
+								 Text="{Binding CustNo, UpdateSourceTrigger=LostFocus, Mode=TwoWay}"/>
+								<!--Text="{Binding Path=CustNo, UpdateSourceTrigger=LostFocus, Mode=TwoWay}" LostFocus="CustnoEdit3_LostFocus" />-->
 
 			<TextBox x:Name="ActypeEdit3" 
 								 Grid.Row="3"
-								 Grid.Column="2"
 								 Margin="1"				 
 								 Height="25"
 								 IsEnabled="True"
 								 IsReadOnly="False"
 								 Background="{StaticResource Gray3}"
 								 Foreground="{StaticResource Black0}"
+								HorizontalAlignment="Left"
 								 HorizontalContentAlignment="Center"
+								LostFocus="ActypeEdit3LostFocus" 
 								 VerticalContentAlignment="Center"
-								Text="{Binding AcType, UpdateSourceTrigger=LostFocus, Mode=TwoWay}" LostFocus="ActypeEdit3LostFocus" 
+								 Text="{Binding AcType, UpdateSourceTrigger=LostFocus, Mode=TwoWay}"
+								Width="35"
 							   />
+								 <!--Text="{Binding AcType, UpdateSourceTrigger=LostFocus, Mode=TwoWay}" LostFocus="ActypeEdit3LostFocus"--> 
 
 			<TextBox Name="BalanceEdit3" 
 								 Grid.Row="4"
-								 Grid.Column="2"
 								 Margin="3,3,3,3"				 
 								 Height="25"
 								 Width="75"
@@ -1124,22 +1122,23 @@
 								 HorizontalContentAlignment="Center"
 								 VerticalContentAlignment="Center"
 								 IsTabStop="True"
-								 Text="{Binding Balance, UpdateSourceTrigger=LostFocus, Mode=TwoWay}" LostFocus="BalanceEdit3_LostFocus" />
+								 Text="{Binding Balance, UpdateSourceTrigger=LostFocus, Mode=TwoWay}" />
+								<!--Text="{Binding Balance, UpdateSourceTrigger=LostFocus, Mode=TwoWay}" LostFocus="BalanceEdit3_LostFocus" />-->
 			<TextBox Name="IntRateEdit3" 
-								 Grid.Row="5"
-								 Grid.Column="2"
-								 Margin="3,3,3,3"	
-								 Height="25"
-								 Width="35"
-								 IsEnabled="True"
-								 Background="{StaticResource Gray3}"
-								 HorizontalAlignment="Left"
-								 HorizontalContentAlignment="Center"
-								 IsReadOnly="false"
-								 VerticalContentAlignment="Center"
-								Text="{Binding IntRate, UpdateSourceTrigger=LostFocus, Mode=TwoWay}" LostFocus="IntRateEdit3_LostFocus" />
+						         Grid.Row="5"
+						         Margin="3,3,3,3"	
+						         Height="25"
+						         Width="35"
+						         IsEnabled="True"
+						         Background="{StaticResource Gray3}"
+						         HorizontalAlignment="Left"
+						         HorizontalContentAlignment="Center"
+						         IsReadOnly="false"
+						         VerticalContentAlignment="Center"
+						         Text="{Binding IntRate, UpdateSourceTrigger=LostFocus, Mode=TwoWay}" />
+								<!--Text="{Binding IntRate, UpdateSourceTrigger=LostFocus, Mode=TwoWay}" LostFocus="IntRateEdit3_LostFocus" />-->
 
-			<Grid Grid.Row="6" Grid.Column="2">
+			<Grid Grid.Row="6" >
 				<!--<TextBox Name="OpenDateEdit3" 
 								 Grid.Row="0"
 								 Grid.Column="0"
@@ -1153,19 +1152,22 @@
 								 VerticalContentAlignment="Center"
 								 Text="{Binding ODate, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay, StringFormat='dd/MM/yyyy'}"  LostFocus="OpenDateEdit3_LostFocus" />-->
 				<DatePicker 
-									Margin="6"
+									Margin="5"
 									SelectedDate="{Binding ODate, 
 									Mode=TwoWay, 
-									UpdateSourceTrigger=PropertyChanged}"
-									LostFocus="OpenDateEdit_LostFocus">
+									UpdateSourceTrigger=LostFocus}"
+									LostFocus="OpenDateEdit_LostFocus"
+									HorizontalAlignment="Left"
+									>
 				</DatePicker>
 			</Grid>
-			<Grid Grid.Row="7" Grid.Column="2">
+			<Grid Grid.Row="7" >
 				<DatePicker 
 									Margin="5"
 									SelectedDate="{Binding CDate, 
 									Mode=TwoWay, 
-									UpdateSourceTrigger=PropertyChanged}">
+									UpdateSourceTrigger=PropertyChanged}"
+									HorizontalAlignment="Left">
 				</DatePicker>
 			</Grid>
 		</Grid>
@@ -1178,14 +1180,18 @@
 				  Margin="0,0,0,0"
 				Grid.Column="1"
 				Grid.ColumnSpan="2"
+				  Orientation="Horizontal"
+				  HorizontalAlignment="Center"
 				VerticalAlignment="Center">
-			<Button  x:Name="CloseButton"
-				Content ="Close Document"
-				  HorizontalContentAlignment="Center"
-				  Width="200" Height="45"
-				  FontWeight="Bold"
-				  Click="Button_Click"				  
-				  >
+			<Button  x:Name="ViewerButton"
+			         Click="Viewer_Click"				  
+			         Content ="Viewer"
+			         FontWeight="Bold"
+			         Height="45"
+			         HorizontalContentAlignment="Center"
+				   Margin="5"
+			         Width="100" 
+			>
 				<Button.Foreground>
 					<LinearGradientBrush StartPoint="1,0" EndPoint=".5,1">
 						<GradientStop Color="White" Offset=".6" />
@@ -1194,16 +1200,66 @@
 				</Button.Foreground>
 				<Button.Background>
 					<!--create an elegant left to right light-> Dark gradient as a background-->
-						<LinearGradientBrush StartPoint=".8,0" EndPoint="0,.5">
-							<GradientStop Color="AliceBlue" Offset="1" />
-							<GradientStop Color="#222222" Offset="0" />
-						</LinearGradientBrush>
+					<LinearGradientBrush StartPoint=".8,0" EndPoint="0,.5">
+						<GradientStop Color="AliceBlue" Offset="1" />
+						<GradientStop Color="#222222" Offset="0" />
+					</LinearGradientBrush>
 				</Button.Background>
-				<!--<Button.Style>
-					<Style>
-						<Setter Property="Bacground" Value="{StaticResource D_btnWhiteBlueGradientBackgroundStyle}"/>
-					</Style>	
-				</Button.Style>-->
+			</Button>
+			<Button  x:Name="CloseButton"
+			         Click="Button_Click"				  
+			         Content ="Close Document"
+			         FontWeight="Bold"
+			         Height="45"
+			         HorizontalContentAlignment="Center"
+			         Margin="5"
+			         Width="130" 
+			>
+				<Button.Foreground>
+					<LinearGradientBrush StartPoint="1,0" EndPoint=".5,1">
+						<GradientStop Color="White" Offset=".6" />
+						<GradientStop Color="Black" Offset="1" />
+					</LinearGradientBrush>
+				</Button.Foreground>
+				<Button.Background>
+					<!--create an elegant left to right light-> Dark gradient as a background-->
+					<LinearGradientBrush StartPoint=".8,0" EndPoint="0,.5">
+						<GradientStop Color="AliceBlue" Offset="1" />
+						<GradientStop Color="#222222" Offset="0" />
+					</LinearGradientBrush>
+				</Button.Background>
+				
+
+				<!--<VisualStateManager.VisualStateGroups>
+					--><!--Define the states and transitions for the common states.
+	      The states in the VisualStateGroup are mutually exclusive to each other.--><!--
+					<VisualStateGroup x:Name="CommonStates">
+
+						--><!--The Normal state is the state the button is in when it is not in another state from this VisualStateGroup.--><!--
+						<VisualState x:Name="Normal" />
+
+						--><!--Change the SolidColorBrush, BorderBrush, to red when the mouse is over the button.--><!--
+						<VisualState x:Name="MouseOver">
+							<Storyboard>
+								<ColorAnimation Storyboard.TargetName="BorderBrush" 
+									Storyboard.TargetProperty="Color" To="Red" />
+							</Storyboard>
+						</VisualState>
+
+						--><!--Change the SolidColorBrush, BorderBrush, to Transparent when the button is pressed.--><!--
+						<VisualState x:Name="Pressed">
+							<Storyboard>
+								<ColorAnimation Storyboard.TargetName="BorderBrush" 
+										Storyboard.TargetProperty="Color" To="Green"/>
+							</Storyboard>
+						</VisualState>
+
+						--><!--The Disabled state is omitted for brevity.--><!--
+					</VisualStateGroup>
+				</VisualStateManager.VisualStateGroups>-->
+
+
+
 			</Button>
 		</StackPanel>
 		<StackPanel Grid.Row="2"

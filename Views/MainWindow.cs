@@ -35,11 +35,11 @@ namespace WPFPages
 		public Frame theFrame;
 		public static Page _Blank = new BlankPage ( );
 		public static Page _Page0 = new Page0 ( );
-		public static Page _Page1 = new Page1 ( );
-		public static Page _Page2 = new Page2 ( );
-		public static Page _Page3 = new Page3 ( );
-		public static Page _Page4 = new Page4 ( );
-		public static Page _Page5 = new Page5 ( );
+		//public static Page _Page1 = new Page1 ( );
+		//public static Page _Page2 = new Page2 ( );
+		//public static Page _Page3 = new Page3 ( );
+		//public static Page _Page4 = new Page4 ( );
+		//public static Page _Page5 = new Page5 ( );
 		public static string _baseDataText;
 		private string _randomText1 = "button1";
 		private string _randomText2 = "button2";
@@ -57,7 +57,7 @@ namespace WPFPages
 			//			DataContext = this;
 			InitializeComponent ( );
 			Loaded += MainWindowLoaded;
-			EventHandlers . ShowSubscribersCount ( );
+//			EventHandlers . ShowSubscribersCount ( );
 			BaseDataText = "Starting text";
 			RandomText1 = "button1";
 			RandomText2 = "button2";
@@ -144,6 +144,13 @@ namespace WPFPages
 		public static readonly DependencyProperty BaseDataTextProperty =
 			DependencyProperty . Register ( "BaseDataText", typeof ( string ), typeof ( MainWindow ), new PropertyMetadata ( default ) );
 
+		//  May be useful ???
+		//Get the Parent Window of any item ?
+		public static Window GetParentWindow ( object caller ) {
+			Window parentWindow = Window . GetWindow ( ( DependencyObject ) caller);
+			return parentWindow;
+		}
+
 		public string Button1Text
 		{
 			get { return ( string ) GetValue ( Button1TextProperty ); }
@@ -185,23 +192,23 @@ namespace WPFPages
 		{
 			//Button btn = (Button)sender;
 			//btn.FontSize = 28;
-			MainPageHolder . NavigationService . Navigate ( MainWindow . _Page1 );
+//		MainPageHolder . NavigationService . Navigate ( MainWindow . _Page1 );
 		}
 		private void Page2_Click ( object sender, RoutedEventArgs e )
 		{
-			MainPageHolder . NavigationService . Navigate ( MainWindow . _Page2 );
+//			MainPageHolder . NavigationService . Navigate ( MainWindow . _Page2 );
 		}
 		private void Page3_Click ( object sender, RoutedEventArgs e )
 		{
-			MainPageHolder . NavigationService . Navigate ( MainWindow . _Page3 );
+//			MainPageHolder . NavigationService . Navigate ( MainWindow . _Page3 );
 		}
 		private void Page4_Click ( object sender, RoutedEventArgs e )
 		{
-			MainPageHolder . NavigationService . Navigate ( MainWindow . _Page4 );
+//			MainPageHolder . NavigationService . Navigate ( MainWindow . _Page4 );
 		}
 		private void Page5_Click ( object sender, RoutedEventArgs e )
 		{
-			MainPageHolder . NavigationService . Navigate ( MainWindow . _Page5 );
+//			MainPageHolder . NavigationService . Navigate ( MainWindow . _Page5 );
 		}
 
 		private void Page6_Click ( object sender, RoutedEventArgs e )
@@ -211,7 +218,7 @@ namespace WPFPages
 
 			// first we have some preapration to get done with pointers tpo the various Classes we are going to access
 
-			// setup globakl STATIC pointers to Viewmodels
+			// setup global STATIC pointers to Viewmodels
 			dvm = new DetailsViewModel ( ); ;
 			cvm = new CustomerViewModel ( );
 			bvm = new BankAccountViewModel ( );

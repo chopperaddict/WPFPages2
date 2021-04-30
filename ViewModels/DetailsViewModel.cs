@@ -192,9 +192,18 @@ namespace WPFPages . ViewModels
 		{
 			//THIS Fn HANDLES SPAWNING THE TASK/AWAIT
 			//and handles the Broadcast Notification
-			List<Task<bool>> tasks = new List<Task<bool>> ( );
-			tasks . Add ( LoadDetailsTask ( true, 0 ) );
-			var Results = await Task . WhenAll ( tasks );
+			Console . WriteLine ( $"Calling Details Loading Task (task).." );
+			try
+			{
+				List<Task<bool>> tasks = new List<Task<bool>> ( );
+				tasks . Add ( LoadDetailsTask ( true, 0 ) );
+				var Results = await Task . WhenAll ( tasks );
+			}
+			catch ( Exception ex)
+			{
+				Console . WriteLine ( $"SQl Load error : {ex . Message},  {ex . Data}" );					
+			}
+			Console . WriteLine ( $"Task returned .." );
 
 			DataLoadedArgs args = new DataLoadedArgs ( );
 			args . DbName = "DETAILS";
@@ -220,16 +229,20 @@ namespace WPFPages . ViewModels
 			{ if ( DetailsObs != null && DetailsObs . Count > 0 ) DetailsObs . Clear ( ); }
 			catch ( Exception ex )
 			{ Console . WriteLine ( $"DetailsObs Exception [{ex . Data}\r\n" ); }
-			DateTime start = DateTime . Now;
-			Console . WriteLine ( $"Starting AWAITED task to load Details  Data via Sql" );
 
 			try
-			{ 
-				await LoadSqlData ( 0, Flags . IsMultiMode ); 
-				await LoadDetailsObsCollection ( ); }
+			{
+				Console . WriteLine ( $"Load of DataTable dtDetails starting..." );
+				await LoadSqlData ( 0, Flags . IsMultiMode );
+				Console . WriteLine ( $"DataTable dtDetails Loaded ..." );
+				Console . WriteLine ( $"Collection DetailsObs Load starting..." );
+
+				await LoadDetailsObsCollection ( );
+				
+				Console . WriteLine ( $"Collection DetailsObs loaded ..." );
+			}
 			catch ( Exception ex )
 			{ Console . WriteLine ( $"Task error {ex . Data},\n{ex . Message}" ); }
-
 			Mouse . OverrideCursor = Cursors . Arrow;
 			// WE NOW HAVE OUR DATA HERE - fully loaded into O
 			return true;
@@ -274,7 +287,7 @@ namespace WPFPages . ViewModels
 					SqlCommand cmd = new SqlCommand ( commandline, con );
 					SqlDataAdapter sda = new SqlDataAdapter ( cmd );
 					sda . Fill ( dtDetails );
-					Console . WriteLine ( $"Sql data loaded into Details DataTable [{dtDetails . Rows . Count}] ...." );
+//					Console . WriteLine ( $"Sql data loaded into Details DataTable [{dtDetails . Rows . Count}] row(s) ...." );
 					return true;
 				}
 			}
@@ -308,7 +321,7 @@ namespace WPFPages . ViewModels
 						CDate = Convert . ToDateTime ( dtDetails . Rows [ i ] [ 7 ] )
 					} );
 				// WE NOW HAVE OUR DATA HERE - fully loaded into Obs 
-				Console . WriteLine ( $"Sql data loaded into Details Collection [{DetailsObs . Count}] ...." );
+//				Console . WriteLine ( $"Sql data loaded into Details Collection [{DetailsObs . Count}] ...." );
 				return true;
 			}
 			catch ( Exception ex )

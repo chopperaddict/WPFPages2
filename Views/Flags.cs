@@ -6,7 +6,7 @@
 
 //using System;
 using System;
-using System.Diagnostics;
+using System . Diagnostics;
 using System . Windows . Controls;
 using WPFPages . Views;
 
@@ -49,7 +49,9 @@ namespace WPFPages
 		public static bool isEditDbCaller = false;
 		public static bool SqlDataChanged = false;
 		public static bool EditDbDataChanged = false;
-
+		public static EditDb BankEditDb = null;
+		public static EditDb CustEditDb = null;
+		public static EditDb DetEditDb = null;
 
 		//Flags to hold pointers to current DbSelector & SqlViewer Windows
 		// Needed to avoi dInstance issues when calling methods from inside Static methods
@@ -114,7 +116,7 @@ namespace WPFPages
 		/// <param name="CurrentDb"></param>
 		public static void SetGridviewControlFlags ( SqlDbViewer instance, DataGrid Grid )
 		{
-			//Setup global flags - first clear them all as relevant
+			//Setup global flags -
 			Flags . CurrentSqlViewer = instance;
 			//only do this if we are not closing a windows (Sends Grid=null)
 			if ( Grid != null )
@@ -176,15 +178,19 @@ namespace WPFPages
 			}
 		}
 		//Remove a SINGLE Viewer Windows data from Flags & gv[]
-		public static bool DeleteViewerAndFlags ( int x = -1 )
+		public static bool DeleteViewerAndFlags ( int index = -1, string currentDb = "" )
 		{
+			int x = index;
 			SqlDbViewer sqlv;                        // x = GridView[] index if received
+			if ( Flags . CurrentSqlViewer == null )
+				return false;
 			Guid tag = ( Guid ) Flags . CurrentSqlViewer?.Tag;
 			ListBoxItem lbi = new ListBoxItem ( );
 			if ( x == -1 )
 			{ // Delete all
 				for ( int z = 0 ; z < MainWindow . gv . MaxViewers ; z++ )
 				{
+					DbSelector . UpdateControlFlags ( null, null, MainWindow . gv . PrettyDetails );
 					MainWindow . gv . CurrentDb [ z ] = "";
 					MainWindow . gv . ListBoxId [ z ] = Guid . Empty;
 					MainWindow . gv . Datagrid [ z ] = null;
@@ -213,9 +219,20 @@ namespace WPFPages
 			}
 			else
 			{
-				// we have received the index of the viewer in the list
+				// we have NOT received the index of the viewer in the list
+				// so  get the index for the correct Entry
+				if ( x == 99 )
+				{
+					// got to find it ourselves
+					for ( int i = 0 ; i < 3 ; i++ )
+					{
+						if ( MainWindow . gv . CurrentDb [ i ] == currentDb )
+						{ x = i; break; }
+					}
+				}
+				// we have got the index of the viewer in the list
 				// so  get the Tag of that selected Entry
-				lbi = Flags . DbSelectorOpen . ViewersList . Items [ x ] as ListBoxItem;
+				lbi = Flags . DbSelectorOpen . ViewersList . Items [x ] as ListBoxItem;
 				Guid lbtag = ( Guid ) lbi . Tag;
 				// Get a pointer to the window so we can close it
 				sqlv = Flags . CurrentSqlViewer as SqlDbViewer;
@@ -229,7 +246,8 @@ namespace WPFPages
 					MainWindow . gv . ListBoxId [ x ] = Guid . Empty;
 					MainWindow . gv . Datagrid [ x ] = null;
 					// Actually close thre Viewer window here, before we delete the relevant pointers
-					sqlv . Close ( );
+					// done late ron anyway
+					//					sqlv . Close ( );
 					MainWindow . gv . window [ x ] = null;
 				}
 				MainWindow . gv . PrettyDetails = "";
@@ -238,10 +256,14 @@ namespace WPFPages
 				lbi = Flags . DbSelectorOpen . ViewersList . Items [ x ] as ListBoxItem;
 				lbi . Content = "";
 				Flags . DbSelectorOpen . ViewersList . Items . RemoveAt ( x );
+				Flags . DbSelectorOpen . ViewersList . Refresh ( );
 				// Set selectedIndex pointer to current position in list
-				int currentIndex = x - 1;
-				if ( x <= 1 )             // List is basically empty (No viewers in  the list)
+				if ( Flags . DbSelectorOpen . ViewersList . Items . Count <= 1 )
+				{       // List is basically empty (No viewers in  the list)
+					sqlv . Close ( );
 					return true;
+				}
+				int currentIndex = x;
 				if ( Flags . DbSelectorOpen . ViewersList . Items . Count > currentIndex )
 				{
 					Flags . DbSelectorOpen . ViewersList . SelectedIndex = currentIndex;
@@ -255,6 +277,9 @@ namespace WPFPages
 				sqlv . Close ( );
 				return true;
 			}
+
+			// Unreachable code ...
+
 			// Now sort out the  global gv[] flags
 			for ( int y = 1 ; y < Flags . DbSelectorOpen . ViewersList . Items . Count ; y++ )
 			{
@@ -362,6 +387,16 @@ namespace WPFPages
 			$"DETS     SqlDetViewer:-  [ {SqlDetViewer?.Tag} ]\n" +
 			"=================================================================\n"
 			);
+		}
+		public static void PrintSundryVariables ( )
+		{
+			Console . WriteLine ( "" );
+			if ( Flags . SqlBankGrid != null )
+				Console . WriteLine ( $"Viewer : BankGrid : ItemsSource : { Flags . SqlBankGrid . ItemsSource}" );
+			if ( Flags . SqlCustGrid != null )
+				Console . WriteLine ( $"Viewer : CustomerGrid : ItemsSource : { Flags . SqlCustGrid . ItemsSource}" );
+			if ( Flags.SqlDetGrid != null )
+				Console . WriteLine ( $"Viewer : Details Grid : ItemsSource : { Flags . SqlDetGrid . ItemsSource}" );
 		}
 	}
 }

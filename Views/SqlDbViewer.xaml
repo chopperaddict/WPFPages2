@@ -9,11 +9,11 @@
 	xmlns:b="clr-namespace:WPFPages.Views"	   
 	mc:Ignorable="d"
 	xmlns:Convertors="clr-namespace:WPFPages.Views"
-	DataContext="{Binding RelativeSource={RelativeSource self}}"
+	DataContext="{Binding RelativeSource={RelativeSource Self}}"
 	Title="Database Edit/View Utility" 
-	  Height="450" Width="860" 
-	  MinHeight="450" MinWidth="860"
-	  Left="1000"
+	  Height="550" Width="860" 
+	  MinHeight="550" MinWidth="827"
+	  Left="1050"
 	Loaded="OnWindowLoaded"
 	  Top="20"
 	WindowStartupLocation="Manual"
@@ -41,7 +41,7 @@
 			<TextBlock.Text="{Binding number, StringFormat={}{0:n2}}"/>
 		</Style>-->
 
-		<DataTemplate x:Key="BalanceTemplate" >
+		<!--<DataTemplate x:Key="BalanceTemplate" >
 			<StackPanel >
 				<Border Background="LightBlue" >
 					<TextBlock Text="{Binding Balance, StringFormat={}{0:C}}"  />
@@ -51,7 +51,7 @@
 
 		<DataTemplate x:Key="EditBalanceTemplate">
 			<TextBlock Focusable="True" Text="{Binding Balance, StringFormat='#####,###.00',UpdateSourceTrigger=PropertyChanged}"/>
-		</DataTemplate>
+		</DataTemplate>-->
 
 
 		<Style x:Key="ToggleBkGrndOnmouseover" TargetType="Button">
@@ -60,7 +60,7 @@
 					<Setter Property="Background" >
 						<Setter.Value>
 							<LinearGradientBrush StartPoint="1,0" EndPoint="0,1" >
-								<GradientStop Color="red" Offset="0"/>
+								<GradientStop Color="Red" Offset="0"/>
 								<GradientStop Color="DarkOrange" Offset="1"/>
 							</LinearGradientBrush>
 						</Setter.Value>
@@ -116,7 +116,7 @@
 			<Setter Property="Background" >
 				<Setter.Value>
 					<LinearGradientBrush StartPoint=".8,1" EndPoint=".1,0.93" >
-						<GradientStop Color="red" Offset="3.1"/>
+						<GradientStop Color="Red" Offset="3.1"/>
 						<GradientStop Color="DarkOrange" Offset="0.5"/>
 					</LinearGradientBrush>
 				</Setter.Value>
@@ -148,7 +148,7 @@
 			<Setter Property="Background" >
 				<Setter.Value>
 					<LinearGradientBrush StartPoint="1,0.5" EndPoint=".5,.6" >
-						<GradientStop Color="red" Offset="1"/>
+						<GradientStop Color="Red" Offset="1"/>
 						<GradientStop Color="DarkOrange" Offset="0"/>
 					</LinearGradientBrush>
 				</Setter.Value>
@@ -274,7 +274,7 @@
 			<!--create an elegant left to right light-> Dark gradient as a background-->
 			<LinearGradientBrush EndPoint="0.0,1" StartPoint="1.3,0">
 				<GradientStop Color="#333333" Offset="0"/>
-				<GradientStop Color="lightGray" Offset="0.97"/>
+				<GradientStop Color="LightGray" Offset="0.97"/>
 			</LinearGradientBrush>
 		</Grid.Background>
 		
@@ -283,7 +283,7 @@
 				Grid.Column="1"
 				Grid.Row="2" 
 				Grid.RowSpan="1" 
-				Grid.ColumnSpan="6"
+				Grid.ColumnSpan="4"
 				HorizontalAlignment="Left"
 				Margin="10,10,0,-5"
 				Orientation="Horizontal" 
@@ -390,7 +390,7 @@
 				Grid.ColumnSpan="3"
 				Grid.Row="3" 
 				Grid.RowSpan="1" 
-				HorizontalAlignment="left"
+				HorizontalAlignment="Left"
 				Margin="10"
 				Orientation="Horizontal" 
 			>
@@ -449,7 +449,7 @@
 			<Border x:Name="splitter" Width="5" Height="35" Margin="5,0,5,0"
 				IsEnabled="true"
 				Background="{StaticResource Orange1}"
-				BorderBrush="black"
+				BorderBrush="Black"
 				BorderThickness="1"/>
 
 			<!--Bank Account Button-->
@@ -566,7 +566,7 @@
 					VerticalAlignment="Stretch"
 					VerticalContentAlignment="Center"
 					VerticalGridLinesBrush="{StaticResource Blue2}"				
-					Visibility="Collapsed" >
+					Visibility="Collapsed" PreviewMouseDown="BankGrid_PreviewMouseDown" >
 
 				<!--This makes the selected row visible when window looses focus - works on any grid-->
 				<DataGrid.Resources>
@@ -708,6 +708,7 @@
 				ColumnHeaderHeight="25"
 				ColumnHeaderStyle ="{StaticResource HeaderStyleYellow}" 
 				CurrentCellChanged="CustomerGrid_CurrentCellChanged" 
+				DataContext="CustomersObs"
 				 GotFocus="CustomerGrid_GotFocus"
 				Grid.ColumnSpan="2"
 				IsSynchronizedWithCurrentItem="True"			    
@@ -720,7 +721,7 @@
 				TabIndex="2"
 				VerticalGridLinesBrush="{StaticResource Orange0}"
 				Visibility="Collapsed" 
-				Margin="0,0,-25,0" >
+				Margin="0,0,-25,0" PreviewMouseDown="CustomerGrid_PreviewMouseDown" >
 				<!--MouseDown="CustomerGrid_MouseDown"-->
 				<!--VerticalContentAlignment="Center"-->
 				<!--PreparingCellForEdit="CustomerGrid_PreparingCellForEdit"-->
@@ -769,9 +770,9 @@
 					<DataGridTextColumn Header="Mobile" Width="80" 
 									Binding="{Binding Mobile, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
 					<DataGridTextColumn Header="Birthday" Width="80" 
-									Binding="{Binding Dob, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged }"/>
+									Binding="{Binding Dob, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged,StringFormat='dd/MM/yyyy'}"/>
 					<DataGridTextColumn Header="A/c Opened" 
-									Binding ="{Binding Path=ODate, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+									Binding ="{Binding Path=ODate, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged,StringFormat='dd/MM/yyyy'}"/>
 					<!--the next 2 show 2 ways to format a date - 1 a Converter the other a direct Format string-->
 					<DataGridTemplateColumn Header="A/c Closed" Width="80" >
 						<DataGridTemplateColumn.CellTemplate>
@@ -833,7 +834,7 @@
 					Visibility="Collapsed"
 					VerticalAlignment="Stretch"
 					VerticalContentAlignment="Center"
-					VerticalGridLinesBrush="{StaticResource Green0}" 
+					VerticalGridLinesBrush="{StaticResource Green0}" PreviewMouseDown="DetailsGrid_PreviewMouseDown_1" 
 					>
 
 				<!--This makes the selected row visible when window looses focus - works on any grid-->
@@ -905,12 +906,12 @@
 				Grid.Row="6" Grid.Column="1"
 				Grid.ColumnSpan="3"		
 				Height="25" 
-				HorizontalAlignment="Left"
+				HorizontalAlignment="Stretch"
 				Margin="0,0,0,-30"
 				Padding="3"
 				Text="Please wait, loading data from SQL Database...."
 				TextAlignment="Center"
 				VerticalAlignment="Center"
-				Width="815"/>
+				/>
 	</Grid>
 </Window>

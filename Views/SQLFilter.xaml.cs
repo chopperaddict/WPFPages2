@@ -15,6 +15,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using static WPFPages.Utils;
 
 namespace WPFPages
 {
@@ -100,9 +101,9 @@ namespace WPFPages
 
 		private void Window_Closing (object sender, System.ComponentModel.CancelEventArgs e)
 		{
-			ControlTemplate tmp = Utils.GetDictionaryControlTemplate ("HorizontalGradientTemplateGray");
+			ControlTemplate tmp = GetDictionaryControlTemplate ("HorizontalGradientTemplateGray");
 			parent.Filters.Template = tmp;
-			Brush br = Utils.GetDictionaryBrush ("HeaderBrushGray");
+			Brush br = GetDictionaryBrush ("HeaderBrushGray");
 			parent.Filters.Background = br;
 			parent.Filters.Content = "Filtering";
 

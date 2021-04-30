@@ -13,6 +13,7 @@ using System . Windows . Controls;
 using System . Windows . Input;
 using WPFPages . ViewModels;
 using System.Reflection;
+using System.Windows.Threading;
 
 namespace WPFPages . Views
 
@@ -85,8 +86,7 @@ namespace WPFPages . Views
 			// subscribe to Data chnaged event fired by SqlDbviewer
 			//			SqlDbViewer sqlv = new SqlDbViewer ();
 			// assign event handler function
-			loaded = true;
-		}
+			loaded = true;		}
 		/// <summary>
 		/// We have received a Callback for db change notification from one or other of the GridViewers
 		/// so we need to update OURSELVES
@@ -286,7 +286,7 @@ namespace WPFPages . Views
 		{
 			//THIS Fn HANDLES SPAWNING THE TASK/AWAIT
 			//and handles the Broadcast Notification
-			Console . WriteLine ( $"Starting AWAITED task to load Customers Data via Sql" );
+			Console . WriteLine ( $"Starting AWAITED Task LoadCustomerTaskInSortOrder using Sql" );
 			Stopwatch sw = new Stopwatch ( );
 			sw . Start ( );
 //			List<Task<bool>> tasks = new List<Task<bool>> ( );
@@ -294,29 +294,16 @@ namespace WPFPages . Views
 			Task<bool> task = Task . Run ( ( ) => LoadCustomersTask ( isOriginator, 0 ) );
 			await task . ContinueWith ( ( antecedent ) => LoadSqlData ( dtCust ) );
 			await LoadCustomerObsCollection ( );
-
-			//			await Task . Run ( ( ) => LoadSqlData ( dtCust ) );
-
-			//await Task . Run ( ( ) => LoadCustomerObsCollection ( ) );
-			//Task<bool> res = await Task . FromResult<Task<bool>> ( LoadCustomersTask ( isOriginator, 0 ) );
-			//Task<bool> res = await Task . FromResult<Task<bool>> ( LoadSqlData ( dtCust ) );
-			//Task<bool> res = await Task . FromResult<Task<bool>> ( LoadCustomerObsCollection ( ) );
-
-			//			await LoadCustomersTask ( isOriginator, 0 ) ;
-			//			await LoadSqlData ( dtCust );
-			//			await LoadCustomerObsCollection ( ) ;
-
 			Console . WriteLine ( $"Customer fully loaded in { sw . ElapsedMilliseconds} milli seconds" );
-
 			// WE NOW HAVE OUR DATA HERE - fully loaded into Obs, So Notify any interested Party that the data is here?		
-			Mouse . OverrideCursor = Cursors . Arrow;
 
 			DataLoadedArgs args = new DataLoadedArgs ( );
 			args . DbName = "CUSTOMER";
 			args . CurrentIndex = 0;
-			// Notify all interested parties that the full BankAccount data is loaded and available for them in -  dtBank & BankAccountObs at least
+			// Notify all interested parties that the full Customer data is loaded and available for them in -  dtcust & CustomersObs at least
 			if ( !isOriginator )
 				SqlDbViewer . SendDBLoadedMsg ( null, args );
+			Mouse . OverrideCursor = Cursors . Arrow;
 			return true;
 		}
 
@@ -331,32 +318,16 @@ namespace WPFPages . Views
 		/// <param> </param>
 		public async Task<bool> LoadCustomersTask ( bool isOriginator, int mode = -1 )
 		{
-			//			Mouse . OverrideCursor = Cursors . Wait;
-
-			//Create the one and only dtCust instance if not already there
-
-			if ( CustomerViewModel . dtCust == null )
-				CustomerViewModel . dtCust = new DataTable ( );
-			else
-				dtCust . Clear ( );
+			if ( CustomerViewModel . dtCust == null ) CustomerViewModel . dtCust = new DataTable ( );
+			else dtCust . Clear ( );
+			
 			try
-			{
-				if ( this . CustomersObs != null && this . CustomersObs . Count > 0 )
-					this . CustomersObs . Clear ( );
-				//				this.CustomersObs = new ObservableCollection<CustomerViewModel> (CustomerViewModel.CustomersList);
-				//				if (this.CustomersObs == null)
-				//					this.CustomersObs = new ObservableCollection<CustomerViewModel> (CustomerViewModel.CustomersList);
-			}
+			{if ( this . CustomersObs != null && this . CustomersObs . Count > 0 )
+					this . CustomersObs . Clear ( );}
 			catch ( Exception ex )
 			{
 				Console . WriteLine ( $"CustomersObs Exception [{ex . Data}\r\n" );
 			}
-			//Console . WriteLine ( $"Starting AWAITED task to load Customers Data via Sql" );
-			//DateTime start = DateTime . Now;
-			//await LoadSqlData ( dtCust );
-			//await LoadCustomerObsCollection ( );
-			////			Task . WaitAll ( );
-
 			//// WE NOW HAVE OUR DATA HERE - fully loaded into Obs, So Notify any interested Party that the data is here?		
 			//Console . WriteLine ( $"Customer fully loaded in {( DateTime . Now - start ) . Milliseconds} milli seconds" );
 			//Mouse . OverrideCursor = Cursors . Arrow;
@@ -373,7 +344,6 @@ namespace WPFPages . Views
 				SqlConnection con;
 				string ConString = "";
 				ConString = ( string ) Properties . Settings . Default [ "BankSysConnectionString" ];
-				//			@"Data Source = (localdb)\MSSQLLocalDB; Initial Catalog = 'C:\USERS\IANCH\APPDATA\LOCAL\MICROSOFT\MICROSOFT SQL SERVER LOCAL DB\INSTANCES\MSSQLLOCALDB\IAN1.MDF'; Integrated Security = True; Connect Timeout = 30; Encrypt = False; TrustServerCertificate = False; ApplicationIntent = ReadWrite; MultiSubnetFailover = False";
 				con = new SqlConnection ( ConString );
 
 				using ( con )
@@ -390,9 +360,7 @@ namespace WPFPages . Views
 						commandline = Utils . GetDataSortOrder ( commandline );
 					}
 					else if ( Flags . FilterCommand != "" )
-					{
-						commandline = Flags . FilterCommand;
-					}
+					{commandline = Flags . FilterCommand;}
 					else
 					{
 						// Create a valid Query Command string including any active sort ordering
@@ -421,7 +389,6 @@ namespace WPFPages . Views
 		/// <returns></returns>
 		public async Task<bool> LoadCustomerObsCollection ( )
 		{
-			//			return true;
 			try
 			{
 				if ( CustomersObs . Count > 0 )
@@ -460,58 +427,9 @@ namespace WPFPages . Views
 			return true;
 		}
 		//**************************************************************************************************************************************************************//
-		//public void DispatchIfNecessary (Action action)
-		//{
-		//	if (!Dispatcher.CheckAccess ())
-		//		Dispatcher.Invoke (action);
-		//	else
-		//		action.Invoke ();
-		//}
-		////static   void LoadDataAsync ()
-		//{
-		//	FillCustomersDataGrid ();
-
-		//}
-		//**************************************************************************************************************************************************************//
-
-
-		private void UpdateControls ( )
-		{
-			//			if (!Dispatcher.CheckAccess ())
-			//			{
-			//				// We're not in the UI thread, ask the dispatcher to call this same method in the UI thread, then exit
-			//				Dispatcher.BeginInvoke (new Action (UpdateControls));
-			//				return;
-			//			}
-
-			//// We're in the UI thread, update the controls
-			//			TextTime.Text = DateTime.Now.ToLongTimeString ();
-		}
-
 
 		#endregion SQL data handling
-    
-		static async Task HandleTask ( Task task )
-		{
-			await ( task );
-			int x = 0;
-			if ( x != 0 )
-			{
-				//These two work
-				//			var t =  Task.Run (() => FillBankAccountDataGrid (dtBank));
-				//			t.Wait ();
 
-				//So do these two, (or first one alone id load is done externally)
-				// This uses a special Class Taskextensions.cs that handles the AWAIT of whatever task is passed  into it
-				//using the syntax 
-				//			FillBankAccountDataGrid (dtBank).Await ();
-				//			LoadBankAccountIntoList (BankList, dtBank);
-			}
-		}
-		private static void OnCompleted ( )
-		{
-			Console . WriteLine ( "SQL data loading completed...." );
-		}
 	}
 }
 

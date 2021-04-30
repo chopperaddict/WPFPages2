@@ -1,26 +1,26 @@
 ﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-				xmlns:local="clr-namespace:WPFPages.Dicts">
+				xmlns:local="clr-namespace:WPFPages">
 	
 	<!-- AVAILABLE GRADIENTS
-	"H_WhiteBlueGradientBackgroundStyle" 
-	"H_WhiteRedGradientBackgroundStyle" 
-	"H_WhiteGreenGradientBackgroundStyle"
-	"H_WhiteOrangeGradientBackgroundStyle
-	"H_WhiteGrayGradientBackgroundStyle" 
-	"H_WhiteBlackGradientBackgroundStyle"	
+	"HWhiteBlueGradientBackgroundStyle" 
+	"HWhiteRedGradientBackgroundStyle" 
+	"HWhiteGreenGradientBackgroundStyle"
+	"HWhiteOrangeGradientBackgroundStyle
+	"HWhiteGrayGradientBackgroundStyle" 
+	"HWhiteBlackGradientBackgroundStyle"	
 
 	
-	"H_BlueWhiteGradientBackgroundStyle" 
-	"H_RedWhiteGradientBackgroundStyle" 
-	"H_GreenWhiteGradientBackgroundStyle"
-	"H_OrangeWhiteGradientBackgroundStyle
-	"H_GrayWhiteGradientBackgroundStyle" 
-	"H_BlackWhiteGradientBackgroundStyle"	
+	"HBlueWhiteGradientBackgroundStyle" 
+	"HRedWhiteGradientBackgroundStyle" 
+	"HGreenWhiteGradientBackgroundStyle"
+	"HOrangeWhiteGradientBackgroundStyle
+	"HGrayWhiteGradientBackgroundStyle" 
+	"HBlackWhiteGradientBackgroundStyle"	
 	-->
 
 			<!--White to Color Horizontal split gradient-->
-	<Style x:Key="H_WhiteBlueGradientBackgroundStyle" TargetType="{x:Type Button}">
+	<Style x:Key="HWhiteBlueGradientBackgroundStyle" TargetType="{x:Type Button}">
 		<Setter Property="Background">
 			<Setter.Value>
 				<LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
@@ -32,7 +32,7 @@
 		<Setter Property="FontSize" Value="12" />
 	</Style>
 	
-	<Style x:Key="H_WhiteRedGradientBackgroundStyle" TargetType="{x:Type Button}">
+	<Style x:Key="HWhiteRedGradientBackgroundStyle" TargetType="{x:Type Button}">
 		<Setter Property="Background">
 			<Setter.Value>
 				<LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
@@ -44,7 +44,7 @@
 		<Setter Property="FontSize" Value="12" />
 	</Style>
 
-	<Style x:Key="H_WhiteGreenGradientBackgroundStyle" TargetType="{x:Type Button}">
+	<Style x:Key="HWhiteGreenGradientBackgroundStyle" TargetType="{x:Type Button}">
 		<Setter Property="Background">
 			<Setter.Value>
 				<LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
@@ -56,7 +56,7 @@
 		<Setter Property="FontSize" Value="12" />
 	</Style>
 
-	<Style x:Key="H_WhiteOrangeGradientBackgroundStyle" TargetType="{x:Type Button}">
+	<Style x:Key="HWhiteOrangeGradientBackgroundStyle" TargetType="{x:Type Button}">
 		<Setter Property="Background">
 			<Setter.Value>
 				<LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
@@ -67,7 +67,7 @@
 		</Setter>
 		<Setter Property="FontSize" Value="12" />
 	</Style>
-	<Style x:Key="H_WhiteBlackGradientBackgroundStyle" TargetType="{x:Type Button}">
+	<Style x:Key="HWhiteBlackGradientBackgroundStyle" TargetType="{x:Type Button}">
 		<Setter Property="Background">
 			<Setter.Value>
 				<LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
@@ -79,7 +79,7 @@
 		<Setter Property="FontSize" Value="12" />
 	</Style>
 
-	<Style x:Key="H_WhiteGrayGradientBackgroundStyle" TargetType="{x:Type Button}">
+	<Style x:Key="HWhiteGrayGradientBackgroundStyle" TargetType="{x:Type Button}">
 		<Setter Property="Background">
 			<Setter.Value>
 				<LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
@@ -92,7 +92,7 @@
 	</Style>
 
 	<!--Color to White Horizontal split gradient-->
-	<Style x:Key="H_BlueWhiteGradientBackgroundStyle" TargetType="{x:Type Button}">
+	<Style x:Key="HBlueWhiteGradientBackgroundStyle" TargetType="{x:Type Button}">
 		<Setter Property="Background">
 			<Setter.Value>
 				<LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
@@ -104,7 +104,7 @@
 		<Setter Property="FontSize" Value="12" />
 	</Style>
 
-	<Style x:Key="H_RedWhiteGradientBackgroundStyle" TargetType="{x:Type Button}">
+	<Style x:Key="HRedWhiteGradientBackgroundStyle" TargetType="{x:Type Button}">
 		<Setter Property="Background">
 			<Setter.Value>
 				<LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
@@ -116,7 +116,7 @@
 		<Setter Property="FontSize" Value="12" />
 	</Style>
 
-	<Style x:Key="H_GreenWhiteGradientBackgroundStyle" TargetType="{x:Type Button}">
+	<Style x:Key="HGreenWhiteGradientBackgroundStyle" TargetType="{x:Type Button}">
 		<Setter Property="Background">
 			<Setter.Value>
 				<LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
@@ -128,7 +128,18 @@
 		<Setter Property="FontSize" Value="12" />
 	</Style>
 
-	<Style x:Key="H_OrangeWhiteGradientBackgroundStyle" TargetType="{x:Type Button}">
+	<Style x:Key="HGreenWhiteGradientGridStyle" TargetType="{x:Type Grid}">
+		<Setter Property="Background">
+			<Setter.Value>
+				<LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+					<GradientStop Color="AliceBlue" Offset="1" />
+					<GradientStop Color="Green" Offset="0" />
+				</LinearGradientBrush>
+			</Setter.Value>
+		</Setter>
+	</Style>
+
+	<Style x:Key="HOrangeWhiteGradientBackgroundStyle" TargetType="{x:Type Button}">
 		<Setter Property="Background">
 			<Setter.Value>
 				<LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
@@ -139,7 +150,7 @@
 		</Setter>
 		<Setter Property="FontSize" Value="12" />
 	</Style>
-	<Style x:Key="H_BlackWhiteGradientBackgroundStyle" TargetType="{x:Type Button}">
+	<Style x:Key="HBlackWhiteGradientBackgroundStyle" TargetType="{x:Type Button}">
 		<Setter Property="Background">
 			<Setter.Value>
 				<LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
@@ -151,7 +162,7 @@
 		<Setter Property="FontSize" Value="12" />
 	</Style>
 
-	<Style x:Key="H_GrayWhiteGradientBackgroundStyle" TargetType="{x:Type Button}">
+	<Style x:Key="HGrayWhiteGradientBackgroundStyle" TargetType="{x:Type Button}">
 		<Setter Property="Background">
 			<Setter.Value>
 				<LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
@@ -162,4 +173,5 @@
 		</Setter>
 		<Setter Property="FontSize" Value="12" />
 	</Style>
+
 </ResourceDictionary>

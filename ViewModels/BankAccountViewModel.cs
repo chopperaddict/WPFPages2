@@ -36,10 +36,10 @@ namespace WPFPages . ViewModels
 		// CONSTRUCTOR
 		public BankAccountViewModel ( )
 		{
-			if (!IsSubscribedToObsNotifications)
+			if ( !IsSubscribedToObsNotifications )
 			{
 				//Subscribe to Notifications of changes made to BankAccountObs
-				BankAccountObs.CollectionChanged += BankAccountObs_CollectionChanged1;
+				BankAccountObs . CollectionChanged += BankAccountObs_CollectionChanged1;
 				IsSubscribedToObsNotifications = true;
 			}
 		}
@@ -61,7 +61,7 @@ namespace WPFPages . ViewModels
 		/// and update their datagris as relevant
 		/// </summary>
 		/// <param name="sender"></param>
-		public  void DbHasChangedHandler ( SqlDbViewer sender, DataGrid Grid, DataChangeArgs args )
+		public void DbHasChangedHandler ( SqlDbViewer sender, DataGrid Grid, DataChangeArgs args )
 		{
 			if ( Grid . Name == "BankGrid" )
 				return;         // Nothing to do, it was us that sent the broadcast
@@ -215,8 +215,6 @@ namespace WPFPages . ViewModels
 				Console . WriteLine ( $"BankAccountObs Exception [{ex . Data}\r\n" );
 				return false;
 			}
-			Console . WriteLine ( $"Starting AWAITED task to load Bank Data via Sql" );
-			DateTime start = DateTime . Now;
 			// THIS ALL WORKS PERFECTLY - THANKS TO VIDEO BY JEREMY CLARKE OF JEREMYBYTES YOUTUBE CHANNEL
 			await FillBankAccountDataGrid ( isMultiMode );
 			await LoadBankAccountObsCollection ( );
@@ -224,7 +222,6 @@ namespace WPFPages . ViewModels
 			//				await FillBankAccountDataGrid ( isMultiMode );
 			//				await LoadBankAccountObsCollection ( );
 			// WE NOW HAVE OUR DATA HERE - fully loaded into Obs, So Notify any interested Party that the data is here?		
-			Console . WriteLine ( $"BankAccount fully loaded in {( DateTime . Now - start ) . Milliseconds} milli seconds" );
 			Mouse . OverrideCursor = Cursors . Arrow;
 			return true;
 		}
@@ -327,9 +324,9 @@ namespace WPFPages . ViewModels
 			}
 		}
 
-     
+
 		#region SQL data loading - including special Task handler code
-	
+
 
 		/// <summary>
 		/// Load SQL Db from SQL Server

@@ -35,11 +35,11 @@ namespace WPFPages .Views
 				ss = Row as BankAccountViewModel;
 				if(ss == null) return false;
 			}
-			if ( CurrentDb == "CUSTOMER" ){
+			else if ( CurrentDb == "CUSTOMER" ){
 				cs = Row as CustomerViewModel;
 				if ( cs == null ) return false;
 			}
-			if ( CurrentDb == "DETAILS" ){
+			else if ( CurrentDb == "DETAILS" ){
 				sa = Row as DetailsViewModel;
 				if ( sa == null ) return false;
 			}

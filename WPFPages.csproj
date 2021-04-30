@@ -24,6 +24,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -33,6 +34,12 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject>WPFPages.App</StartupObject>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>favicon.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="DocumentFormat.OpenXml, Version=2.12.3.0, Culture=neutral, PublicKeyToken=8fb06cb64d019a17, processorArchitecture=MSIL">
@@ -64,7 +71,6 @@
     </ApplicationDefinition>
     <Compile Include="Behaviours\DataGridBehaviour.cs" />
     <Compile Include="BindingTracer.cs" />
-    <Compile Include="Libraries\Library.cs" />
     <Compile Include="Views\RelayCommand.cs" />
     <Compile Include="DateOnlyConverter.cs" />
     <Compile Include="SalaryConvertor.cs" />
@@ -89,6 +95,9 @@
     <Compile Include="Views\DataGridControl.cs" />
     <Compile Include="ViewModels\DetailsViewModel.cs" />
     <Compile Include="Views\MainWindowViewModel.cs" />
+    <Compile Include="Views\RowPopup.xaml.cs">
+      <DependentUpon>RowPopup.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\SQLHandlers.cs" />
     <Compile Include="Views\TaskExtension.cs" />
     <Compile Include="Views\ViewModelBase.cs" />
@@ -132,13 +141,7 @@
     <Compile Include="Views\EllipseExitButton.xaml.cs">
       <DependentUpon>EllipseExitButton.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\Page5.xaml.cs">
-      <DependentUpon>Page5.xaml</DependentUpon>
-    </Compile>
     <Compile Include="Views\People.cs" />
-    <Compile Include="Views\Page4.xaml.cs">
-      <DependentUpon>Page4.xaml</DependentUpon>
-    </Compile>
     <Compile Include="Views\testwin.xaml.cs">
       <DependentUpon>testwin.xaml</DependentUpon>
     </Compile>
@@ -182,6 +185,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Views\RowPopup.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\SqlDbViewer.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -222,10 +229,6 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views\Page5.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
     <Page Include="Dicts\YTButtonStackPanel.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -250,22 +253,6 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views\Page1.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Views\Page2.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Views\Page3.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Views\Page4.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
     <Page Include="Dicts\TestDictionary.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -280,15 +267,6 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Views\Page1.xaml.cs">
-      <DependentUpon>Page1.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Views\Page2.xaml.cs">
-      <DependentUpon>Page2.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Views\Page3.xaml.cs">
-      <DependentUpon>Page3.xaml</DependentUpon>
-    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -326,10 +304,14 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Converters\" />
+    <Folder Include="Libraries\" />
     <Folder Include="UserControls\" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Images\olwen.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="favicon.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
