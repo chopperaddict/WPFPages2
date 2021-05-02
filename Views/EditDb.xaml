@@ -4,6 +4,7 @@
 		xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
 		xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 		xmlns:local="clr-namespace:WPFPages"
+		xmlns:data="clr-namespace:WPFPages.Views"
 		xmlns:myData="clr-namespace:WPFPages.ViewModels" 
 		mc:Ignorable="d"
 		Title="Database Editing Window - " 
@@ -21,9 +22,11 @@
 	<!-- This template explains how to render the list of commands 
 	on the left side in the main window (the 'Control Panel' area). -->
 	<Window.Resources>
+        <data:BankCollection x:Key="BankData"/>
+        <data:CustCollection x:Key="CustData"/>
+        <data:DetCollection x:Key="DetData"/>
 
-															    	
-	</Window.Resources>
+    </Window.Resources>
 	
 	
 	<!--Outer grid-->
@@ -269,23 +272,25 @@
 		
 		<!--Right hand side only-->
 		<DataGrid x:Name="DataGrid1"
-			    CanUserAddRows="False"
-			  Grid.Row="1"
-			  Grid.Column="4"
-			    Grid.RowSpan="1"
-			    VerticalAlignment="Stretch"
+				CanUserAddRows="False"
+				Grid.Row="1"
+				Grid.Column="4"
+				Grid.RowSpan="1"
+				VerticalAlignment="Stretch"
 				HorizontalAlignment="Stretch"
 				IsReadOnly="False"
-			    PreviewMouseDown="DataGrid1_PreviewMouseDown"
+				IsSynchronizedWithCurrentItem="True"
+				PreviewMouseDown="DataGrid1_PreviewMouseDown"
 				SelectionMode="Single"
 				SelectionUnit="FullRow" 
 				AutoGenerateColumns="False"
 				SelectionChanged="DataGrid1_SelectionChanged" 
 				RowEditEnding="DataGrid1_RowEditEnding"
-				 Visibility="Visible" 
-			    CellEditEnding="DataGrid1_CellEditEnding"
+				Visibility="Visible" 
+				CellEditEnding="DataGrid1_CellEditEnding"
 				  >
-			<!--SelectedItem="{Binding myData:BankAccountViewModel, Mode=TwoWay}"-->
+            <!--ItemsSource="{Binding Source={StaticResource BankData}}"-->
+            <!--SelectedItem="{Binding myData:BankAccountViewModel, Mode=TwoWay}"-->
 			<DataGrid.Resources>
 				<SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightBrushKey}" Color="LightBlue"/>
 			</DataGrid.Resources>
@@ -769,6 +774,7 @@
 				Grid.Column="4"
 				HorizontalAlignment="Stretch"
 				IsReadOnly="False"
+				IsSynchronizedWithCurrentItem="True"
 				PreviewMouseDown="DataGrid2_PreviewMouseDown"
 				RowEditEnding="DataGrid2_RowEditEnding"
 				SelectionChanged="DataGrid2_SelectionChanged"
@@ -777,7 +783,8 @@
 				Visibility="Collapsed" 
 				VerticalAlignment="Stretch"
 				  >
-				<!--SelectedItem="{Binding CustModel, Mode=TwoWay}"-->
+            <!--ItemsSource="{Binding Source={StaticResource CustData}}"-->
+            <!--SelectedItem="{Binding CustModel, Mode=TwoWay}"-->
 				<DataGrid.Resources>
 					<SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightBrushKey}" Color="DarkGray"/>
 				</DataGrid.Resources>
@@ -926,6 +933,7 @@
 			Grid.RowSpan="1"
 			HorizontalAlignment="Stretch"
 			IsReadOnly="False"
+			IsSynchronizedWithCurrentItem="True"
 			PreviewMouseDown="DetailsGrid_PreviewMouseDown"
 			RowEditEnding="DetailsGrid_RowEditEnding"
 			SelectionChanged="DetailsGrid_SelectionChanged"
@@ -933,7 +941,9 @@
 			SelectionUnit="FullRow" 
 			VerticalAlignment="Stretch"
 			Visibility="Visible" >
-			<!--SelectedItem="{Binding DetModel, Mode=TwoWay}"-->
+            <!--ItemsSource="{Binding Source={StaticResource DetData}}"-->
+            <!--ItemTemplate=""-->
+            <!--SelectedItem="{Binding DetModel, Mode=TwoWay}"-->
 			<DataGrid.Resources>
 				<SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightBrushKey}" Color="LightBlue"/>
 			</DataGrid.Resources>

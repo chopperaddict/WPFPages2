@@ -134,49 +134,28 @@ namespace WPFPages . Views
 			//if ( NotifyOfDataChange != null )
 			//{
 			//	try
+			//EditDbViewerSelectedIndexChanged
 			Delegate [ ] dg = SqlDbViewer . GetEventCount ( );
 			if ( dg != null )	count = dg . Length;
+			// NotifyOfDataChange
 			dg = SqlDbViewer . GetEventCount2 ( );
 			if ( dg != null )	count2 = dg . Length;
+			// EditDbViewerSelectedIndexChanged
 			dg = SqlDbViewer . GetEventCount3 ( );
 			if ( dg != null )	count3 = dg . Length;
+			// SqlHasChangedSelection
 			dg = EditDb . GetEventCount4 ( );
 			if ( dg != null )	count4 = dg . Length;
+			// SqlViewerIndexChanged
 			dg = EditDb. GetEventCount5 ( );
 			if ( dg != null )	count5 = dg . Length;
-			//		count5 = SqlViewerIndexChanged.GetInvocationList().Length;
-			//	}
-			//	catch (Exception ex)
-			//	{
-			//		Console.WriteLine($"SqlViewerChanged Event !!! : {ex.Message} - {ex.Data}");
-			//	}
-			//}
-			//if ( SqlViewerIndexChanged != null )
-			//{
-			//	try
-			//	{ count2 = SqlViewerIndexChanged . GetInvocationList ( ) . Length; }
-			//	catch { }
-			//}
-			//if ( EditDbViewerSelectedIndexChanged != null )
-			//{
-			//	try
-			//	{ count3 = EditDbViewerSelectedIndexChanged . GetInvocationList ( ) . Length; }
-			//	catch { }
-			//}
-			//if ( SqlHasChangedSelection != null )
-			//{
-			//	try
-			//	{ count4 = SqlHasChangedSelection . GetInvocationList ( ) . Length; }
-			//	catch { }
-			//}
-			//Console . WriteLine ( $"....................................................................................." );
-			Console . WriteLine (
-				$"EventHandler(Line 183) Currently Subscribed Events " +
-				$"\nEditDbViewerSelectedIndexChanged =	{count3}, " +
-				$"\nNotifyOfDataChange =				{count}," +
-				$"\nNotifyOfDataLoaded =				{count5}" +
+				Console . WriteLine (
+				$"\n *** Currently Subscribed Events  ***" +
+				$"\nEditDbViewerSelectedIndexChanged =	{count} " +
+				$"\nNotifyOfDataChange =		 		{count2}" +
+				$"\nEditDbViewerSelectedIndexChanged=	{count3}" +
 				$"\nSqlHasChangedSelection = 			{count4}" +
-				$"\nSqlViewerIndexChanged =				{count2} " );
+				$"\nSqlViewerIndexChanged =				{count5} " );
 			//			Console . WriteLine ( $"....................................................................................." );
 
 			bool first = true;

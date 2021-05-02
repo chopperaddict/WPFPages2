@@ -19,7 +19,11 @@ namespace WPFPages . Views
 		private string CurrentDb = "";
 		private bool IsDirty = false;
 		private DataGrid ParentGrid = null;
-		
+
+		public BankCollection Bankcollection = BankCollection .Bankcollection;
+		public CustCollection Custcollection = CustCollection . Custcollection;
+		public DetCollection Detcollection = DetCollection.Detcollection;
+
 		public RowInfoPopup ( string callerType , DataGrid parentGrid,  DataGridRow RowData)
 		{
 			ParentGrid = parentGrid;
@@ -66,7 +70,7 @@ namespace WPFPages . Views
 					LeftCustBorder . Visibility = Visibility . Hidden;
 					LeftBankBorder . Visibility = Visibility . Visible;
 					//					DetailsViewModel dvm = new DetailsViewModel ( );
-					//					DataContext = dvm . DetailsObs;
+					//					DataContext = Detcollection;
 					this . Height = 350;
 				}
 				this . MouseDown += delegate { DoDragMove ( ); };
@@ -161,7 +165,7 @@ namespace WPFPages . Views
 				int selected;
 				selected = ParentGrid.SelectedIndex;
 				ParentGrid.ItemsSource = null;
-				ParentGrid.ItemsSource = MainWindow.cvm.CustomersObs;
+				ParentGrid.ItemsSource = CustCollection.Custcollection;
 				ParentGrid.SelectedIndex = selected;
 				ParentGrid . Refresh();
 			}

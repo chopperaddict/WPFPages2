@@ -6,8 +6,10 @@
 
 //using System;
 using System;
+using System . Collections . Generic;
 using System . Diagnostics;
 using System . Windows . Controls;
+
 using WPFPages . Views;
 
 namespace WPFPages
@@ -20,12 +22,18 @@ namespace WPFPages
 		/// Used as  Pairs so we can access window and grid
 		public static DataGrid SqlBankGrid = null;
 		public static SqlDbViewer SqlBankViewer = null;
+		public static  DataGrid CurrentEditDbViewerBankGrid = null;
 
 		public static DataGrid SqlCustGrid = null;
 		public static SqlDbViewer SqlCustViewer = null;
+		public static  DataGrid CurrentEditDbViewerCustomerGrid = null;
 
 		public static DataGrid SqlDetGrid = null;
 		public static SqlDbViewer SqlDetViewer = null;
+		public static  DataGrid CurrentEditDbViewerDetailsGrid = null;
+		public static List< DataGrid > CurrentEditDbViewerBankGridList;
+		public static List< DataGrid > CurrentEditDbViewerCustomerGridList;
+		public static List< DataGrid > CurrentEditDbViewerDetailsGridList;
 
 		// Current active Grid pointer and Name - Used as a pointer to the currently active DataGrid
 		public static DataGrid ActiveSqlGrid = null;
@@ -186,6 +194,7 @@ namespace WPFPages
 				return false;
 			Guid tag = ( Guid ) Flags . CurrentSqlViewer?.Tag;
 			ListBoxItem lbi = new ListBoxItem ( );
+
 			if ( x == -1 )
 			{ // Delete all
 				for ( int z = 0 ; z < MainWindow . gv . MaxViewers ; z++ )
@@ -219,62 +228,70 @@ namespace WPFPages
 			}
 			else
 			{
+				int GridViewerArrayIndex = 0;
 				// we have NOT received the index of the viewer in the list
 				// so  get the index for the correct Entry
 				if ( x == 99 )
 				{
-					// got to find it ourselves
-					for ( int i = 0 ; i < 3 ; i++ )
+					// got to find it ourselves - iterate thruMainWindow.gv[] array  (Range  is 0 - 3)
+					for ( int i = 0 ; i < 4 ; i++ )
 					{
 						if ( MainWindow . gv . CurrentDb [ i ] == currentDb )
 						{ x = i; break; }
 					}
+					GridViewerArrayIndex= x;
+					// we have got the index in "x"  of the viewer in the Mainindow.gv[] array
+					// so  get the Tag of that selected Entry
+					for ( int i = 1 ; i < 4 ; i++ )
+					{
+						lbi = Flags . DbSelectorOpen . ViewersList . Items [ i ] as ListBoxItem;
+						if ( MainWindow . gv . ListBoxId [ GridViewerArrayIndex ] == ( Guid ) lbi . Tag )
+						{
+							//lbi = Flags . DbSelectorOpen . ViewersList . Items [ i ] as ListBoxItem;
+							Flags . DbSelectorOpen . ViewersList . Items . RemoveAt ( i );
+							Flags . DbSelectorOpen . ViewersList . Refresh ( );
+							break;
+						}
+					}
 				}
-				// we have got the index of the viewer in the list
-				// so  get the Tag of that selected Entry
-				lbi = Flags . DbSelectorOpen . ViewersList . Items [x ] as ListBoxItem;
-				Guid lbtag = ( Guid ) lbi . Tag;
-				// Get a pointer to the window so we can close it
-				sqlv = Flags . CurrentSqlViewer as SqlDbViewer;
-				//See if it matches the one we are closing down
-				if ( ( Guid ) lbtag == ( Guid ) tag )
+				else
 				{
+					// we have the ViewersList index given to us, so use it
+					lbi = Flags . DbSelectorOpen . ViewersList . Items [ index ] as ListBoxItem;
+					Flags . DbSelectorOpen . ViewersList . Items . RemoveAt ( index );
+					Flags . DbSelectorOpen . ViewersList . Refresh ( );
+					// got to findit in thruMainWindow.gv[] array  (Range  is 0 - 3)
+					for ( int i = 0 ; i < 4 ; i++ )
+					{
+						if ( MainWindow . gv . ListBoxId [ i ] == ( Guid ) lbi . Tag )
+						{
+							GridViewerArrayIndex = i;
+							break;
+						}
+					}
 
-					// We know which gv[] entry  we need to clear, so do it and return
-					MainWindow . gv . ViewerCount--;
-					MainWindow . gv . CurrentDb [ x ] = "";
-					MainWindow . gv . ListBoxId [ x ] = Guid . Empty;
-					MainWindow . gv . Datagrid [ x ] = null;
-					// Actually close thre Viewer window here, before we delete the relevant pointers
-					// done late ron anyway
-					//					sqlv . Close ( );
-					MainWindow . gv . window [ x ] = null;
 				}
+				sqlv = Flags . CurrentSqlViewer as SqlDbViewer;
+				sqlv . Close ( );
+
+				// We know which gv[] entry  we need to clear, so do it and return
+				MainWindow . gv . CurrentDb [ GridViewerArrayIndex ] = "";
+				MainWindow . gv . ListBoxId [ GridViewerArrayIndex ] = Guid . Empty;
+				MainWindow . gv . Datagrid [ GridViewerArrayIndex ] = null;
+				MainWindow . gv . window [ GridViewerArrayIndex] = null;
 				MainWindow . gv . PrettyDetails = "";
 				MainWindow . gv . SqlViewerGuid = Guid . Empty;
-				//Finally we can remove this entry from ViewersList
-				lbi = Flags . DbSelectorOpen . ViewersList . Items [ x ] as ListBoxItem;
-				lbi . Content = "";
-				Flags . DbSelectorOpen . ViewersList . Items . RemoveAt ( x );
-				Flags . DbSelectorOpen . ViewersList . Refresh ( );
-				// Set selectedIndex pointer to current position in list
-				if ( Flags . DbSelectorOpen . ViewersList . Items . Count <= 1 )
-				{       // List is basically empty (No viewers in  the list)
-					sqlv . Close ( );
-					return true;
-				}
-				int currentIndex = x;
-				if ( Flags . DbSelectorOpen . ViewersList . Items . Count > currentIndex )
+				MainWindow . gv . ViewerCount--;
+				if ( Flags . DbSelectorOpen . ViewersList . Items . Count > GridViewerArrayIndex + 1 )
 				{
-					Flags . DbSelectorOpen . ViewersList . SelectedIndex = currentIndex;
-					Flags . DbSelectorOpen . ViewersList . SelectedItem = currentIndex;
+					Flags . DbSelectorOpen . ViewersList . SelectedIndex = GridViewerArrayIndex + 1;
+					Flags . DbSelectorOpen . ViewersList . SelectedItem = GridViewerArrayIndex + 1;
 				}
-				else if ( Flags . DbSelectorOpen . ViewersList . Items . Count == currentIndex )
+				else if ( Flags . DbSelectorOpen . ViewersList . Items . Count == GridViewerArrayIndex + 1 )
 				{
-					Flags . DbSelectorOpen . ViewersList . SelectedIndex = currentIndex - 1;
-					Flags . DbSelectorOpen . ViewersList . SelectedItem = currentIndex - 1;
+					Flags . DbSelectorOpen . ViewersList . SelectedIndex = GridViewerArrayIndex - 1;
+					Flags . DbSelectorOpen . ViewersList . SelectedItem = GridViewerArrayIndex - 1;
 				}
-				sqlv . Close ( );
 				return true;
 			}
 
@@ -395,7 +412,7 @@ namespace WPFPages
 				Console . WriteLine ( $"Viewer : BankGrid : ItemsSource : { Flags . SqlBankGrid . ItemsSource}" );
 			if ( Flags . SqlCustGrid != null )
 				Console . WriteLine ( $"Viewer : CustomerGrid : ItemsSource : { Flags . SqlCustGrid . ItemsSource}" );
-			if ( Flags.SqlDetGrid != null )
+			if ( Flags . SqlDetGrid != null )
 				Console . WriteLine ( $"Viewer : Details Grid : ItemsSource : { Flags . SqlDetGrid . ItemsSource}" );
 		}
 	}

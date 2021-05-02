@@ -37,7 +37,7 @@ namespace WPFPages . Views
 		private static BankAccountViewModel bvm = MainWindow . bvm;
 		private static CustomerViewModel cvm = MainWindow . cvm;
 		private static DetailsViewModel dvm = MainWindow . dvm;
-
+		public BankCollection Bankcollection;
 		//*********************DELEGATE STUFF **************************************************//
 		// I can now just use this : SendViewerCommand(x, "") to send messages to SqlDbViewer window
 		//		EVent trigger for public delegate void NotifyViewer ( int status, string info, SqlDbViewer NewSqlViewer );
@@ -131,7 +131,7 @@ namespace WPFPages . Views
 			// set a pointer to this window in GridViewer control struct
 			//			MainWindow.gv.DbSelectorWindow = this;
 
-			this . MouseDown += delegate { DoDragMove ( ); };
+			this . MouseDown += delegate{ DoDragMove ( ); };
 			//This DOES send a message to SqlDbViewer !!
 			EventHandlers . SendViewerCommand ( 103, "<<< Completed DbSelector basic Constructor", null );
 #if USEDETAILEDEXCEPTIONHANDLER
@@ -266,6 +266,7 @@ namespace WPFPages . Views
 
 				if ( selectedItem . ToUpper ( ) . Contains ( "MULTI BANK ACCOUNTS" ) )
 				{
+					// DETAILS DATABASE
 					if ( MainWindow . gv . Detviewer != Guid . Empty )
 					{
 						SetFocusToExistingViewer ( MainWindow . gv . Detviewer );
@@ -275,7 +276,9 @@ namespace WPFPages . Views
 					CallingType = "DETAILS";
 					// LOADS THE WINDOW HERE - it RETURNS IMMEDIATELY even though the data is not yet fully loaded
 					//					Flags . CurrentSqlViewer = new SqlDbViewer ( "DETAILS" );
-					Flags . CurrentSqlViewer = new SqlDbViewer ( "DETAILS" );
+					DetCollection Detcollection = new DetCollection ();
+					Flags . CurrentSqlViewer = new SqlDbViewer ( "DETAILS", Detcollection );
+					//					Flags . CurrentSqlViewer = new SqlDbViewer ( "DETAILS" ,null);
 					Flags . CurrentSqlViewer . BringIntoView ( );
 					Flags . CurrentSqlViewer . Show ( );
 					ExtensionMethods . Refresh ( Flags . CurrentSqlViewer );
@@ -290,7 +293,7 @@ namespace WPFPages . Views
 					//					//done later on
 					//					UpdateControlFlags ( Flags . ActiveSqlViewer, CallingType, "" );
 					//
-					var tuple = SqlDbViewer . CreateTuple ( "DETAILS" );
+//					var tuple = SqlDbViewer . CreateTuple ( "DETAILS" );
 					//					Flags . CurrentSqlViewer . GetTupleData ( ( Tuple<SqlDbViewer, string, int> ) tuple );
 					EventHandlers . SendViewerCommand ( 103, "\nNew Details Viewer Fully loaded....\n", null );
 					callertype = 2;
@@ -298,13 +301,16 @@ namespace WPFPages . Views
 				}
 				else if ( selectedItem . ToUpper ( ) . Contains ( "BANK ACCOUNTS" ) )
 				{
+					// BANK DATABASE
 					if ( MainWindow . gv . Bankviewer != Guid . Empty )
 					{
 						SetFocusToExistingViewer ( MainWindow . gv . Bankviewer );
 						return;
 					}
 					//					Flags . CurrentSqlViewer = new SqlDbViewer ( "BANKACCOUNT" );
-					Flags . CurrentSqlViewer = new SqlDbViewer ( "BANKACCOUNT" );
+					BankCollection Bankcollection = new BankCollection();
+					Flags . CurrentSqlViewer = new SqlDbViewer ( "BANKACCOUNT", Bankcollection );
+					//					Flags . CurrentSqlViewer = new SqlDbViewer ( "BANKACCOUNT" , null);
 					Flags . CurrentSqlViewer . BringIntoView ( );
 					Flags . CurrentSqlViewer . Show ( );
 					ExtensionMethods . Refresh ( Flags . CurrentSqlViewer );
@@ -318,9 +324,9 @@ namespace WPFPages . Views
 						// This is fine, new windows do NOT have their Guid when they arrive here
 						this . Tag = Flags . CurrentSqlViewer . Tag;
 					}
-					var tuple = SqlDbViewer . CreateTuple ( "BANKACCOUNT" );
+//					var tuple = SqlDbViewer . CreateTuple ( "BANKACCOUNT" );
 					//					Flags.CurrentSqlViewer.UpdateSqlControl ((Tuple<SqlDbViewer, string, int>)tuple);
-					Flags . CurrentSqlViewer . GetTupleData ( ( Tuple<SqlDbViewer, string, int> ) tuple );
+//					Flags . CurrentSqlViewer . GetTupleData ( ( Tuple<SqlDbViewer, string, int> ) tuple );
 					//					Console.WriteLine ($"\nTuple created successfully....");
 					EventHandlers . SendViewerCommand ( 103, "\nNew BankAccount Viewer Fully loaded....\n", null );
 					callertype = 0;
@@ -330,13 +336,16 @@ namespace WPFPages . Views
 				}
 				else if ( selectedItem . ToUpper ( ) . Contains ( "CUSTOMER ACCOUNTS" ) )
 				{
+					// CUSTOMER DATABASE
 					if ( MainWindow . gv . Custviewer != Guid . Empty )
 					{
 						SetFocusToExistingViewer ( MainWindow . gv . Custviewer );
 						return;
 					}
 					//					Flags . CurrentSqlViewer = new SqlDbViewer ( "CUSTOMER" );
-					Flags . CurrentSqlViewer = new SqlDbViewer ( "CUSTOMER" );
+					CustCollection Custcollection = new CustCollection    ();
+//					Debugger . Break ( );
+					Flags . CurrentSqlViewer = new SqlDbViewer ( "CUSTOMER", Custcollection );
 					Flags . CurrentSqlViewer . BringIntoView ( );
 					Flags . CurrentSqlViewer . Show ( );
 
@@ -351,9 +360,9 @@ namespace WPFPages . Views
 						// This is fine, new windows do NOT have their Guid when they arrive here
 						this . Tag = Flags . CurrentSqlViewer . Tag;
 					}
-					var tuple = SqlDbViewer . CreateTuple ( "CUSTOMER" );
+//					var tuple = SqlDbViewer . CreateTuple ( "CUSTOMER" );
 					//					Flags.CurrentSqlViewer.UpdateSqlControl ((Tuple<SqlDbViewer, string, int>)tuple);
-					Flags . CurrentSqlViewer . GetTupleData ( ( Tuple<SqlDbViewer, string, int> ) tuple );
+//					Flags . CurrentSqlViewer . GetTupleData ( ( Tuple<SqlDbViewer, string, int> ) tuple );
 					EventHandlers . SendViewerCommand ( 103, "\nNew Customer Viewer Fully loaded....\n", null );
 					callertype = 1;
 					CallingType = "CUSTOMER";
@@ -559,7 +568,7 @@ namespace WPFPages . Views
 			//			EventHandlers . ClearWindowHandles ( null, Flags . CurrentSqlViewer );
 		}
 
-		public void CloseDeleteAllViewers ( )
+	public  void CloseDeleteAllViewers ( )
 		{
 			//Close selected viewer window
 			// iterate the list form bottom up closing windows
@@ -1231,7 +1240,7 @@ namespace WPFPages . Views
 			//and we need to do the same in SqlDbViewer
 			EventHandlers . SendViewerCommand ( 102, ">>> Starting TriggerBankDataLoad()", Flags . CurrentSqlViewer );
 			// The Fn handles the Task.Run()
-			await bvm . LoadBankTaskInSortOrder ( true, -1 );
+			await BankCollection.LoadBankTaskInSortOrder ( true, -1 );
 			EventHandlers . SendViewerCommand ( 103, "<<< Ended TriggerBankDataLoad()", Flags . CurrentSqlViewer );
 		}
 		private async Task TriggerCustomerDataLoad ( SqlDbViewer NewSqlViewer )
@@ -1244,7 +1253,7 @@ namespace WPFPages . Views
 			try
 			{
 				List<Task<bool>> tasks = new List<Task<bool>> ( );
-				tasks . Add ( cvm . LoadCustomerTaskInSortOrder ( true, 0 ) );
+				tasks . Add ( CustCollection.LoadCustomerTaskInSortOrder ( true, 0 ) );
 				var Results = await Task . WhenAll ( tasks );
 			}
 			catch ( Exception ex )
@@ -1260,7 +1269,8 @@ namespace WPFPages . Views
 			//This calls  LoadDetailsTask for us after sorting out the command line sort order requested
 			try
 			{
-				await dvm . LoadDetailsTaskInSortOrder ( true, 0 );
+				await DetCollection.LoadDetailsTaskInSortOrder ( true );
+//				await dvm . LoadDetailsTaskInSortOrder ( true, 0 );
 				//List<Task<bool>> tasks = new List<Task<bool>> ( );
 				//tasks . Add ( dvm . LoadDetailsTaskInSortOrder ( true, 0 ) );
 				//var Results = await Task . WhenAll ( tasks );
@@ -1435,8 +1445,10 @@ namespace WPFPages . Views
 									Flags . SqlDetGrid . Visibility = Visibility . Visible;
 								}
 							}
-							if ( bvm . BankAccountObs != null )
-								Flags . ActiveSqlGrid . ItemsSource = bvm . BankAccountObs;
+							if ( Bankcollection!= null )
+								Flags . ActiveSqlGrid . ItemsSource = Bankcollection;
+//							if ( bvm . BankAccountObs != null )
+//								Flags . ActiveSqlGrid . ItemsSource = bvm . BankAccountObs;
 
 
 							// This WORKS for details 2/4/21

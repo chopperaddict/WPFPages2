@@ -71,6 +71,10 @@
     </ApplicationDefinition>
     <Compile Include="Behaviours\DataGridBehaviour.cs" />
     <Compile Include="BindingTracer.cs" />
+    <Compile Include="Observable.cs" />
+    <Compile Include="Views\BankCollection.cs" />
+    <Compile Include="Views\CustCollection.cs" />
+    <Compile Include="Views\DetCollection.cs" />
     <Compile Include="Views\RelayCommand.cs" />
     <Compile Include="DateOnlyConverter.cs" />
     <Compile Include="SalaryConvertor.cs" />
@@ -100,6 +104,7 @@
     </Compile>
     <Compile Include="Views\SQLHandlers.cs" />
     <Compile Include="Views\TaskExtension.cs" />
+    <Compile Include="Views\ViewEditdb.cs" />
     <Compile Include="Views\ViewModelBase.cs" />
     <Compile Include="Views\DataGridNavigation.cs" />
     <Compile Include="Views\DbSelector.xaml.cs">

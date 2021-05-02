@@ -127,11 +127,15 @@ namespace WPFPages
 		// Now on with other code
 
 		// Setup a generic Notifier so property changes are broadcast automatically
-		public event PropertyChangedEventHandler PropertyChanged;
+//		public event PropertyChangedEventHandler PropertyChanged;
 		private void OnPropertyChanged ( [CallerMemberName] string PropertyName = null )
 		{
 			PropertyChanged?.Invoke ( this, new PropertyChangedEventArgs ( PropertyName ) );
 		}
+
+		#region PropertyChanged
+		public event PropertyChangedEventHandler PropertyChanged;
+		#endregion PropertyChanged
 
 		//This is how to declare properties for binding
 		public string BaseDataText

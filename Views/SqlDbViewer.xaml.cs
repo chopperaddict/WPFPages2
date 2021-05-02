@@ -70,6 +70,11 @@ namespace WPFPages
 		//		public static SqlSelectedRowChanged SqlViewerIndexChanged;
 
 
+		// New Customer Observable collection
+		public BankCollection Bankcollection = BankCollection .Bankcollection;
+		public CustCollection Custcollection = CustCollection . Custcollection;
+		public DetCollection Detcollection = DetCollection.Detcollection;
+
 		private static int EditChangeType = 0;
 		private static int ViewerChangeType = 0;
 		private static bool EditViewerOpen = false;
@@ -121,12 +126,15 @@ namespace WPFPages
 		private void SubscribeToEvents ( )
 		{
 			////subscribing viewmodels handlers to data changed event !!!
-			if (  NotifyOfDataChange == null )
-			{
-				NotifyOfDataChange += bvm . DbHasChangedHandler; // Callback in REMOTE FILE
-				NotifyOfDataChange += cvm . DbHasChangedHandler; // Callback in REMOTE FILE
-				NotifyOfDataChange += dvm . DbHasChangedHandler; // Callback in REMOTE FILE
-			}
+			//if (  NotifyOfDataChange == null )
+			//{
+				if(CurrentDb == "BANKACCOUNT")
+					NotifyOfDataChange += bvm . DbHasChangedHandler; // Callback in REMOTE FILE
+				else if ( CurrentDb == "CUSTOMER" )
+					NotifyOfDataChange += cvm . DbHasChangedHandler; // Callback in REMOTE FILE
+				else if ( CurrentDb == "DETAILS" )
+					NotifyOfDataChange += dvm . DbHasChangedHandler; // Callback in REMOTE FILE
+			//}
 
 			// point to callback function in THIS FILE - DbDataLoadedHandler(object, DataLoadedArgs)
 			if ( NotifyOfDataLoaded == null )
@@ -134,8 +142,11 @@ namespace WPFPages
 
 			// point to callback function in THIS FILE - EditDbHasChangedIndex()
 			//			if ( EventHandlers . EditDbViewerSelectedIndexChanged == null )
-			if ( EditDbViewerSelectedIndexChanged == null )
-				EditDbViewerSelectedIndexChanged += EditDbHasChangedIndex;      // Callback in THIS FILE
+
+			//****  only  relevant to EditDb *****  3/5/21
+
+			//if ( EditDbViewerSelectedIndexChanged == null )
+			//	EditDbViewerSelectedIndexChanged += EditDbHasChangedIndex;      // Callback in THIS FILE
 
 			EventHandlers . ShowSubscribersCount ( );
 		}
@@ -201,12 +212,19 @@ namespace WPFPages
 		/// </summary>
 		/// <param name="caller"></param>
 		/// <returns></returns>
-		public SqlDbViewer ( string caller )
+		public SqlDbViewer ( string caller, object Collection )
 		{
 			int selectedDb = -1;
 			IsViewerLoaded = false;
 			InitializeComponent ( );
 
+			// Get our SQL data
+			if ( caller == "BANKACCOUNT" )
+				Bankcollection = Collection as BankCollection;
+			else if ( caller == "CUSTOMER" )
+				Custcollection = Collection as CustCollection;
+			else if ( caller == "DETAILS" )
+				Detcollection = Collection as DetCollection;
 			//-------------------------------------------------------------------------------------------------------------------------------------------------//
 			//Testing Event
 			// Static method code
@@ -242,8 +260,6 @@ namespace WPFPages
 			// Handle window dragging
 			this . MouseDown += delegate { DoDragMove ( ); };
 
-			//subscribing viewmodels to data changed event !!!
-			SubscribeToEvents ( );
 			//This DOES call handler in DbSelector !!
 			sqldbForm = this;
 			dgControl = new DataGridController ( );
@@ -279,6 +295,8 @@ namespace WPFPages
 				default:
 					break;
 			}
+			//subscribing viewmodels to data changed event !!!
+			SubscribeToEvents ( );
 			ThisWindow = this;
 			EditArgs = new EditEventArgs ( );
 			//			this . MouseDown += delegate { DoDragMove ( ); };
@@ -324,13 +342,13 @@ namespace WPFPages
 					//Data has been changed in EditDb, so reload it
 					BankGrid . ItemsSource = null;
 					//We cant use Collection syntax - it crashes it every time
-					BankGrid . ItemsSource = bvm . BankAccountObs;
+					BankGrid . ItemsSource = Bankcollection;
 				}
 
 				this . BankGrid . SelectedIndex = row;
 				try
 				{
-					this . BankGrid . SelectedItem = bvm . BankAccountObs . ElementAt ( row );
+					this . BankGrid . SelectedItem = Bankcollection . ElementAt ( row );
 					ExtensionMethods . Refresh ( BankGrid );
 				}
 				catch ( Exception ex )
@@ -349,11 +367,13 @@ namespace WPFPages
 					//Data has been changed in EditDb, so reload it
 					CustomerGrid . ItemsSource = null;
 					//We cant use Collection syntax - it crashes it every time
-					CustomerGrid . ItemsSource = cvm . CustomersObs;
+					CustomerGrid . ItemsSource = Custcollection;
+//					CustomerGrid . ItemsSource = cvm . CustomersObs;
 				}
 				try
 				{
-					this . CustomerGrid . SelectedItem = cvm . CustomersObs . ElementAt ( row );
+					this . CustomerGrid . SelectedItem = Custcollection. ElementAt ( row );
+//					this . CustomerGrid . SelectedItem = cvm . CustomersObs . ElementAt ( row );
 					ExtensionMethods . Refresh ( CustomerGrid );
 				}
 				catch ( Exception ex )
@@ -373,11 +393,11 @@ namespace WPFPages
 					//Data has been changed in EditDb, so reload it
 					DetailsGrid . ItemsSource = null;
 					//We cant use Collection syntax - it crashes it every time
-					DetailsGrid . ItemsSource = dvm . DetailsObs;
+					DetailsGrid . ItemsSource = Detcollection;
 				}
 				try
 				{
-					DetailsGrid . SelectedItem = dvm . DetailsObs . ElementAt ( row );
+					DetailsGrid . SelectedItem = Detcollection . ElementAt ( row );
 					ExtensionMethods . Refresh ( DetailsGrid );
 				}
 				catch ( Exception ex )
@@ -416,9 +436,9 @@ namespace WPFPages
 			if ( args . DbName == "BANKACCOUNT" )
 			{
 				// Handle assigning  the Collections to the grids etc
-				if ( bvm . BankAccountObs != null )
+				if ( Bankcollection!= null )
 				{
-					BankGrid . ItemsSource = CollectionViewSource . GetDefaultView ( bvm . BankAccountObs );
+					BankGrid . ItemsSource = CollectionViewSource . GetDefaultView ( Bankcollection);
 					//					BankGrid . ItemsSource = bvm . BankAccountObs;
 					BankGrid . SelectedIndex = args . CurrentIndex;
 					BankGrid . SelectedItem = args . CurrentIndex;
@@ -434,7 +454,8 @@ namespace WPFPages
 			}
 			else if ( args . DbName == "CUSTOMER" )
 			{
-				CustomerGrid . ItemsSource = CollectionViewSource . GetDefaultView ( cvm . CustomersObs );
+				CustomerGrid . ItemsSource = CollectionViewSource . GetDefaultView ( Custcollection);
+//				CustomerGrid . ItemsSource = CollectionViewSource . GetDefaultView ( cvm . CustomersObs );
 				//				CustomerGrid . ItemsSource = cvm . CustomersObs;
 				CustomerGrid . SelectedIndex = args . CurrentIndex;
 				CustomerGrid . SelectedItem = args . CurrentIndex;
@@ -449,8 +470,8 @@ namespace WPFPages
 			}
 			else if ( args . DbName == "DETAILS" )
 			{
-				DetailsGrid . ItemsSource = CollectionViewSource . GetDefaultView ( dvm . DetailsObs );
-				//				DetailsGrid . ItemsSource = dvm . DetailsObs;
+				DetailsGrid . ItemsSource = CollectionViewSource . GetDefaultView ( Detcollection );
+				//				DetailsGrid . ItemsSource = Detcollection;
 				DetailsGrid . SelectedIndex = args . CurrentIndex;
 				DetailsGrid . SelectedItem = args . CurrentIndex;
 				BankGrid . Visibility = Visibility . Hidden;
@@ -501,7 +522,7 @@ namespace WPFPages
 				if ( info == "BANKACCOUNT" )
 				{
 					Flags . CurrentSqlViewer . SendDbSelectorCommand ( 102, ">>> Starting load of Bank Data", Flags . CurrentSqlViewer );
-					Flags . CurrentSqlViewer . GetData ( info );
+//					Flags . CurrentSqlViewer . GetData ( info );
 					Flags . CurrentSqlViewer . SendDbSelectorCommand ( 103, $"<<< Bank Data Loaded {Flags . SqlBankGrid . Items . Count} records..", Flags . CurrentSqlViewer );
 					Flags . CurrentSqlViewer . SetGridVisibility ( "BANKACCOUNT" );
 					//					var BnkTuple = CreateTuple ( info );
@@ -511,7 +532,7 @@ namespace WPFPages
 				else if ( info == "CUSTOMER" )
 				{
 					Flags . CurrentSqlViewer . SendDbSelectorCommand ( 102, ">>> Starting load of Customer Data", Flags . CurrentSqlViewer );
-					Flags . CurrentSqlViewer . GetData ( info );
+//					Flags . CurrentSqlViewer . GetData ( info );
 					Flags . CurrentSqlViewer . SendDbSelectorCommand ( 103, $"<<< Customer Data Loaded {Flags . SqlCustGrid . Items . Count} records...", Flags . CurrentSqlViewer );
 					Flags . CurrentSqlViewer . SetGridVisibility ( "CUSTOMERS" );
 					//					var CustTuple = CreateTuple ( info );
@@ -521,7 +542,7 @@ namespace WPFPages
 				else if ( info == "DETAILS" )
 				{
 					Flags . CurrentSqlViewer . SendDbSelectorCommand ( 102, ">>> Starting load of Details Data", Flags . CurrentSqlViewer );
-					Flags . CurrentSqlViewer . GetData ( info );
+//					Flags . CurrentSqlViewer . GetData ( info );
 					Flags . CurrentSqlViewer . SendDbSelectorCommand ( 103, $"<<< Details Data Loaded {Flags . SqlDetGrid . Items . Count} records...", Flags . CurrentSqlViewer );
 					Flags . CurrentSqlViewer . SetGridVisibility ( "DETAILS" );
 					//					var DetTuple = CreateTuple ( info );
@@ -572,7 +593,7 @@ namespace WPFPages
 
 		public static SqlDbViewer sqldbForm = null;
 
-		public event PropertyChangedEventHandler PropertyChanged;
+//		public event PropertyChangedEventHandler PropertyChanged;
 
 		//***************** store the record data for whatever account type's record is the currently selected item
 		//so DbSelector can bind to it as well
@@ -647,7 +668,7 @@ namespace WPFPages
 				//This calls  LoadBankTask for us after sorting out the command line sort order requested
 				// It also broadcasts to any other viewer to update  if needed
 				// The Fn handles the Task.Run() to LOAD DATA from Db
-				await bvm . LoadBankTaskInSortOrder ( true, 0 );
+				await BankCollection . LoadBankTaskInSortOrder ( true, 0 );
 				sw . Stop ( );
 				Console . WriteLine ( $"BankAccount loaded {BankGrid . Items?.Count} records in {( double ) sw . ElapsedMilliseconds / ( double ) 1000} seconds " );
 				//ExtensionMethods . Refresh ( BankGrid );
@@ -665,7 +686,7 @@ namespace WPFPages
 				//This calls  LoadcustomerTask for us after sorting out the command line sort order requested
 				// It also broadcasts to any other viewer to update  if needed
 				// The Fn handles the Task.Run() to LOAD DATA from Db
-				await cvm . LoadCustomerTaskInSortOrder ( true, 0 );
+				await CustCollection . LoadCustomerTaskInSortOrder ( true, 0 );
 
 				sw . Stop ( );
 				Console . WriteLine ( $"Customer loaded {CustomerGrid . Items?.Count} records in {( double ) sw . ElapsedMilliseconds / ( double ) 1000} seconds " );
@@ -681,8 +702,8 @@ namespace WPFPages
 				// The Fn handles the Task.Run() to LOAD DATA from Db
 				//This calls  LoadDetailsTask for us after sorting out the command line sort order requested
 				// It also broadcasts to any other viewer to update  if needed
-				await dvm . LoadDetailsTaskInSortOrder ( true, 0 );
-
+				await DetCollection. LoadDetailsTaskInSortOrder ( true );
+				DetailsGrid . ItemsSource = Detcollection;
 				sw1 . Stop ( );
 				Console . WriteLine ( $"{( double ) sw1 . ElapsedMilliseconds / ( double ) 1000} seconds - Details loading Task completed\n{DetailsGrid . Items?.Count} records loaded" );
 			}
@@ -693,7 +714,7 @@ namespace WPFPages
 			if ( CurrentDb == "BANKACCOUNT" )
 			{
 				Utils . GetWindowHandles ( );
-				this . BankGrid . ItemsSource = CollectionViewSource . GetDefaultView ( bvm . BankAccountObs );
+				this . BankGrid . ItemsSource = CollectionViewSource . GetDefaultView ( Bankcollection);
 				//				this . BankGrid . ItemsSource = bvm . BankAccountObs;
 				this . BankGrid . SelectedIndex = 0;
 				ExtensionMethods . Refresh ( BankGrid );
@@ -702,7 +723,9 @@ namespace WPFPages
 			{
 
 				Utils . GetWindowHandles ( );
-				this . CustomerGrid . ItemsSource = CollectionViewSource . GetDefaultView ( cvm . CustomersObs );
+				
+				this . CustomerGrid . ItemsSource = CollectionViewSource . GetDefaultView ( Custcollection );
+//				this . CustomerGrid . ItemsSource = CollectionViewSource . GetDefaultView ( cvm . CustomersObs );
 				//				this . CustomerGrid . ItemsSource = cvm . CustomersObs;
 				this . CustomerGrid . SelectedIndex = 0;
 				ExtensionMethods . Refresh ( CustomerGrid );
@@ -710,8 +733,8 @@ namespace WPFPages
 			if ( CurrentDb == "DETAILS" )
 			{
 				Utils . GetWindowHandles ( );
-				DetailsGrid . ItemsSource = CollectionViewSource . GetDefaultView ( dvm . DetailsObs );
-				//				this . DetailsGrid . ItemsSource = dvm . DetailsObs;
+				DetailsGrid . ItemsSource = CollectionViewSource . GetDefaultView ( Detcollection );
+				//				this . DetailsGrid . ItemsSource = Detcollection;
 				this . DetailsGrid . SelectedIndex = 0;
 				ExtensionMethods . Refresh ( DetailsGrid );
 			}
@@ -756,7 +779,7 @@ namespace WPFPages
 				MainWindow . gv . SqlBankViewer = ( SqlDbViewer ) this;
 				Flags . SetGridviewControlFlags ( this, this . BankGrid );
 
-				BankGrid . ItemsSource = CollectionViewSource . GetDefaultView ( bvm . BankAccountObs );
+				BankGrid . ItemsSource = CollectionViewSource . GetDefaultView ( Bankcollection);
 				//				this . BankGrid . ItemsSource = bvm . BankAccountObs;
 				this . BankGrid . SelectedIndex = 0;
 				this . BankGrid . SelectedItem = 0;
@@ -773,7 +796,9 @@ namespace WPFPages
 				MainWindow . gv . SqlCustViewer = ( SqlDbViewer ) this;
 				Flags . SetGridviewControlFlags ( this, this . CustomerGrid );
 
-				CustomerGrid . ItemsSource = CollectionViewSource . GetDefaultView ( cvm . CustomersObs );
+				
+				CustomerGrid . ItemsSource = CollectionViewSource . GetDefaultView ( Custcollection );
+//				CustomerGrid . ItemsSource = CollectionViewSource . GetDefaultView ( cvm . CustomersObs );
 				//				this . CustomerGrid . ItemsSource = cvm . CustomersObs;
 				this . CustomerGrid . SelectedIndex = 0;
 				this . CustomerGrid . SelectedItem = 0;
@@ -790,8 +815,8 @@ namespace WPFPages
 				Flags . SetGridviewControlFlags ( this, this . DetailsGrid );
 
 				// This triggers the selectionchnaged event
-				DetailsGrid . ItemsSource = CollectionViewSource . GetDefaultView ( dvm . DetailsObs );
-				//				this . DetailsGrid . ItemsSource = dvm . DetailsObs;
+				DetailsGrid . ItemsSource = CollectionViewSource . GetDefaultView ( Detcollection );
+				//				this . DetailsGrid . ItemsSource = Detcollection;
 				this . DetailsGrid . SelectedIndex = 0;
 				this . DetailsGrid . SelectedItem = 0;
 				Flags . SqlDetCurrentIndex = 0;
@@ -1019,80 +1044,80 @@ namespace WPFPages
 		#region load all data base data
 
 		//*********************************************************************************************************//
-		public bool LoadDetailsObsCollection ( )
-		{
-			//Load the data into our ObservableCollection BankAccounts
-			if ( dvm . DetailsObs . Count > 0 )
-			{
-				dvm . DetailsObs . Clear ( );
-			}
-			try
-			{
-				for ( int i = 0 ; i < DetailsViewModel . dtDetails . Rows . Count ; ++i )		     
+//		public bool LoadDetailsObsCollection ( )
+//		{
+//			//Load the data into our ObservableCollection BankAccounts
+//			if ( DetCollection . Detcollection . Count > 0 )
+//			{
+//				DetCollection . Detcollection . Clear ( );
+//			}
+//			try
+//			{
+//				for ( int i = 0 ; i < DetailsViewModel . dtDetails . Rows . Count ; ++i )
 
-					dvm . DetailsObs . Add ( new DetailsViewModel
-					{
-						Id = Convert . ToInt32 ( dtDetails . Rows [ i ] [ 0 ] ),
-						BankNo = dtDetails . Rows [ i ] [ 1 ] . ToString ( ),
-						CustNo = dtDetails . Rows [ i ] [ 2 ] . ToString ( ),
-						AcType = Convert . ToInt32 ( dtDetails . Rows [ i ] [ 3 ] ),
-						Balance = Convert . ToDecimal ( dtDetails . Rows [ i ] [ 4 ] ),
-						IntRate = Convert . ToDecimal ( dtDetails . Rows [ i ] [ 5 ] ),
-						ODate = Convert . ToDateTime ( dtDetails . Rows [ i ] [ 6 ] ),
-						CDate = Convert . ToDateTime ( dtDetails . Rows [ i ] [ 7 ] )
-					} );
-				return true;
-			}
-			catch ( Exception ex )
-			{
-				Console . WriteLine ( $"Error loading Details Data {ex . Message}" );
-#if SHOWSQLERRORMESSAGEBOX
-				MessageBox . Show ( "SQL error occurred - See Output for details" );
-#endif
+//					DetCollection . Detcollection . Add ( new DetailsViewModel
+//					{
+//						Id = Convert . ToInt32 ( dtDetails . Rows [ i ] [ 0 ] ),
+//						BankNo = dtDetails . Rows [ i ] [ 1 ] . ToString ( ),
+//						CustNo = dtDetails . Rows [ i ] [ 2 ] . ToString ( ),
+//						AcType = Convert . ToInt32 ( dtDetails . Rows [ i ] [ 3 ] ),
+//						Balance = Convert . ToDecimal ( dtDetails . Rows [ i ] [ 4 ] ),
+//						IntRate = Convert . ToDecimal ( dtDetails . Rows [ i ] [ 5 ] ),
+//						ODate = Convert . ToDateTime ( dtDetails . Rows [ i ] [ 6 ] ),
+//						CDate = Convert . ToDateTime ( dtDetails . Rows [ i ] [ 7 ] )
+//					} );
+//				return true;
+//			}
+//			catch ( Exception ex )
+//			{
+//				Console . WriteLine ( $"Error loading Details Data {ex . Message}" );
+//#if SHOWSQLERRORMESSAGEBOX
+//				MessageBox . Show ( "SQL error occurred - See Output for details" );
+//#endif
 
-				return false;
-			}
+//				return false;
+//			}
 
-		}
+//		}
 		//*********************************************************************************************************//
-		public async void LoadCustData ( int mode = -1 )
-		{
-			SendDbSelectorCommand ( 102, ">>> SqlDbViewer in LoadCustData()", Flags . CurrentSqlViewer );
+		//public async void LoadCustData ( int mode = -1 )
+		//{
+		//	SendDbSelectorCommand ( 102, ">>> SqlDbViewer in LoadCustData()", Flags . CurrentSqlViewer );
 
-			//Handles the complete sql data Loading, adding to List, Obs and assigning it to the grid
-			Debug . WriteLine ( $"LoadCustData callback has been called successfully\r\nNow loading data into system...." );
-			//Use Delegate to notify DbSelector
-			SendDbSelectorCommand ( 102, $">>> SqlDbViewer calling TASK LoadCustomersTask", Flags . CurrentSqlViewer );
-			// load data into DataTable
+		//	//Handles the complete sql data Loading, adding to List, Obs and assigning it to the grid
+		//	Debug . WriteLine ( $"LoadCustData callback has been called successfully\r\nNow loading data into system...." );
+		//	//Use Delegate to notify DbSelector
+		//	SendDbSelectorCommand ( 102, $">>> SqlDbViewer calling TASK LoadCustomersTask", Flags . CurrentSqlViewer );
+		//	// load data into DataTable
 
 
 
-			//await Task . Factory . StartNew ( ( ) =>
-			//{
-			//	Dispatcher . Invoke ( ( ) =>
-			//	{
-			//		//This calls  LoadcustomerTask for us after sorting out the command line sort order requested
-			//		// It also broadcasts to any other viewer to update  if needed
-			//		cvm . LoadCustomerTaskInSortOrder ( -1 );
-			//	} );
-			//} );
-			await cvm . LoadCustomerTaskInSortOrder ( true, 0 );
-			//List<Task<bool>> tasks = new List<Task<bool>> ( );
-			//tasks . Add ( cvm . LoadCustomerTaskInSortOrder ( true, 0 ) );
-			//var Results = await Task . WhenAll ( tasks );
-			Debug . WriteLine ( $"returned from calling Task to load the data...." );
+		//	//await Task . Factory . StartNew ( ( ) =>
+		//	//{
+		//	//	Dispatcher . Invoke ( ( ) =>
+		//	//	{
+		//	//		//This calls  LoadcustomerTask for us after sorting out the command line sort order requested
+		//	//		// It also broadcasts to any other viewer to update  if needed
+		//	//		cvm . LoadCustomerTaskInSortOrder ( -1 );
+		//	//	} );
+		//	//} );
+		//	await cvm . LoadCustomerTaskInSortOrder ( true, 0 );
+		//	//List<Task<bool>> tasks = new List<Task<bool>> ( );
+		//	//tasks . Add ( cvm . LoadCustomerTaskInSortOrder ( true, 0 ) );
+		//	//var Results = await Task . WhenAll ( tasks );
+		//	Debug . WriteLine ( $"returned from calling Task to load the data...." );
 
-			// Bind our Grid to the data = not there yet in new version 
-			//			CustomerGrid.ItemsSource = CustomerViewModel.CustomersObs;
-			Mouse . OverrideCursor = Cursors . Arrow;
-			//*****************************************************************************//
-			// We now have ALL data into the Observable Collection
-			//*****************************************************************************//
-			this . CustomerGrid . Visibility = Visibility . Visible;
-			this . BringIntoView ( );
-			//Use Delegate to notify DbSelector
-			SendDbSelectorCommand ( 103, $"<<< SqlDbViewer Exiting LoadCustData", Flags . CurrentSqlViewer );
-		}
+		//	// Bind our Grid to the data = not there yet in new version 
+		//	//			CustomerGrid.ItemsSource = CustomerViewModel.CustomersObs;
+		//	Mouse . OverrideCursor = Cursors . Arrow;
+		//	//*****************************************************************************//
+		//	// We now have ALL data into the Observable Collection
+		//	//*****************************************************************************//
+		//	this . CustomerGrid . Visibility = Visibility . Visible;
+		//	this . BringIntoView ( );
+		//	//Use Delegate to notify DbSelector
+		//	SendDbSelectorCommand ( 103, $"<<< SqlDbViewer Exiting LoadCustData", Flags . CurrentSqlViewer );
+		//}
 		//*********************************************************************************************************//
 		#endregion load all data base data
 
@@ -1112,7 +1137,7 @@ namespace WPFPages
 				BankGrid . ItemsSource = null;
 				BankGrid . Items . Clear ( );
 				BankAccountViewModel . dtBank . Clear ( );
-				bvm . BankAccountObs . Clear ( );
+				Bankcollection. Clear ( );
 				BankGrid . Visibility = Visibility . Hidden;
 			}
 			else if ( CustomerGrid . Visibility == Visibility . Visible )
@@ -1124,8 +1149,8 @@ namespace WPFPages
 				Flags . SqlCustGrid = null;
 				CustomerGrid . ItemsSource = null;
 				CustomerGrid . Items . Clear ( );
-				CustomerViewModel . dtCust . Clear ( );
-				cvm . CustomersObs . Clear ( );
+				CustCollection . dtCust . Clear ( );
+				CustCollection .Custcollection . Clear ( );
 				CustomerGrid . Visibility = Visibility . Hidden;
 			}
 			else if ( DetailsGrid . Visibility == Visibility . Visible )
@@ -1137,7 +1162,7 @@ namespace WPFPages
 				DetailsGrid . ItemsSource = null;
 				DetailsGrid . Items . Clear ( );
 				DetailsViewModel . dtDetails . Clear ( );
-				dvm . DetailsObs . Clear ( );
+				DetCollection . Detcollection . Clear ( );
 				DetailsGrid . Visibility = Visibility . Hidden;
 			}
 		}
@@ -1211,8 +1236,8 @@ namespace WPFPages
 			UpdateAuxilliaries ( "Details Data Loaded..." );
 			SendDbSelectorCommand ( 111, $"SqlDbViewer  - calling AWAIT Task LoadBankTask", Flags . CurrentSqlViewer );
 			// LOAD THE DATA - The Fn handles the Task.Run()
-			await bvm . LoadBankTaskInSortOrder ( false, 0 );
-			BankGrid . ItemsSource = CollectionViewSource . GetDefaultView ( bvm . BankAccountObs );
+			await BankCollection . LoadBankTaskInSortOrder ( false, 0 );
+			BankGrid . ItemsSource = CollectionViewSource . GetDefaultView ( Bankcollection);
 			//			BankGrid . ItemsSource = bvm . BankAccountObs;
 			BankGrid . Visibility = Visibility . Visible;
 			ParseButtonText ( true );
@@ -1283,12 +1308,14 @@ namespace WPFPages
 				UpdateAuxilliaries ( "Details Data Loaded..." );
 				//This calls  LoadCustomerTask for us after sorting out the command line sort order requested
 				// It also broadcasts to any other viewer to update  if needed
-				await cvm . LoadCustomerTaskInSortOrder ( true, 0 );
+				await CustCollection .LoadCustomerTaskInSortOrder ( true, 0 );
 				//List<Task<bool>> tasks = new List<Task<bool>> ( );
 				//tasks . Add ( cvm . LoadCustomerTaskInSortOrder ( true, 0 ) );
 				//var Results = await Task . WhenAll ( tasks );
-				CustomerGrid . ItemsSource = CollectionViewSource . GetDefaultView ( cvm . CustomersObs );
-				//				CustomerGrid . ItemsSource = cvm . CustomersObs;
+				
+				CustomerGrid . ItemsSource = CollectionViewSource . GetDefaultView ( Custcollection);
+//				CustomerGrid . ItemsSource = CollectionViewSource . GetDefaultView ( cvm . CustomersObs );
+					//				CustomerGrid . ItemsSource = cvm . CustomersObs;
 				CustomerGrid . Visibility = Visibility . Visible;
 
 				// UPDATE DbSelector ViewersList entry
@@ -1362,12 +1389,12 @@ namespace WPFPages
 			UpdateAuxilliaries ( "Details Data Loaded..." );
 
 			//			if(Flags.)
-			await dvm . LoadDetailsTaskInSortOrder ( true, 0 );
+			await DetCollection . LoadDetailsTaskInSortOrder ( true );
 			//List<Task<bool>> tasks = new List<Task<bool>> ( );
 			//tasks . Add ( dvm . LoadDetailsTaskInSortOrder ( true, 0 ) );
 			//var Results = await Task . WhenAll ( tasks );
-			DetailsGrid . ItemsSource = CollectionViewSource . GetDefaultView ( dvm . DetailsObs );
-			//			DetailsGrid . ItemsSource = dvm . DetailsObs;
+			DetailsGrid . ItemsSource = CollectionViewSource . GetDefaultView ( DetCollection . Detcollection );
+			//			DetailsGrid . ItemsSource = Detcollection;
 			DetailsGrid . Visibility = Visibility . Visible;
 			ParseButtonText ( true );
 
@@ -1490,15 +1517,15 @@ namespace WPFPages
 			if ( CurrentDb == "BANKACCOUNT" )
 			{
 				BankGrid . ItemsSource = null;
-				bvm . BankAccountObs . Clear ( );
+				Bankcollection. Clear ( );
 				BankGrid . Items . Clear ( );
 				BankAccountViewModel . dtBank . Clear ( );
-				await bvm . LoadBankTaskInSortOrder ( true, 0 );
+				await BankCollection . LoadBankTaskInSortOrder ( true, 0 );
 				//List<Task<bool>> tasks = new List<Task<bool>> ( );
 				//tasks . Add ( bvm . LoadBankTaskInSortOrder ( true, 0 ) );
 				//var Results = await Task . WhenAll ( tasks );
 				//				await bvm . LoadBankTaskInSortOrder ( true, 0 );
-				BankGrid . ItemsSource = CollectionViewSource . GetDefaultView ( bvm . BankAccountObs );
+				BankGrid . ItemsSource = CollectionViewSource . GetDefaultView ( Bankcollection);
 				//				BankGrid . ItemsSource = bvm . BankAccountObs;
 				ExtensionMethods . Refresh ( BankGrid );
 				ParseButtonText ( true );
@@ -1507,14 +1534,16 @@ namespace WPFPages
 			else if ( CurrentDb == "CUSTOMER" )
 			{
 				CustomerGrid . ItemsSource = null;
-				cvm . CustomersObs . Clear ( );
+				CustCollection . Custcollection . Clear ( );
 				CustomerGrid . Items . Clear ( );
 				CustomerViewModel . dtCust . Clear ( );
-				await cvm . LoadCustomerTaskInSortOrder ( true, 0 );
+				await CustCollection . LoadCustomerTaskInSortOrder ( true, 0 );
 				//List<Task<bool>> tasks = new List<Task<bool>> ( );
 				//tasks . Add ( cvm . LoadCustomerTaskInSortOrder ( true, 0 ) );
 				//var Results = await Task . WhenAll ( tasks );
-				CustomerGrid . ItemsSource = CollectionViewSource . GetDefaultView ( cvm . CustomersObs );
+				
+				CustomerGrid . ItemsSource = CollectionViewSource . GetDefaultView ( Custcollection );
+//				CustomerGrid . ItemsSource = CollectionViewSource . GetDefaultView ( cvm . CustomersObs );
 				//				CustomerGrid . ItemsSource = cvm . CustomersObs;
 				ExtensionMethods . Refresh ( CustomerGrid );
 				ParseButtonText ( true );
@@ -1522,15 +1551,15 @@ namespace WPFPages
 			else if ( CurrentDb == "DETAILS" )
 			{
 				DetailsGrid . ItemsSource = null;
-				dvm . DetailsObs . Clear ( );
+				DetCollection . Detcollection . Clear ( );
 				DetailsGrid . Items . Clear ( );
 				DetailsViewModel . dtDetails . Clear ( );
-				dvm . LoadDetailsTaskInSortOrder ( true, 0 );
+				DetCollection . LoadDetailsTaskInSortOrder ( true);
 				//List<Task<bool>> tasks = new List<Task<bool>> ( );
 				//tasks . Add ( dvm . LoadDetailsTaskInSortOrder ( true, 0 ) );
 				//var Results = await Task . WhenAll ( tasks );
-				DetailsGrid . ItemsSource = CollectionViewSource . GetDefaultView ( dvm . DetailsObs );
-				//				DetailsGrid . ItemsSource = dvm . DetailsObs;
+				DetailsGrid . ItemsSource = CollectionViewSource . GetDefaultView ( DetCollection . Detcollection );
+				//				DetailsGrid . ItemsSource = Detcollection;
 				ExtensionMethods . Refresh ( DetailsGrid );
 				ParseButtonText ( true );
 			}
@@ -2015,17 +2044,17 @@ namespace WPFPages
 				if ( CurrentDb == "BANKACCOUNT" )
 				{
 					Flags . ActiveSqlDbViewer = null;
-					BankAccountViewModel . ClearFromSqlList ( this . BankGrid, CurrentDb );
+//					BankAccountViewModel . ClearFromSqlList ( this . BankGrid, CurrentDb );
 				}
 				else if ( CurrentDb == "CUSTOMER" )
 				{
 					Flags . ActiveSqlDbViewer = null;
-					BankAccountViewModel . ClearFromSqlList ( this . CustomerGrid, CurrentDb );
+//					BankAccountViewModel . ClearFromSqlList ( this . CustomerGrid, CurrentDb );
 				}
 				else if ( CurrentDb == "DETAILS" )
 				{
 					Flags . ActiveSqlDbViewer = null;
-					BankAccountViewModel . ClearFromSqlList ( this . DetailsGrid, CurrentDb );
+//					BankAccountViewModel . ClearFromSqlList ( this . DetailsGrid, CurrentDb );
 				}
 				SendDbSelectorCommand ( 99, "Window is closing", Flags . CurrentSqlViewer );
 				// Clears Flags and the relevant Gv[] entry
@@ -2238,17 +2267,17 @@ namespace WPFPages
 					// Get and save the data in the row so we have access to it once it has gone from interface
 					BankAccountViewModel BankRecord = BankGrid . SelectedItem as BankAccountViewModel;
 					dg . ItemsSource = null;
-					bvm . BankAccountObs . Clear ( );
+					Bankcollection. Clear ( );
 					dtBank?.Clear ( );
 					//					dg . Items?.Clear ( );
 					//Remove it from SQL Db as well
 					DeleteRecord ( "BANKACCOUNT", BankRecord . BankNo, BankRecord . CustNo );
-					dg . ItemsSource = CollectionViewSource . GetDefaultView ( bvm . BankAccountObs );
+					dg . ItemsSource = CollectionViewSource . GetDefaultView ( Bankcollection);
 					//					dg . ItemsSource = bvm . BankAccountObs;
 					//This calls  LoadcustomerTask for us after sorting out the command line sort order requested
 					// It also broadcasts to any other viewer to update  if needed
 					Console . WriteLine ( $"BANKACCOUNT : {BankGrid . Items?.Count}" );
-					await bvm . LoadBankTaskInSortOrder ( true, 0 );
+					await BankCollection . LoadBankTaskInSortOrder ( true, 0 );
 					//List<Task<bool>> tasks = new List<Task<bool>> ( );
 					//tasks . Add ( bvm . LoadBankTaskInSortOrder ( true, 0 ) );
 					//var Results = await Task . WhenAll ( tasks );
@@ -2261,16 +2290,16 @@ namespace WPFPages
 					// Get and save the data in the row so we have access to it once it has gone from interface
 					CustomerViewModel CustRecord = CustomerGrid . SelectedItem as CustomerViewModel;
 					dg . ItemsSource = null;
-					cvm . CustomersObs . Clear ( );
-					dtCust?.Clear ( );
+					CustCollection . Custcollection . Clear ( );
+					CustCollection .dtCust?.Clear ( );
 					//Remove it from SQL Db as well
 					DeleteRecord ( "CUSTOMER", CustRecord . BankNo, CustRecord . CustNo );
-					dg . ItemsSource = CollectionViewSource . GetDefaultView ( cvm . CustomersObs );
+					dg . ItemsSource = CollectionViewSource . GetDefaultView (CustCollection . Custcollection );
 					//					dg . ItemsSource = cvm . CustomersObs;
 					//This calls  LoadcustomerTask for us after sorting out the command line sort order requested
 					// It also broadcasts to any other viewer to update  if needed
 					Console . WriteLine ( $"CUSTOMER: {CustomerGrid . Items?.Count}" );
-					cvm . LoadCustomerTaskInSortOrder ( true, 0 );
+					CustCollection . LoadCustomerTaskInSortOrder ( true, 0 );
 					//List<Task<bool>> tasks = new List<Task<bool>> ( );
 					//tasks . Add ( cvm . LoadCustomerTaskInSortOrder ( true, 0 ) );
 					//var Results = await Task . WhenAll ( tasks );
@@ -2284,16 +2313,16 @@ namespace WPFPages
 					CurrentRow = dg . SelectedIndex;
 					// Remove it form THIS DataGrid here
 					dg . ItemsSource = null;
-					dvm . DetailsObs . Clear ( );
+					DetCollection . Detcollection . Clear ( );
 					dtDetails?.Clear ( );
 					//Remove it from SQL Db as well
 					DeleteRecord ( "DETAILS", DetailsRecord . BankNo, DetailsRecord . CustNo );
-					dg . ItemsSource = CollectionViewSource . GetDefaultView ( dvm . DetailsObs );
-					Console . WriteLine ( $"Record DELETED - Grid Rows = {DetailsGrid . Items?.Count}, dtDetails = {dtDetails?.Rows . Count}, Collection = {dvm . DetailsObs}" );
+					dg . ItemsSource = CollectionViewSource . GetDefaultView ( DetCollection . Detcollection );
+					Console . WriteLine ( $"Record DELETED - Grid Rows = {DetailsGrid . Items?.Count}, dtDetails = {dtDetails?.Rows . Count}, Collection = {DetCollection . Detcollection}" );
 					//This calls  LoadcustomerTask for us after sorting out the command line sort order requested
 					// It also broadcasts to any other viewer to update  if needed
 					Console . WriteLine ( $"DETAILS : {DetailsGrid . Items?.Count}" );
-					await dvm . LoadDetailsTaskInSortOrder ( true, 0 );
+					await DetCollection . LoadDetailsTaskInSortOrder ( true);
 					//List<Task<bool>> tasks = new List<Task<bool>> ( );
 					//tasks . Add ( dvm . LoadDetailsTaskInSortOrder ( true, 0 ) );
 					//var Results = await Task . WhenAll ( tasks );
@@ -3444,7 +3473,7 @@ namespace WPFPages
 					BankGrid . ItemsSource = null;
 					BankGrid?.Items . Clear ( );
 					dtBank?.Rows . Clear ( );
-					bvm . BankAccountObs . Clear ( );
+					Bankcollection. Clear ( );
 					// Unsubscribe from relevant events here
 					NotifyOfDataChange -= bvm . DbHasChangedHandler;
 				}
@@ -3453,7 +3482,7 @@ namespace WPFPages
 					CustomerGrid . ItemsSource = null;
 					CustomerGrid?.Items . Clear ( );
 					dtCust?.Rows . Clear ( );
-					cvm . CustomersObs . Clear ( );
+					CustCollection . Custcollection . Clear ( );
 					// Unsubscribe from relevant events here
 					NotifyOfDataChange -= cvm . DbHasChangedHandler;
 				}
@@ -3462,13 +3491,18 @@ namespace WPFPages
 					DetailsGrid . ItemsSource = null;
 					DetailsGrid?.Items . Clear ( );
 					dtDetails?.Rows . Clear ( );
-					dvm . DetailsObs . Clear ( );
+					DetCollection . Detcollection . Clear ( );
 					// Unsubscribe from relevant events here
 					NotifyOfDataChange -= dvm . DbHasChangedHandler;
 				}
 			}
-			if ( MainWindow . gv . ViewerCount == 0 )
+			if ( MainWindow . gv . ViewerCount == 0 ) {
+				// No more Viewers open, so clear Viewers list in DbSelector
 				MainWindow . gv . SqlViewerWindow = null;
+#pragma  TODO Clear Viewerlist in DbSelector
+				//call a method that handles this
+//				DbSelector . CloseDeleteAllViewers ( );
+			}
 			UpdateDbSelectorBtns ( Flags . CurrentSqlViewer );
 
 			// make sure the global pointer to any EditDb we may have opened is cleared
@@ -3576,12 +3610,17 @@ namespace WPFPages
 			// Make sure this window has it's pointer "Registered" cos we can 
 			// Click the button before the window has had focus set
 			Flags . CurrentSqlViewer = this;
-
+			ViewEditdb ViewEdit;
 
 			// Open Edit Window for the current record in SqlDbViewer DataGrid
 			if ( CurrentDb == "BANKACCOUNT" )
 			{
-				if ( Flags . BankEditDb != null ) { Flags . BankEditDb . Focus ( ); Flags . BankEditDb . BringIntoView ( ); return; }
+				if ( Flags . BankEditDb != null ) { 
+					Flags . BankEditDb . Focus ( ); Flags . BankEditDb . BringIntoView ( ); 
+					return; 
+				}
+				/// ViewEdit is just a wrapper for EditDb
+				//				ViewEdit = new ViewEditdb ( "BANKACCOUNT", this . BankGrid . SelectedIndex, this . BankGrid . SelectedItem, this );
 				edb = new EditDb ( "BANKACCOUNT", this . BankGrid . SelectedIndex, this . BankGrid . SelectedItem, this );
 				BankAccountViewModel . EditdbWndBank = edb;
 				edb . Owner = this;
@@ -3593,6 +3632,7 @@ namespace WPFPages
 			else if ( CurrentDb == "CUSTOMER" )
 			{
 				if ( Flags . CustEditDb != null ) { Flags . CustEditDb . Focus ( ); Flags . CustEditDb . BringIntoView ( ); return; }
+//					ViewEdit = new ViewEditdb ( "BANKACCOUNT", this . BankGrid . SelectedIndex, this . BankGrid . SelectedItem, this );
 				edb = new EditDb ( "CUSTOMER", this . CustomerGrid . SelectedIndex, this . CustomerGrid . SelectedItem, this );
 				BankAccountViewModel . EditdbWndBank = edb;
 				edb . Owner = this;
@@ -3604,6 +3644,7 @@ namespace WPFPages
 			else if ( CurrentDb == "DETAILS" )
 			{
 				if ( Flags . DetEditDb != null ) { Flags . DetEditDb . Focus ( ); Flags . DetEditDb . BringIntoView ( ); return; }
+//					ViewEdit = new ViewEditdb ( "BANKACCOUNT", this . BankGrid . SelectedIndex, this . BankGrid . SelectedItem, this );
 				edb = new EditDb ( "DETAILS", this . DetailsGrid . SelectedIndex, this . DetailsGrid . SelectedItem, this );
 				BankAccountViewModel . EditdbWndBank = edb;
 				edb . Owner = this;
@@ -3851,9 +3892,9 @@ namespace WPFPages
 			ResetauxilliaryButtons ( );
 			if ( CurrentDb == "BANKACCOUNT" )
 			{
-				if ( bvm . BankAccountObs == null ) return;
+				if ( Bankcollection== null ) return;
 				if ( this . BankGrid . ItemsSource == null )
-					this . BankGrid . ItemsSource = CollectionViewSource . GetDefaultView ( bvm . BankAccountObs );
+					this . BankGrid . ItemsSource = CollectionViewSource . GetDefaultView ( Bankcollection);
 				//					this . BankGrid . ItemsSource = bvm . BankAccountObs;
 				//  paint the grid onscreen
 				this . BankGrid . SelectionUnit = DataGridSelectionUnit . FullRow;
@@ -3866,8 +3907,9 @@ namespace WPFPages
 			{
 
 
-				if ( cvm . CustomersObs == null ) return;
-				CustomerGrid . ItemsSource = CollectionViewSource . GetDefaultView ( cvm . CustomersObs );
+				if ( Custcollection == null ) return;
+				CustomerGrid . ItemsSource = CollectionViewSource . GetDefaultView ( Custcollection);
+//				CustomerGrid . ItemsSource = CollectionViewSource . GetDefaultView ( cvm . CustomersObs );
 				//				this . CustomerGrid . ItemsSource = cvm . CustomersObs;
 				//  paint the grid onscreen
 				this . CustomerGrid . SelectionUnit = DataGridSelectionUnit . FullRow;
@@ -3879,9 +3921,9 @@ namespace WPFPages
 			}
 			if ( CurrentDb == "DETAILS" )
 			{
-				if ( dvm . DetailsObs == null ) return;
-				this . DetailsGrid . ItemsSource = CollectionViewSource . GetDefaultView ( dvm . DetailsObs );
-				//				this . DetailsGrid . ItemsSource = dvm . DetailsObs;
+				if (DetCollection . Detcollection == null ) return;
+				this . DetailsGrid . ItemsSource = CollectionViewSource . GetDefaultView ( DetCollection . Detcollection );
+				//				this . DetailsGrid . ItemsSource = Detcollection;
 				//  paint the grid onscreen
 				this . DetailsGrid . SelectionUnit = DataGridSelectionUnit . FullRow;
 				//dgControl.SelectedIndex = DetailsGrid.SelectedIndex;
@@ -4328,12 +4370,12 @@ namespace WPFPages
 			//			BnkGrid . Items . Clear ( );
 
 			Debug . WriteLine ( $"Calling Task to reload Bank data...." );
-			await bvm . LoadBankTaskInSortOrder ( true, 0 );
+			await BankCollection . LoadBankTaskInSortOrder ( true, 0 );
 			//List<Task<bool>> tasks = new List<Task<bool>> ( );
 			//tasks . Add ( bvm . LoadBankTaskInSortOrder ( true, 0 ) );
 			//var Results = await Task . WhenAll ( tasks );
 			Debug . WriteLine ( $"returned from Task loading Bank data ...." );
-			BnkGrid . ItemsSource = CollectionViewSource . GetDefaultView ( bvm . BankAccountObs );
+			BnkGrid . ItemsSource = CollectionViewSource . GetDefaultView ( Bankcollection);
 			//			BnkGrid . ItemsSource = bvm . BankAccountObs;
 			BnkGrid . SelectedIndex = currindx;
 			ExtensionMethods . Refresh ( BnkGrid );
@@ -4368,17 +4410,17 @@ namespace WPFPages
 #endif
 			DataGrid CustGrid = ViewerPtr . CustomerGrid;
 			int currindx = CustGrid . SelectedIndex;
-			CustGrid . ItemsSource = cvm . CustomersObs;
+			CustGrid . ItemsSource = Custcollection;
 			//			CustGrid . ItemsSource = null;
 			//			CustGrid . Items . Clear ( );
 
 			Debug . WriteLine ( $"Calling Task to reload Customer data...." );
-			await cvm . LoadCustomerTaskInSortOrder ( true, 0 );
+			await CustCollection . LoadCustomerTaskInSortOrder ( true );
 			//List<Task<bool>> tasks = new List<Task<bool>> ( );
 			//tasks . Add ( cvm . LoadCustomerTaskInSortOrder ( true, 0 ) );
 			//var Results = await Task . WhenAll ( tasks );
 			Debug . WriteLine ( $"returned from Task loading customer data ...." );
-			CustGrid . ItemsSource = CollectionViewSource . GetDefaultView ( cvm . CustomersObs );
+			CustGrid . ItemsSource = CollectionViewSource . GetDefaultView ( Custcollection );
 			//			CustGrid . ItemsSource = cvm . CustomersObs;
 			CustGrid . SelectedIndex = currindx;
 			ExtensionMethods . Refresh ( CustGrid );
@@ -4417,13 +4459,13 @@ namespace WPFPages
 			//			DetGrid . Items . Clear ( );
 
 			Debug . WriteLine ( $"Calling Task to reload Details data...." );
-			await dvm . LoadDetailsTaskInSortOrder ( true, 0 );
+			await DetCollection . LoadDetailsTaskInSortOrder ( true);
 			//List<Task<bool>> tasks = new List<Task<bool>> ( );
 			//tasks . Add ( dvm . LoadDetailsTaskInSortOrder ( true, 0 ) );
 			//var Results = await Task . WhenAll ( tasks );
 			Debug . WriteLine ( $"returned from Task loading Details data ...." );
-			DetGrid . ItemsSource = CollectionViewSource . GetDefaultView ( dvm . DetailsObs );
-			//			DetGrid . ItemsSource = dvm . DetailsObs;
+			DetGrid . ItemsSource = CollectionViewSource . GetDefaultView ( DetCollection . Detcollection );
+			//			DetGrid . ItemsSource = Detcollection;
 			DetGrid . SelectedIndex = currindx;
 			ExtensionMethods . Refresh ( DetGrid );
 			Flags . SqlUpdateOriginatorViewer . Focus ( );
@@ -4444,6 +4486,7 @@ namespace WPFPages
 		//*********************************************************************************************************//
 
 		#region NotifyPropertyChanged
+		public event PropertyChangedEventHandler PropertyChanged;
 		//*****************************************************************************************//
 		public class User : INotifyPropertyChanged
 		{
@@ -4483,7 +4526,7 @@ namespace WPFPages
 				//If data has been changed, update everywhere
 				BankGrid . SelectedItem = RowData . Item;
 				BankGrid . ItemsSource = null;
-				BankGrid . ItemsSource = bvm . BankAccountObs;
+				BankGrid . ItemsSource = Bankcollection;
 				BankGrid . Refresh ( );
 			}
 		}
@@ -4506,7 +4549,8 @@ namespace WPFPages
 				// Update the row on return in case it has been changed
 				CustomerGrid . SelectedItem = RowData . Item;
 				CustomerGrid . ItemsSource = null;
-				CustomerGrid . ItemsSource = cvm . CustomersObs;
+				CustomerGrid . ItemsSource = Custcollection;
+//				CustomerGrid . ItemsSource = cvm . CustomersObs;
 				CustomerGrid . Refresh ( );
 			}
 		}
@@ -4533,7 +4577,7 @@ namespace WPFPages
 					//					{
 					DetailsGrid . SelectedItem = RowData . Item;
 					DetailsGrid . ItemsSource = null;
-					DetailsGrid . ItemsSource = dvm . DetailsObs;
+					DetailsGrid . ItemsSource = DetCollection . Detcollection;
 					DetailsGrid . Refresh ( );
 					//					}
 				}
@@ -4563,7 +4607,7 @@ namespace WPFPages
 				dglist2 = EditDbViewerSelectedIndexChanged?.GetInvocationList ( );
 			return dglist2;
 		}
-		
+
 	}
 
 }

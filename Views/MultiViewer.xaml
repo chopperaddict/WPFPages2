@@ -137,12 +137,12 @@
 			Grid.Row="2" Grid.Column="1"
 			    Height="230" VerticalAlignment="Stretch"
 			    HorizontalAlignment="Stretch"
-			     DataContext="local:CustomerObs"/>
+			     DataContext="local:Custcollection"/>
 		<DataGrid  x:Name="DetailsGrid"
 			Grid.Row="3" Grid.Column="1"
 			    Height="230" VerticalAlignment="Stretch"
 			    HorizontalAlignment="Stretch" 
-			     DataContext="local:DetailsObs"/>
+			     DataContext="local:Detcollection"/>
 
 	</Grid>
 </Window>
