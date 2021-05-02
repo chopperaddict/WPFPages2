@@ -17,6 +17,7 @@ using System.Windows.Threading;
 
 namespace WPFPages . Views
 
+
 {
 
 	//==================================
@@ -101,6 +102,8 @@ namespace WPFPages . Views
 
 			if ( Flags . SqlCustViewer != null )
 				Flags . SqlCustViewer . RefreshCustomerOnUpdateNotification ( sender, Grid, args );
+			if ( Flags . CurrentEditDbViewer != null )
+				Flags . CurrentEditDbViewer . DbChangedHandler ( sender, Grid, args );
 			return;
 		}
 

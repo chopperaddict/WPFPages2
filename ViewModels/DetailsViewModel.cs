@@ -76,6 +76,8 @@ namespace WPFPages . ViewModels
 
 			if ( Flags . SqlDetViewer != null )
 				Flags . SqlDetViewer . RefreshDetailsOnUpdateNotification ( sender, Grid, args);
+			if ( Flags . CurrentEditDbViewer != null )
+				Flags . CurrentEditDbViewer . DbChangedHandler ( sender, Grid, args );
 			return;
 		}
 

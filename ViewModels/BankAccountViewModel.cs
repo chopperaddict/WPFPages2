@@ -69,6 +69,8 @@ namespace WPFPages . ViewModels
 			// Send it to the correct open viewer window
 			if ( Flags . SqlBankViewer != null )
 				Flags . SqlBankViewer . RefreshBankOnUpdateNotification ( sender, Grid, args );
+			if ( Flags . CurrentEditDbViewer != null )
+				Flags . CurrentEditDbViewer . DbChangedHandler ( sender, Grid, args );
 			return;
 		}
 
