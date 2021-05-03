@@ -24,8 +24,11 @@ namespace WPFPages . Views
 		public BankCollection ( ) : base ( )
 		{
 			Bankcollection = this;
+			Stopwatch  st = Stopwatch . StartNew ( );
+			Console . WriteLine ( $"Sql : loading Bankcollection ...." );
 			LoadBankTaskInSortOrder ( );
-			Console . WriteLine ( $"Sql data loaded {Bankcollection . Count} records into Bank Datatable  ...." );
+			st . Stop ( );
+			Console . WriteLine ( $"BankCollection has completed - {Bankcollection . Count} records loaded in {( double ) st . ElapsedMilliseconds / ( double ) 1000} Seconds" );
 		}
 
 		// Entry point for all data load/Reload
@@ -37,18 +40,7 @@ namespace WPFPages . Views
 			if ( Bankcollection . Items . Count > 0 )
 				Bankcollection . ClearItems ( );
 
-			Stopwatch  st = Stopwatch . StartNew ( );
-			//await Task . Run ( ( ) =>
-			//{
-			//	LoadBankData ( );
-			//	Console . WriteLine ( $"DetCollection load of DataTable has completed - {dtBank . Rows . Count } records loaded " );
-			//} ) . ContinueWith (
-			//		( antecedent ) => { LoadBankCollection ( ); }, TaskContinuationOptions . OnlyOnRanToCompletion
-			//	);
-			//			Task . WaitAll ( );
-//			st . Stop ( );
-			Thread . Sleep ( 50 );
-			await Task . Run ( ( ) =>
+		await Task . Run ( ( ) =>
 			{
 				LoadBankData ( );
 
@@ -58,12 +50,6 @@ namespace WPFPages . Views
 						LoadBankCollection ( );
 					} );
 				} );
-			//} );
-			//await Task . Run ( ( ) =>
-			//{
-			//	LoadBankCollection ( );
-			//} );
-			Console . WriteLine ( $"DetCollection has completed - {Bankcollection . Count} records loaded in {( double ) st . ElapsedMilliseconds / ( double ) 1000} Seconds" );
 			return true;
 		}
 

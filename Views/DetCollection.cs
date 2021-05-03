@@ -29,8 +29,11 @@ namespace WPFPages . Views
 				dtDetails . Clear ( );
 			if ( Detcollection . Items . Count > 0 )
 				Detcollection . ClearItems ( );
+			System.Diagnostics . Stopwatch  st = System.Diagnostics . Stopwatch . StartNew ( );
+			Console . WriteLine ( $"Sql : loading Detcollection ...." );
 			LoadDetailsTaskInSortOrder ( true  );
-			Console . WriteLine ( $"Sql data loaded {Detcollection . Count} records into Details Datatable  ...." );
+			st . Stop ( );
+			Console . WriteLine ( $"DetCollection has completed - {Detcollection . Count} records loaded in {( double ) st . ElapsedMilliseconds / ( double ) 1000} Seconds" );
 		}
 
 		// Entry point for all data load/Reload
@@ -49,16 +52,6 @@ namespace WPFPages . Views
 						LoadDetCollection ( );
 					} );
 			} );
-
-
-			//await Task . Run ( ( ) =>
-			//{
-			//	LoadDetailsDataSql ( );
-			//	Console . WriteLine ( $"DetCollection load of DataTable has completed - {dtDetails . Rows . Count } records loaded " );
-			//} ) . ContinueWith (
-			//	(task ) => { LoadDetCollection ( ); }
-			//);
-			//Task . WaitAll ( );
 			st . Stop ( );
 			Console . WriteLine ($"DetCollection has completed - {Detcollection.Count} records loaded in {(double)st.ElapsedMilliseconds / ( double ) 1000} Seconds");
 			return true;

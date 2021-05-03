@@ -23,8 +23,11 @@ namespace WPFPages . Views
 		public CustCollection ( ) : base ( )
 		{
 			Custcollection = this;
+			System.Diagnostics . Stopwatch  st = System.Diagnostics . Stopwatch . StartNew ( );
+			Console . WriteLine ( $"Sql : loading Custcollection ...." );
 			LoadCustomerTaskInSortOrder ( true );
-			Console . WriteLine ( $"Sql data loaded {Custcollection . Count} records into Customers Datatable...." );
+			st . Stop ( );
+			Console . WriteLine ( $"CustCollection has completed - {Custcollection . Count} records loaded in {( double ) st . ElapsedMilliseconds / ( double ) 1000} Seconds" );
 		}
 
 		// Entry point for all data load/Reload
@@ -46,20 +49,6 @@ namespace WPFPages . Views
 						LoadCustomerCollection ( );
 					} );
 			} );
-
-
-			//await Task . Run ( ( ) =>
-			//{
-			//	LoadCustDataSql ( );
-			//} );
-			//await Task . Run ( ( ) =>
-			//{
-			//	LoadCustDataSql ( dtCust );
-			//} );
-			//await Task . Run ( ( ) =>
-			//{
-			//	LoadCustomerCollection ( );
-			//} );
 			return true;
 		}
 
