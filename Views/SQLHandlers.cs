@@ -18,11 +18,17 @@ namespace WPFPages .Views
 		public static BankAccountViewModel bvm = MainWindow.bvm;
 		public static CustomerViewModel cvm = MainWindow.cvm;
 		public static DetailsViewModel dvm = MainWindow.dvm;
+
+		// New Observable collections
+		public BankCollection Bankcollection = BankCollection .Bankcollection;
+		public CustCollection Custcollection = CustCollection . Custcollection;
+		public DetCollection Detcollection = DetCollection.Detcollection;
+
 		//private static DataGridRow BankCurrentRow;
 		//private static DataGridRow CustomerCurrentRow;
 		//private static DataGridRow DetailsCurrentRow;
 
-	//*****************************************************************************************//
+		//*****************************************************************************************//
 		public async  Task<bool> UpdateDbRow (string CurrentDb, object  Row)
 		{
 			///TRIGGERED when a Cell is EDITED
@@ -303,8 +309,8 @@ namespace WPFPages .Views
 	#endregion CUSTOMER UPDATE PROCESSING
 			}
 			return true;
-
 		}
+
 
 	}
 }

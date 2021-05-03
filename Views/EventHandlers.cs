@@ -22,7 +22,7 @@ namespace WPFPages . Views
 
 	public delegate void EditDbGridSelectionChanged ( int ChangeType, int value, string caller );
 
-	public delegate void EditDbRowChange ( int EditDbChangeType, int row, string CurentDb );
+	public delegate void EditDbDataChanged ( int EditDbChangeType, int row, string CurentDb );
 
 	public delegate void NotifyViewer ( int status, string info, SqlDbViewer NewSqlViewer );
 
@@ -79,7 +79,7 @@ namespace WPFPages . Views
 
 		// Event sent by EditDb to notify SqlDbViewer of index change
 
-		//		public static EditDbRowChange EditDbViewerSelectedIndexChanged;
+		//		public static EditDbDataChanged EditDbViewerSelectedIndexChanged;
 
 		public static NotifyViewer SendViewerCommand;
 
@@ -92,7 +92,7 @@ namespace WPFPages . Views
 
 		//Delegates I AM NOT USING RIGHT NOW ??
 		//		public static SqlViewerRowChange SqlViewerRowChanged;
-		//		public static EditDbRowChange EditDbRowchanged;
+		//		public static EditDbDataChanged EditDbDataChangedd;
 
 		public MainWindow mw = null;
 
@@ -141,22 +141,21 @@ namespace WPFPages . Views
 			dg = SqlDbViewer . GetEventCount2 ( );
 			if ( dg != null )	count2 = dg . Length;
 			// EditDbViewerSelectedIndexChanged
-			dg = SqlDbViewer . GetEventCount3 ( );
-			if ( dg != null )	count3 = dg . Length;
+//			dg = SqlDbViewer . GetEventCount3 ( );
+//			if ( dg != null )	count3 = dg . Length;
 			// SqlHasChangedSelection
 			dg = EditDb . GetEventCount4 ( );
 			if ( dg != null )	count4 = dg . Length;
 			// SqlViewerIndexChanged
 			dg = EditDb. GetEventCount5 ( );
 			if ( dg != null )	count5 = dg . Length;
-				Console . WriteLine (
-				$"\n *** Currently Subscribed Events  ***" +
-				$"\nEditDbViewerSelectedIndexChanged =	{count} " +
-				$"\nNotifyOfDataChange =		 		{count2}" +
-				$"\nEditDbViewerSelectedIndexChanged=	{count3}" +
-				$"\nSqlHasChangedSelection = 			{count4}" +
-				$"\nSqlViewerIndexChanged =				{count5} " );
-			//			Console . WriteLine ( $"....................................................................................." );
+			Console . WriteLine (
+			$"\n *** Currently Subscribed Events  ***" +
+			$"\nEditDbViewerSelectedIndexChanged =	{count} " +
+			$"\nNotifyOfDataChange =		 		{count2}" +
+			$"\nSqlHasChangedSelection = 			{count4}" );
+				//$"\nSqlViewerIndexChanged =				{count5} " );
+		//			Console . WriteLine ( $"....................................................................................." );
 
 			bool first = true;
 			Delegate [ ] dglist2 = SqlDbViewer . GetEventCount ( );

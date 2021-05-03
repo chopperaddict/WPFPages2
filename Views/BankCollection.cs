@@ -2,7 +2,10 @@
 using System . Collections . ObjectModel;
 using System . Data;
 using System . Data . SqlClient;
+using System . Diagnostics;
+using System . Threading;
 using System . Threading . Tasks;
+using System . Windows;
 
 using WPFPages . ViewModels;
 
@@ -31,10 +34,36 @@ namespace WPFPages . Views
 		{
 			if ( dtBank . Rows . Count > 0 )
 				dtBank . Clear ( );
-			await LoadBankData ( );
 			if ( Bankcollection . Items . Count > 0 )
 				Bankcollection . ClearItems ( );
-			await LoadBankCollection ( );
+
+			Stopwatch  st = Stopwatch . StartNew ( );
+			//await Task . Run ( ( ) =>
+			//{
+			//	LoadBankData ( );
+			//	Console . WriteLine ( $"DetCollection load of DataTable has completed - {dtBank . Rows . Count } records loaded " );
+			//} ) . ContinueWith (
+			//		( antecedent ) => { LoadBankCollection ( ); }, TaskContinuationOptions . OnlyOnRanToCompletion
+			//	);
+			//			Task . WaitAll ( );
+//			st . Stop ( );
+			Thread . Sleep ( 50 );
+			await Task . Run ( ( ) =>
+			{
+				LoadBankData ( );
+
+				Application . Current . Dispatcher . Invoke (
+					( ) =>
+					{
+						LoadBankCollection ( );
+					} );
+				} );
+			//} );
+			//await Task . Run ( ( ) =>
+			//{
+			//	LoadBankCollection ( );
+			//} );
+			Console . WriteLine ( $"DetCollection has completed - {Bankcollection . Count} records loaded in {( double ) st . ElapsedMilliseconds / ( double ) 1000} Seconds" );
 			return true;
 		}
 
@@ -88,22 +117,32 @@ namespace WPFPages . Views
 		public async static Task<bool> LoadBankCollection ( )
 		{
 			int count = 0;
-			for ( int i = 0 ; i < dtBank . Rows . Count ; i++ )
+			try
 			{
-				Bankcollection . Add ( new BankAccountViewModel
+				for ( int i = 0 ; i < dtBank . Rows . Count ; i++ )
 				{
-					Id = Convert . ToInt32 ( dtBank . Rows [ i ] [ 0 ] ),
-					BankNo = dtBank . Rows [ i ] [ 1 ] . ToString ( ),
-					CustNo = dtBank . Rows [ i ] [ 2 ] . ToString ( ),
-					AcType = Convert . ToInt32 ( dtBank . Rows [ i ] [ 3 ] ),
-					Balance = Convert . ToDecimal ( dtBank . Rows [ i ] [ 4 ] ),
-					IntRate = Convert . ToDecimal ( dtBank . Rows [ i ] [ 5 ] ),
-					ODate = Convert . ToDateTime ( dtBank . Rows [ i ] [ 6 ] ),
-					CDate = Convert . ToDateTime ( dtBank . Rows [ i ] [ 7 ] ),
-				} );
-				count = i;
+					Bankcollection . Add ( new BankAccountViewModel
+					{
+						Id = Convert . ToInt32 ( dtBank . Rows [ i ] [ 0 ] ),
+						BankNo = dtBank . Rows [ i ] [ 1 ] . ToString ( ),
+						CustNo = dtBank . Rows [ i ] [ 2 ] . ToString ( ),
+						AcType = Convert . ToInt32 ( dtBank . Rows [ i ] [ 3 ] ),
+						Balance = Convert . ToDecimal ( dtBank . Rows [ i ] [ 4 ] ),
+						IntRate = Convert . ToDecimal ( dtBank . Rows [ i ] [ 5 ] ),
+						ODate = Convert . ToDateTime ( dtBank . Rows [ i ] [ 6 ] ),
+						CDate = Convert . ToDateTime ( dtBank . Rows [ i ] [ 7 ] ),
+					} );
+					count = i;
+				}
 			}
-			Console . WriteLine ( $"Sql data loaded into Bank ObservableCollection \"Bankcollection\" [{count}] ...." );
+			catch ( Exception ex )
+			{
+				Console . WriteLine ( $"SQL Error in BankCollection load function : {ex . Message}, {ex . Data}" );
+			}
+			finally
+			{
+				Console . WriteLine ( $"Sql data loaded into Bank ObservableCollection \"Bankcollection\" [{count}] ...." );
+			}
 			return true;
 		}
 

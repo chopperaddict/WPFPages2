@@ -166,54 +166,7 @@ namespace WPFPages . ViewModels
 				Flags . CurrentEditDbViewer . DbChangedHandler ( sender, Grid, args );
 			return;
 		}
-
-		#endregion EVENT CALLBACKS
-
-
-		#region Data update
-
-		//**************************************************************************************************************************************************************//
-		public static void ClearFromEditDbList ( DataGrid grid, string caller )
-		{
-			if ( caller == "BANKACCOUNT" )
-			{
-				for ( var item = 0 ; item < CurrentEditDbViewerBankGridList . Count ; item++ )
-				{ if ( CurrentEditDbViewerBankGridList [ item ] == grid ) { CurrentEditDbViewerBankGridList . RemoveAt ( item ); Flags . CurrentEditDbViewerBankGrid = null; break; } }
-			}
-			else if ( caller == "CUSTOMER" )
-			{
-				for ( var item = 0 ; item < CurrentEditDbViewerCustomerGridList . Count ; item++ )
-				{ if ( CurrentEditDbViewerCustomerGridList [ item ] == grid ) { CurrentEditDbViewerCustomerGridList . RemoveAt ( item ); Flags . CurrentEditDbViewerCustomerGrid = null; break; } }
-			}
-			else if ( caller == "DETAILS" )
-			{
-				for ( var item = 0 ; item < CurrentEditDbViewerDetailsGridList . Count ; item++ )
-				{ if ( CurrentEditDbViewerDetailsGridList [ item ] == grid ) { CurrentEditDbViewerDetailsGridList . RemoveAt ( item ); Flags . CurrentEditDbViewerDetailsGrid = null; break; } }
-			}
-		}
-
-		//**************************************************************************************************************************************************************//
-		public static void ClearFromSqlList ( DataGrid grid, string caller )
-		//Remove the datagrid from our List<Datagrid>
-		{
-			if ( caller == "BANKACCOUNT" )
-			{
-				for ( var item = 0 ; item < Flags . CurrentEditDbViewerBankGridList . Count ; item++ )
-				{if ( Flags . CurrentEditDbViewerBankGridList [ item ] == grid ) { Flags . CurrentEditDbViewerBankGridList . RemoveAt ( item ); break; }
-				}
-			}
-			else if ( caller == "CUSTOMER" )
-			{
-				for ( var item = 0 ; item < Flags . CurrentEditDbViewerCustomerGridList . Count ; item++ )
-				{ if ( Flags . CurrentEditDbViewerCustomerGridList [ item ] == grid ) { Flags . CurrentEditDbViewerCustomerGridList . RemoveAt ( item ); break; } }
-			}
-			else if ( caller == "DETAILS" )
-			{
-				for ( var item = 0 ; item < Flags . CurrentEditDbViewerDetailsGridList . Count ; item++ )
-				{ if ( Flags . CurrentEditDbViewerDetailsGridList [ item ] == grid ) { Flags . CurrentEditDbViewerDetailsGridList . RemoveAt ( item ); break; } }
-			}
-		}
-		#endregion Data Update	
+				#endregion EVENT CALLBACKS
 
 		// MVVM TO DO STUFF/INFO
 		// How to configure a RelayCommand with lambda expressions:
@@ -234,7 +187,6 @@ namespace WPFPages . ViewModels
 			}
 		}
 		#endregion MVVMstuff
-
 
 	}
 }

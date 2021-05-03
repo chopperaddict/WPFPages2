@@ -20,9 +20,51 @@ namespace WPFPages
 
 		// Viewer Handle and Grid pointers for each Type of grid that is open somewhere
 		/// Used as  Pairs so we can access window and grid
+
 		public static DataGrid SqlBankGrid = null;
 		public static SqlDbViewer SqlBankViewer = null;
 		public static  DataGrid CurrentEditDbViewerBankGrid = null;
+		private struct AllFlags
+		{
+
+			DataGrid  SqlBankGrid;
+			SqlDbViewer SqlBankViewer;
+			DataGrid CurrentEditDbViewerBankGrid;
+			DataGrid SqlCustGrid;
+			SqlDbViewer SqlCustViewer;
+			DataGrid CurrentEditDbViewerCustomerGrid;
+			DataGrid SqlDetGrid;
+			SqlDbViewer SqlDetViewer;
+			DataGrid CurrentEditDbViewerDetailsGrid;
+			List< DataGrid > CurrentEditDbViewerBankGridLis2;
+			List< DataGrid > CurrentEditDbViewerCustomerGridList;
+			List< DataGrid > CurrentEditDbViewerDetailsGridList;
+			EditDb ActiveEditGrid;
+			bool isMultiMode;
+			string MultiAccountCommandString;
+			bool isEditDbCaller;
+			bool SqlDataChanged;
+			bool EditDbDataChanged;
+			EditDb BankEditDb;
+			EditDb CustEditDb;
+			EditDb DetEditDb;
+			DbSelector DbSelectorOpen;
+			EditDb CurrentEditDbViewer;
+			SqlDbViewer CurrentSqlViewer;
+			SqlDbViewer SqlUpdateOriginatorViewer;
+			bool EditDbChangeHandled;
+			bool IsFiltered;
+			string FilterCommand;
+			bool EventHandlerDebug;
+			bool IsMultiMode;
+			DataGrid ActiveSqlDbViewer;
+			bool SqlViewerIsLoading;
+			bool  SqlViewerIndexIsChanging;
+			DataGrid ActiveSqlGrid;
+			int SqlBankCurrentIndex;
+			int SqlCustCurrentIndex;
+			int SqlDetCurrentIndex;
+		}
 
 		public static DataGrid SqlCustGrid = null;
 		public static SqlDbViewer SqlCustViewer = null;
@@ -45,7 +87,6 @@ namespace WPFPages
 		public static int SqlDetCurrentIndex = 0;
 
 		//EditDb Grid info
-		public static EditDb EditBankGrid = null;
 		public static EditDb ActiveEditGrid = null;
 
 		// Flag ot control Multi account data loading
@@ -88,7 +129,7 @@ namespace WPFPages
 		///  mutliple additions to DbSelector's viewer  listbox
 		/// </summary>
 		public static bool SqlViewerIsLoading = false;
-		public static bool SqlViewerIsUpdating = false;
+		public static bool SqlViewerIndexIsChanging= false;
 
 		/*
 		 *	Sorting Checkbox enumeration
@@ -234,14 +275,14 @@ namespace WPFPages
 				if ( x == 99 )
 				{
 					// got to find it ourselves - iterate thruMainWindow.gv[] array  (Range  is 0 - 3)
-					for ( int i = 0 ; i < 4 ; i++ )
+					for ( int i = 0 ; i < 3 ; i++ )
 					{
 						if ( MainWindow . gv . CurrentDb [ i ] == currentDb )
 						{ x = i; break; }
 					}
-					GridViewerArrayIndex= x;
+					GridViewerArrayIndex = x;
 					// we have got the index in "x"  of the viewer in the Mainindow.gv[] array
-					// so  get the Tag of that selected Entry
+					// so  get the Tag of that selected Entry vin the ViewersList
 					for ( int i = 1 ; i < 4 ; i++ )
 					{
 						lbi = Flags . DbSelectorOpen . ViewersList . Items [ i ] as ListBoxItem;
@@ -278,10 +319,11 @@ namespace WPFPages
 				MainWindow . gv . CurrentDb [ GridViewerArrayIndex ] = "";
 				MainWindow . gv . ListBoxId [ GridViewerArrayIndex ] = Guid . Empty;
 				MainWindow . gv . Datagrid [ GridViewerArrayIndex ] = null;
-				MainWindow . gv . window [ GridViewerArrayIndex] = null;
+				MainWindow . gv . window [ GridViewerArrayIndex ] = null;
 				MainWindow . gv . PrettyDetails = "";
 				MainWindow . gv . SqlViewerGuid = Guid . Empty;
 				MainWindow . gv . ViewerCount--;
+				// Reposition selected viewer if we have one
 				if ( Flags . DbSelectorOpen . ViewersList . Items . Count > GridViewerArrayIndex + 1 )
 				{
 					Flags . DbSelectorOpen . ViewersList . SelectedIndex = GridViewerArrayIndex + 1;
@@ -365,7 +407,6 @@ namespace WPFPages
 #if SHOWALLFLAGS
 				$"ACTIVE DB                            \"{currentDb}\"\r\n" +
 				$"EditDb Flags :" +
-				$"EditGrid =                                               {EditBankGrid}\r\n" +
 				$"ActiveDbGridStr =                                 {ActiveDbGridStr}\r\n" +
 				$" *** Current ActiveDbGrid *** =       {ActiveDbGrid}\r\n" +
 				$" *** Current ActiveDbGridStr *** =  {ActiveDbGridStr}\r\n" +
@@ -414,6 +455,100 @@ namespace WPFPages
 				Console . WriteLine ( $"Viewer : CustomerGrid : ItemsSource : { Flags . SqlCustGrid . ItemsSource}" );
 			if ( Flags . SqlDetGrid != null )
 				Console . WriteLine ( $"Viewer : Details Grid : ItemsSource : { Flags . SqlDetGrid . ItemsSource}" );
+		}
+
+		public static void ShowAllFlags ( )
+		{
+			ActiveEditGrid = Flags . ActiveEditGrid;
+			ActiveSqlDbViewer = Flags . ActiveSqlDbViewer;
+			ActiveSqlGrid = Flags . ActiveSqlGrid;
+
+			CurrentEditDbViewer = Flags . CurrentEditDbViewer;
+			CurrentEditDbViewerBankGridList = Flags . CurrentEditDbViewerBankGridList;
+			CurrentEditDbViewerCustomerGridList = Flags . CurrentEditDbViewerCustomerGridList;
+			CurrentEditDbViewerDetailsGridList = Flags . CurrentEditDbViewerDetailsGridList;
+			CurrentSqlViewer = Flags . CurrentSqlViewer;
+
+			CurrentEditDbViewerBankGrid = Flags . CurrentEditDbViewerBankGrid;
+			CurrentEditDbViewerCustomerGrid = Flags . CurrentEditDbViewerCustomerGrid;
+			CurrentEditDbViewerDetailsGrid = Flags . CurrentEditDbViewerDetailsGrid;
+
+			BankEditDb = Flags . BankEditDb;
+			CustEditDb = Flags . CustEditDb;
+			DetEditDb = Flags . DetEditDb;
+
+			SqlBankGrid = Flags. SqlBankGrid;
+			SqlCustGrid = Flags . SqlCustGrid;
+			SqlDetGrid = Flags . SqlDetGrid;
+
+			SqlBankViewer = Flags.SqlBankViewer ;
+			SqlCustViewer = Flags .SqlCustViewer ;
+			SqlDetViewer = Flags .SqlDetViewer ;
+
+			SqlBankCurrentIndex = Flags . SqlBankCurrentIndex;
+			SqlCustCurrentIndex = Flags . SqlCustCurrentIndex;
+			SqlDetCurrentIndex = Flags . SqlDetCurrentIndex;
+
+			SqlUpdateOriginatorViewer = Flags . SqlUpdateOriginatorViewer;
+			SqlViewerIsLoading = Flags . SqlViewerIsLoading;
+			 SqlViewerIndexIsChanging = Flags .  SqlViewerIndexIsChanging;
+
+			DbSelectorOpen = Flags . DbSelectorOpen;
+			EditDbChangeHandled = Flags . EditDbChangeHandled;
+			EditDbDataChanged = Flags . EditDbDataChanged;
+			EventHandlerDebug = Flags . EventHandlerDebug;
+			FilterCommand = Flags . FilterCommand;
+			isEditDbCaller = Flags .isEditDbCaller ;
+			IsFiltered = Flags . IsFiltered;
+			IsMultiMode = Flags . IsMultiMode;
+			MultiAccountCommandString = Flags . MultiAccountCommandString;
+			SqlDataChanged = Flags .SqlDataChanged ;
+
+			Console . WriteLine (
+			$"\nbool EditDbDataChanged									: {EditDbDataChanged}" +
+			$"\nbool EditDbChangeHandled								: {EditDbChangeHandled}" +
+			$"\nbool EventHandlerDebug									: {EventHandlerDebug}" +
+			$"\nbool isEditDbCaller										: {isEditDbCaller}" +
+			$"\nbool isMultiMode										: {isMultiMode}" +
+			$"\nbool IsFiltered											: {IsFiltered}" +
+			$"\nbool IsMultiMode										: {IsMultiMode}" +
+			$"\nbool SqlViewerIsLoading									: {SqlViewerIsLoading}" +
+			$"\nbool  SqlViewerIndexIsChanging							: { SqlViewerIndexIsChanging}" +
+			"\n" +
+			$"\nDataGrid ActiveSqlDbViewer								: {ActiveSqlDbViewer?.Name}" +
+			$"\nDataGrid ActiveSqlGrid									: {ActiveSqlGrid?.Name}" +
+			$"\nDataGrid CurrentEditDbViewerBankGrid					: {CurrentEditDbViewerBankGrid?.Name}" +
+			$"\nDataGrid CurrentEditDbViewerCustomerGrid				: {CurrentEditDbViewerCustomerGrid?.Name}" +
+			$"\nDataGrid CurrentEditDbViewerDetailsGrid					: {CurrentEditDbViewerDetailsGrid?.Name}" +
+			$"\nDataGrid SqlBankGrid									: {SqlBankGrid?.Name}" +
+			$"\nDataGrid SqlCustGrid									: {SqlCustGrid?.Name}" +
+			$"\nDataGrid SqlDetGrid										: {SqlDetGrid?.Name}" +
+			"\n" +
+			$"\nDbSelector DbSelectorOpen								: {DbSelectorOpen}" +
+			"\n" +
+			$"\nEditDb ActiveEditGrid									: {ActiveEditGrid?.Name}" +
+			$"\nEditDb BankEditDb										: {BankEditDb?.Name}" +
+			$"\nEditDb CustEditDb										: {CustEditDb?.Name}" +
+			$"\nEditDb DetEditDb										: {DetEditDb?.Name}" +
+			$"\nEditDb CurrentEditDbViewer								: {CurrentEditDbViewer?.Name}" +
+			"\n" +
+			$"\nint SqlBankCurrentIndex									: {SqlBankCurrentIndex}" +
+			$"\nint SqlCustCurrentIndex									: {SqlCustCurrentIndex}" +
+			$"\nint SqlDetCurrentIndex									: {SqlDetCurrentIndex}" +
+			"\n" +
+			$"\nList< DataGrid > CurrentEditDbViewerBankGridList		: {CurrentEditDbViewerBankGridList}" +
+			$"\nList< DataGrid > CurrentEditDbViewerCustomerGridList	: {CurrentEditDbViewerCustomerGridList}" +
+			$"\nList< DataGrid > CurrentEditDbViewerDetailsGridList		: {CurrentEditDbViewerDetailsGridList}" +
+			"\n" +
+			$"\nSqlDbViewer CurrentSqlViewer							: {CurrentSqlViewer?.Name}" +
+			$"\nSqlDbViewer SqlBankViewer								: {SqlBankViewer?.Name}" +
+			$"\nSqlDbViewer SqlCustViewer								: {SqlCustViewer?.Name}" +
+			$"\nSqlDbViewer SqlDetViewer								: {SqlDetViewer?.Name}" +
+			$"\nSqlDbViewer SqlUpdateOriginatorViewer					: {SqlUpdateOriginatorViewer?.Name}" +
+			"\n" +
+			$"\nstring FilterCommand									: {FilterCommand}" +
+			$"\nstring MultiAccountCommandString						: {MultiAccountCommandString}" 
+					);
 		}
 	}
 }

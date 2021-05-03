@@ -3,6 +3,7 @@ using System . Collections . ObjectModel;
 using System . Data;
 using System . Data . SqlClient;
 using System . Threading . Tasks;
+using System . Windows;
 
 namespace WPFPages . Views
 {
@@ -32,11 +33,33 @@ namespace WPFPages . Views
 		{
 			if ( dtCust . Rows . Count > 0 )
 				dtCust . Clear ( );
-			await LoadCustDataSql ( );
 			if ( Custcollection . Items . Count > 0 )
 				Custcollection . ClearItems ( );
-			await LoadCustDataSql ( dtCust );
-			await LoadCustomerCollection ( );
+
+			await Task . Run ( ( ) =>
+			{
+				LoadCustDataSql ( );
+
+				Application . Current . Dispatcher . Invoke (
+					( ) =>
+					{
+						LoadCustomerCollection ( );
+					} );
+			} );
+
+
+			//await Task . Run ( ( ) =>
+			//{
+			//	LoadCustDataSql ( );
+			//} );
+			//await Task . Run ( ( ) =>
+			//{
+			//	LoadCustDataSql ( dtCust );
+			//} );
+			//await Task . Run ( ( ) =>
+			//{
+			//	LoadCustomerCollection ( );
+			//} );
 			return true;
 		}
 

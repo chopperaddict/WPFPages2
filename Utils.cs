@@ -23,7 +23,20 @@ namespace WPFPages
 	/// </summary>
 	public class Utils
 	{
-//		public NewFlags Flags = new NewFlags();
+
+		public static void ScrollRecordIntoView ( DataGrid Dgrid )
+		{
+			// Believe it or not, it takes all this to force a scrollinto view correctly
+			if ( Dgrid == null || Dgrid . Items . Count == 0 ) return;
+			Dgrid . UpdateLayout ( );
+			Dgrid . ScrollIntoView ( Dgrid . Items . Count - 1 );
+			Dgrid . UpdateLayout ( );
+			if( Dgrid . SelectedItem  != null)
+				Dgrid . ScrollIntoView ( Dgrid . SelectedItem );
+			Dgrid . UpdateLayout ( );
+		}
+
+		//		public NewFlags Flags = new NewFlags();
 		//************************************************************************************//
 		/// <summary>
 		///  checks an Enum in Flags.cs andf appends the correct sort 

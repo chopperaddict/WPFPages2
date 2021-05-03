@@ -412,6 +412,10 @@ namespace WPFPages
 				Page6_Click ( sender, null );
 			else if ( e . Key == Key . OemQuotes )
 				EventHandlers . ShowSubscribersCount ( );
+			else if ( e . Key == Key . RWin )
+			{
+				Flags . ShowAllFlags ( );
+			}
 			else if ( e . Key == Key . Escape )
 				Application . Current . Shutdown ( );
 

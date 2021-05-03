@@ -2,7 +2,9 @@
 using System . Collections . ObjectModel;
 using System . Data;
 using System . Data . SqlClient;
+using System . Diagnostics;
 using System . Threading . Tasks;
+using System . Windows;
 
 using WPFPages . ViewModels;
 
@@ -15,13 +17,19 @@ namespace WPFPages . Views
 
 		public  static DataTable dtDetails = new DataTable();
 
+
 		#region startup/load data / load collection (DetCollection)
 
 		//**************************************************************************************************************************************************************//
 		public DetCollection ( )
 		{
 			Detcollection = this;
-			Task<bool>  result = LoadDetailsTaskInSortOrder (true  );
+			//			Task<bool>  result = LoadDetailsTaskInSortOrder (true  );
+			if ( dtDetails . Rows . Count > 0 )
+				dtDetails . Clear ( );
+			if ( Detcollection . Items . Count > 0 )
+				Detcollection . ClearItems ( );
+			LoadDetailsTaskInSortOrder ( true  );
 			Console . WriteLine ( $"Sql data loaded {Detcollection . Count} records into Details Datatable  ...." );
 		}
 
@@ -29,13 +37,30 @@ namespace WPFPages . Views
 		//**************************************************************************************************************************************************************//
 		public async static Task<bool> LoadDetailsTaskInSortOrder ( bool b = false )
 		{
-			if ( dtDetails . Rows . Count > 0 )
-				dtDetails . Clear ( );
-			await LoadDetailsDataSql ( );
-			if ( Detcollection . Items . Count > 0 )
-				Detcollection . ClearItems ( );
-			await LoadDetailsDataSql ( b );
-			await LoadDetCollection ( );
+			Stopwatch  st = Stopwatch . StartNew ( );
+
+			await Task . Run ( ( ) =>
+			{
+				LoadDetailsDataSql ( );
+
+				Application . Current . Dispatcher . Invoke (
+					( ) =>
+					{
+						LoadDetCollection ( );
+					} );
+			} );
+
+
+			//await Task . Run ( ( ) =>
+			//{
+			//	LoadDetailsDataSql ( );
+			//	Console . WriteLine ( $"DetCollection load of DataTable has completed - {dtDetails . Rows . Count } records loaded " );
+			//} ) . ContinueWith (
+			//	(task ) => { LoadDetCollection ( ); }
+			//);
+			//Task . WaitAll ( );
+			st . Stop ( );
+			Console . WriteLine ($"DetCollection has completed - {Detcollection.Count} records loaded in {(double)st.ElapsedMilliseconds / ( double ) 1000} Seconds");
 			return true;
 		}
 

@@ -9,21 +9,21 @@
 	xmlns:b="clr-namespace:WPFPages.Views"	   
 	mc:Ignorable="d"
 	xmlns:Convertors="clr-namespace:WPFPages.Views"
-	DataContext="{Binding RelativeSource={RelativeSource Self}}"
-	Title="Database Edit/View Utility" 
-	  Height="550" Width="860" 
-	  MinHeight="550" MinWidth="827"
-	  Left="1050"
-	Loaded="OnWindowLoaded"
-	  Top="20"
-	WindowStartupLocation="Manual"
-	WindowStyle="None"
-	BorderThickness="0"	
-	  GotFocus="Window_GotFocus"
-	MouseDown="Window_MouseDown"
-	  PreviewKeyDown="Window_PreviewKeyDown"
-	Closed="Window_Closed">
-	<!--d:DataContext="{d:DesignInstance Type=local:BankAccount}"-->
+DataContext="{Binding RelativeSource={RelativeSource Self}}"
+Title="Database Edit/View Utility" 
+	Height="550" Width="860" 
+	MinHeight="450" MinWidth="827"
+	Left="1050"
+Loaded="OnWindowLoaded"
+	Top="20"
+WindowStartupLocation="Manual"
+WindowStyle="None"
+BorderThickness="0"	
+	GotFocus="Window_GotFocus"
+MouseDown="Window_MouseDown"
+	PreviewKeyDown="Window_PreviewKeyDown"
+Closed="Window_Closed">		
+    <!--d:DataContext="{d:DesignInstance Type=local:BankAccount}"-->
 
 
 	<!--Never gets called - I use Mousedown to achieve this

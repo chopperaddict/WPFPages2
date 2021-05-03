@@ -37,7 +37,7 @@ namespace WPFPages . ViewModels
 		public static bool SqlUpdating = false;
 		public static int CurrentSelectedIndex = 0;
 		public static DataTable dtDetails = null;
-		private static bool IsSubscribedToObsNotifications = false;
+//		private static bool IsSubscribedToObsNotifications = false;
 		//		LayoutSettings;
 
 		//==================================

@@ -62,9 +62,6 @@ namespace WPFPages . Views
 		{
 			switch ( status )
 			{
-				//				case 25:
-				//					Console.WriteLine ($"DBSELECTOR NOTIFICATION - Viewer is ready  for relevant data to be loaded for the DataGrid");
-				//					break;
 				case 102:       // Starting a method
 					Console . WriteLine ( $"DBSELECTOR NOTIFICATION : {status}  [{info}]" );
 					break;
@@ -102,7 +99,6 @@ namespace WPFPages . Views
 				DbSelector . AddViewerToList ( info, NewSqlViewer, -1 );
 				Flags . SqlViewerIsLoading = false;
 				Console . WriteLine ( $"\r\nDBSELECTOR - Viewer ADDED to List of Current Viewers \r\n" );
-#pragma TODO  ADD an entry into Flags.gv for this new viewer
 			}
 		}
 		//Constructor
@@ -117,28 +113,16 @@ namespace WPFPages . Views
 			}
 			sqlSelector . SelectedIndex = 2;
 			sqlSelector . Focus ( );
-
-			////Open a new Viewer and srtore its (Handle) in MainWindow Static data 
-			//SqlDbViewer sqlv = new SqlDbViewer ();
-			//Flags.CurrentSqlViewer = sqlv;
-			//sqlv.DataLoaded += OnDataLoaded;
-
 			// Assign Handler to delegate SqlViewerNotify			
 			SqlViewerNotify notifier = DbSelectorMessage;
 
 			EventHandlers . SendViewerCommand = SqlDbViewer . DbSelectorMessage;
-
-			// set a pointer to this window in GridViewer control struct
-			//			MainWindow.gv.DbSelectorWindow = this;
-
-			this . MouseDown += delegate{ DoDragMove ( ); };
+			this . MouseDown += delegate { DoDragMove ( ); };
 			//This DOES send a message to SqlDbViewer !!
 			EventHandlers . SendViewerCommand ( 103, "<<< Completed DbSelector basic Constructor", null );
-#if USEDETAILEDEXCEPTIONHANDLER
-			Console.WriteLine ($" \r\n%%%%%%%%%%%%%%% DbSelector Constructor completed %%%%%%%%%%%%%%\r\n");
-#endif
 			Utils . GetWindowHandles ( );
-
+			OntopChkbox . IsChecked = false;
+			this . Topmost = false;
 		}
 
 		public static ListBox listbox;
@@ -293,7 +277,7 @@ namespace WPFPages . Views
 					//					//done later on
 					//					UpdateControlFlags ( Flags . ActiveSqlViewer, CallingType, "" );
 					//
-//					var tuple = SqlDbViewer . CreateTuple ( "DETAILS" );
+					//					var tuple = SqlDbViewer . CreateTuple ( "DETAILS" );
 					//					Flags . CurrentSqlViewer . GetTupleData ( ( Tuple<SqlDbViewer, string, int> ) tuple );
 					EventHandlers . SendViewerCommand ( 103, "\nNew Details Viewer Fully loaded....\n", null );
 					callertype = 2;
@@ -324,9 +308,9 @@ namespace WPFPages . Views
 						// This is fine, new windows do NOT have their Guid when they arrive here
 						this . Tag = Flags . CurrentSqlViewer . Tag;
 					}
-//					var tuple = SqlDbViewer . CreateTuple ( "BANKACCOUNT" );
+					//					var tuple = SqlDbViewer . CreateTuple ( "BANKACCOUNT" );
 					//					Flags.CurrentSqlViewer.UpdateSqlControl ((Tuple<SqlDbViewer, string, int>)tuple);
-//					Flags . CurrentSqlViewer . GetTupleData ( ( Tuple<SqlDbViewer, string, int> ) tuple );
+					//					Flags . CurrentSqlViewer . GetTupleData ( ( Tuple<SqlDbViewer, string, int> ) tuple );
 					//					Console.WriteLine ($"\nTuple created successfully....");
 					EventHandlers . SendViewerCommand ( 103, "\nNew BankAccount Viewer Fully loaded....\n", null );
 					callertype = 0;
@@ -344,7 +328,7 @@ namespace WPFPages . Views
 					}
 					//					Flags . CurrentSqlViewer = new SqlDbViewer ( "CUSTOMER" );
 					CustCollection Custcollection = new CustCollection    ();
-//					Debugger . Break ( );
+					//					Debugger . Break ( );
 					Flags . CurrentSqlViewer = new SqlDbViewer ( "CUSTOMER", Custcollection );
 					Flags . CurrentSqlViewer . BringIntoView ( );
 					Flags . CurrentSqlViewer . Show ( );
@@ -360,9 +344,9 @@ namespace WPFPages . Views
 						// This is fine, new windows do NOT have their Guid when they arrive here
 						this . Tag = Flags . CurrentSqlViewer . Tag;
 					}
-//					var tuple = SqlDbViewer . CreateTuple ( "CUSTOMER" );
+					//					var tuple = SqlDbViewer . CreateTuple ( "CUSTOMER" );
 					//					Flags.CurrentSqlViewer.UpdateSqlControl ((Tuple<SqlDbViewer, string, int>)tuple);
-//					Flags . CurrentSqlViewer . GetTupleData ( ( Tuple<SqlDbViewer, string, int> ) tuple );
+					//					Flags . CurrentSqlViewer . GetTupleData ( ( Tuple<SqlDbViewer, string, int> ) tuple );
 					EventHandlers . SendViewerCommand ( 103, "\nNew Customer Viewer Fully loaded....\n", null );
 					callertype = 1;
 					CallingType = "CUSTOMER";
@@ -568,7 +552,7 @@ namespace WPFPages . Views
 			//			EventHandlers . ClearWindowHandles ( null, Flags . CurrentSqlViewer );
 		}
 
-	public  void CloseDeleteAllViewers ( )
+		public void CloseDeleteAllViewers ( )
 		{
 			//Close selected viewer window
 			// iterate the list form bottom up closing windows
@@ -583,9 +567,9 @@ namespace WPFPages . Views
 			}
 
 			//Remove all Viewer Windows data from Flags & gv[]
-			Flags . DeleteViewerAndFlags ( -1);
+			Flags . DeleteViewerAndFlags ( -1 );
 			//UpdateDataGridController ( null );
-			
+
 			// This is done in the call above
 			ViewersList . Refresh ( );
 			//			MainWindow . gv . SqlViewerWindow = null;
@@ -630,7 +614,7 @@ namespace WPFPages . Views
 				else
 				{
 					//Remove a SINGLE Viewer Windows data from Flags & gv[]
-					Flags . DeleteViewerAndFlags ( y);
+					Flags . DeleteViewerAndFlags ( y );
 					break;
 					//if (lbtag == (Guid)Tag)
 					//{
@@ -850,6 +834,7 @@ namespace WPFPages . Views
 			sqlSelector . SelectedIndex = 2;
 			this . BringIntoView ( );
 			this . Topmost = true;
+			OntopChkbox . IsChecked = true;
 			//Send commands to SqlDbViewer !!!!!
 			EventHandlers . SendViewerCommand ( 103, ">>> Ended OnWindowLoaded()", Flags . CurrentSqlViewer );
 		}
@@ -1000,6 +985,10 @@ namespace WPFPages . Views
 					lb . SelectedIndex++;
 				return;
 			}
+			else if ( e . Key == Key .RWin)
+			{
+				Flags.ShowAllFlags ( );
+			}
 			else if ( e . Key == Key . OemQuotes )
 			{
 				EventHandlers . ShowSubscribersCount ( );
@@ -1076,10 +1065,10 @@ namespace WPFPages . Views
 				// find Tag that matches our Tag in ViewersList  
 				if ( MainWindow . gv . ListBoxId [ x ] == tag )
 				{
-					for ( int i = 1 ; i < Flags . DbSelectorOpen . ViewersList.Items.Count ; i++ )
+					for ( int i = 1 ; i < Flags . DbSelectorOpen . ViewersList . Items . Count ; i++ )
 					{
 						ListBoxItem lbi = Flags . DbSelectorOpen . ViewersList . Items [ i ] as ListBoxItem;
-						if ( (Guid)lbi.Tag == tag )
+						if ( ( Guid ) lbi . Tag == tag )
 						{
 							Flags . DbSelectorOpen . ViewersList . SelectedIndex = i;
 							Flags . DbSelectorOpen . ViewersList . SelectedItem = i;
@@ -1087,9 +1076,9 @@ namespace WPFPages . Views
 							break;
 						}
 					}
-//					Flags . DbSelectorOpen . ViewersList . SelectedIndex = x ;
-//					Flags . DbSelectorOpen . ViewersList . SelectedItem = x ;
-//					Flags . DbSelectorOpen . ViewersList . Refresh ( );
+					//					Flags . DbSelectorOpen . ViewersList . SelectedIndex = x ;
+					//					Flags . DbSelectorOpen . ViewersList . SelectedItem = x ;
+					//					Flags . DbSelectorOpen . ViewersList . Refresh ( );
 					break;
 				}
 			}
@@ -1240,7 +1229,7 @@ namespace WPFPages . Views
 			//and we need to do the same in SqlDbViewer
 			EventHandlers . SendViewerCommand ( 102, ">>> Starting TriggerBankDataLoad()", Flags . CurrentSqlViewer );
 			// The Fn handles the Task.Run()
-			await BankCollection.LoadBankTaskInSortOrder ( true, -1 );
+			await BankCollection . LoadBankTaskInSortOrder ( true, -1 );
 			EventHandlers . SendViewerCommand ( 103, "<<< Ended TriggerBankDataLoad()", Flags . CurrentSqlViewer );
 		}
 		private async Task TriggerCustomerDataLoad ( SqlDbViewer NewSqlViewer )
@@ -1253,7 +1242,7 @@ namespace WPFPages . Views
 			try
 			{
 				List<Task<bool>> tasks = new List<Task<bool>> ( );
-				tasks . Add ( CustCollection.LoadCustomerTaskInSortOrder ( true, 0 ) );
+				tasks . Add ( CustCollection . LoadCustomerTaskInSortOrder ( true, 0 ) );
 				var Results = await Task . WhenAll ( tasks );
 			}
 			catch ( Exception ex )
@@ -1269,8 +1258,8 @@ namespace WPFPages . Views
 			//This calls  LoadDetailsTask for us after sorting out the command line sort order requested
 			try
 			{
-				await DetCollection.LoadDetailsTaskInSortOrder ( true );
-//				await dvm . LoadDetailsTaskInSortOrder ( true, 0 );
+				await DetCollection . LoadDetailsTaskInSortOrder ( true );
+				//				await dvm . LoadDetailsTaskInSortOrder ( true, 0 );
 				//List<Task<bool>> tasks = new List<Task<bool>> ( );
 				//tasks . Add ( dvm . LoadDetailsTaskInSortOrder ( true, 0 ) );
 				//var Results = await Task . WhenAll ( tasks );
@@ -1287,7 +1276,7 @@ namespace WPFPages . Views
 		/// <param name="selecteditem"></param>
 		/// <param name="Command"></param>
 		private async void InitialLoad ( int selecteditem, string Command )//ListBox listbox, int selected, string Command)
-										   // NOT IN USE
+													 // NOT IN USE
 		{
 			//			string selectedItem = "";
 			//			if (listbox == sqlSelector)
@@ -1445,10 +1434,10 @@ namespace WPFPages . Views
 									Flags . SqlDetGrid . Visibility = Visibility . Visible;
 								}
 							}
-							if ( Bankcollection!= null )
+							if ( Bankcollection != null )
 								Flags . ActiveSqlGrid . ItemsSource = Bankcollection;
-//							if ( bvm . BankAccountObs != null )
-//								Flags . ActiveSqlGrid . ItemsSource = bvm . BankAccountObs;
+							//							if ( bvm . BankAccountObs != null )
+							//								Flags . ActiveSqlGrid . ItemsSource = bvm . BankAccountObs;
 
 
 							// This WORKS for details 2/4/21
@@ -1485,15 +1474,15 @@ namespace WPFPages . Views
 					Guid SelectedId = MainWindow . gv . ListBoxId [ selindex - 1 ];
 					Window w = MainWindow . gv . window [ selindex - 1 ];
 					w . Show ( );
-					w . Topmost = true;
+//					w . Topmost = true;
 					w . Focus ( );
-					w . Topmost = false;
+//					w . Topmost = false;
 					return;
 				}
 				else if ( Command == "DELETE" )
 				{       //	
-					// This also works = 22 March 2021
-					// 
+					  // This also works = 22 March 2021
+					  // 
 					int selindex = -1;
 					selindex = ViewersList . SelectedIndex;
 					ListBoxItem lbi = new ListBoxItem ( );
@@ -1611,6 +1600,14 @@ namespace WPFPages . Views
 			//		break;
 			//	}
 			//}
+		}
+
+		private void OntopChkbox_Click ( object sender, RoutedEventArgs e )
+		{
+			if ( OntopChkbox . IsChecked == true )
+				this . Topmost = true;
+			else
+				this . Topmost = false;
 		}
 	}
 }

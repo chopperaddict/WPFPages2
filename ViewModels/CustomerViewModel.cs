@@ -82,14 +82,14 @@ namespace WPFPages . Views
 		private int selectedRow;
 
 		private static bool loaded = false;
-		private string columnToFilterOn = "";
+//		private string columnToFilterOn = "";
 		private string filtervalue1 = "";
 		private string filtervalue2 = "";
 		private string operand = "";
 		public bool FilterResult = false;
 		private string IsFiltered = "";
 		private string FilterCommand = "";
-		private string PrettyDetails = "";
+//		private string PrettyDetails = "";
 		public bool isMultiMode = false;
 
 		private static bool IsSubscribedToObsNotifications = false;
