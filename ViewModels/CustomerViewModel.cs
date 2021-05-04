@@ -246,11 +246,11 @@ namespace WPFPages . Views
 
 		//**************************************************************************************************************************************************************//
 
-		//		public async Task<bool> LoadCustomerTaskInSortOrder ( bool isOriginator, int mode = -1 )
+		//		public async Task<bool> LoadCustomerTaskInSortOrderAsync ( bool isOriginator, int mode = -1 )
 		//		{
 		//			//THIS Fn HANDLES SPAWNING THE TASK/AWAIT
 		//			//and handles the Broadcast Notification
-		//			Console . WriteLine ( $"Starting AWAITED Task LoadCustomerTaskInSortOrder using Sql" );
+		//			Console . WriteLine ( $"Starting AWAITED Task LoadCustomerTaskInSortOrderAsync using Sql" );
 		//			Stopwatch sw = new Stopwatch ( );
 		//			sw . Start ( );
 		////			List<Task<bool>> tasks = new List<Task<bool>> ( );

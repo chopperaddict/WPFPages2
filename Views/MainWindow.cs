@@ -44,7 +44,7 @@ namespace WPFPages
 		private string _randomText1 = "button1";
 		private string _randomText2 = "button2";
 		public bool Autoload = false;
-
+		private bool key1 = false;
 
 		public static GridViewer gv = new GridViewer ( );
 		public static DbSelector dbs = null;
@@ -411,10 +411,19 @@ namespace WPFPages
 			if ( e . Key == Key . RightCtrl || e . Key == Key . Home )
 				Page6_Click ( sender, null );
 			else if ( e . Key == Key . OemQuotes )
+			{
 				EventHandlers . ShowSubscribersCount ( );
+				key1 = false;
+			}
+			else if ( e . Key == Key . LeftCtrl )
+				key1 = true;
 			else if ( e . Key == Key . RWin )
 			{
-				Flags . ShowAllFlags ( );
+				if ( key1 )
+				{
+					Flags . ShowAllFlags ( );
+					key1 = false;
+				}
 			}
 			else if ( e . Key == Key . Escape )
 				Application . Current . Shutdown ( );

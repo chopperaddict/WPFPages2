@@ -547,7 +547,10 @@ namespace WPFPages
 			$"\nSqlDbViewer SqlUpdateOriginatorViewer					: {SqlUpdateOriginatorViewer?.Name}" +
 			"\n" +
 			$"\nstring FilterCommand									: {FilterCommand}" +
-			$"\nstring MultiAccountCommandString						: {MultiAccountCommandString}" 
+			$"\nstring MultiAccountCommandString						: {MultiAccountCommandString}\n" +
+			$"dtBank = {BankCollection . dtBank? . Rows?. Count}, Collection = {BankCollection . Bankcollection? . Count}\n" +
+			$"dtCust = {CustCollection . dtCust?. Rows?.Count}, Collection = {CustCollection . Custcollection? . Count}\n" +
+			$"dtBank = {DetCollection . dtDetails?. Rows? . Count}, Collection = {DetCollection . Detcollection? . Count}\n"
 					);
 		}
 	}

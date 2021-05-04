@@ -17,36 +17,56 @@ namespace WPFPages . Views
 
 		public static DataTable dtCust = new DataTable();
 
+		// THIS IS  HOW  TO HANDLE EVENTS RIGHT NOW //
+		//Event CallBack for when Asynchronous data loading has been completed in the Various ViewModel classes
+		public  static  event EventHandler<LoadedEventArgs> CustDataLoaded;
+		//-------------------------------------------------------------------------------------------------------------------------------------------------//
+		protected virtual void OnCustDataLoaded ( )
+		{
+			if ( CustDataLoaded != null )
+			{
+				Console . WriteLine ( $"Broadcasting from OnCustDataLoaded in " );
+				CustDataLoaded?.Invoke ( this, new LoadedEventArgs ( ) { DataSource = Custcollection, CallerDb = "CUSTOMER" } );
+			}
+		}
+
+
 		#region startup/load data / load collection (CustCollection)
 
 		//**************************************************************************************************************************************************************//
 		public CustCollection ( ) : base ( )
 		{
 			Custcollection = this;
-			System.Diagnostics . Stopwatch  st = System.Diagnostics . Stopwatch . StartNew ( );
-			Console . WriteLine ( $"Sql : loading Custcollection ...." );
-			LoadCustomerTaskInSortOrder ( true );
-			st . Stop ( );
-			Console . WriteLine ( $"CustCollection has completed - {Custcollection . Count} records loaded in {( double ) st . ElapsedMilliseconds / ( double ) 1000} Seconds" );
+			//System.Diagnostics . Stopwatch  st = System.Diagnostics . Stopwatch . StartNew ( );
+			//Console . WriteLine ( $"Sql : loading Custcollection ...." );
+			//LoadCustomerTaskInSortOrderAsync ( true );
+			//st . Stop ( );
+			//Console . WriteLine ( $"CustCollection has completed - {Custcollection . Count} records loaded in {( double ) st . ElapsedMilliseconds / ( double ) 1000} Seconds" );
+
+			//if ( CustDataLoaded != null )
+			//	CustDataLoaded . Invoke ( Custcollection, new LoadedEventArgs { CallerDb = "CUSTOMER", DataSource = Custcollection } );
 		}
 
 		// Entry point for all data load/Reload
 		//**************************************************************************************************************************************************************//
-		public static async Task<bool> LoadCustomerTaskInSortOrder ( bool isOriginator, int mode = -1 )
+		public static async Task<bool> LoadCustomerTaskInSortOrderAsync ( bool isOriginator, int mode = -1 )
 		{
 			if ( dtCust . Rows . Count > 0 )
 				dtCust . Clear ( );
+			if ( Custcollection == null )
+				Custcollection = new CustCollection ( );
+
 			if ( Custcollection . Items . Count > 0 )
 				Custcollection . ClearItems ( );
 
-			await Task . Run ( ( ) =>
+			await Task . Run (async  ( ) =>
 			{
-				LoadCustDataSql ( );
+				await LoadCustDataSql ( );
 
 				Application . Current . Dispatcher . Invoke (
-					( ) =>
+					async ( ) =>
 					{
-						LoadCustomerCollection ( );
+						await LoadCustomerCollection ( );
 					} );
 			} );
 			return true;
@@ -129,11 +149,31 @@ namespace WPFPages . Views
 				count = i;
 			}
 			Console . WriteLine ( $"Sql data loaded into Customers Observable Collection \"CustCollection\"[{count}] ...." );
+
+			if (CustDataLoaded != null )
+				CustDataLoaded . Invoke ( Custcollection, new LoadedEventArgs { CallerDb = "CUSTOMER", DataSource = Custcollection } );
 			return true;
 		}
 
 		#endregion startup/load data / load collection (CustCollection)
 
+		public static void SubscribeToLoadedEvent ( object o )
+		{
+			if ( o == Custcollection && CustDataLoaded == null )
+				CustDataLoaded += SqlDbViewer. SqlDbViewer_DataLoaded;
+		}
+		public static void UnSubscribeToLoadedEvent ( object o )
+		{
+			if ( CustDataLoaded != null )
+				CustDataLoaded -= SqlDbViewer.SqlDbViewer_DataLoaded;
+		}
+		public static Delegate [ ] GetEventCount7 ( )
+		{
+			Delegate [ ] dglist2 = null;
+			if ( CustDataLoaded != null )
+				dglist2 =  CustDataLoaded?.GetInvocationList ( );
+			return dglist2;
+		}
 		//**************************************************************************************************************************************************************//
 	}
 }

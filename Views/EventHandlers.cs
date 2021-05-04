@@ -129,6 +129,8 @@ namespace WPFPages . Views
 			int count4 = -1;
 			int count5 = -1;
 			int count6 = -1;
+			int count7 = -1;
+			int count8 = -1;
 			if ( !BankAccountViewModel . ShowSubscribeData )
 				return;
 			//if ( NotifyOfDataChange != null )
@@ -137,25 +139,38 @@ namespace WPFPages . Views
 			//EditDbViewerSelectedIndexChanged
 			Delegate [ ] dg = SqlDbViewer . GetEventCount ( );
 			if ( dg != null )	count = dg . Length;
+			
 			// NotifyOfDataChange
 			dg = SqlDbViewer . GetEventCount2 ( );
 			if ( dg != null )	count2 = dg . Length;
-			// EditDbViewerSelectedIndexChanged
-//			dg = SqlDbViewer . GetEventCount3 ( );
-//			if ( dg != null )	count3 = dg . Length;
+
+			// NotifyOfDataLoaded
+			dg = SqlDbViewer . GetEventCount3 ( );
+			if ( dg != null )	count3 = dg . Length;
+
 			// SqlHasChangedSelection
 			dg = EditDb . GetEventCount4 ( );
 			if ( dg != null )	count4 = dg . Length;
+
 			// SqlViewerIndexChanged
-			dg = EditDb. GetEventCount5 ( );
+			dg = EditDb. GetEventCount5 ( );			
 			if ( dg != null )	count5 = dg . Length;
+
+			// DetCollection. DetDataLoaded 
+			dg = BankCollection. GetEventCount6 ( );
+			if ( dg != null ) count6 = dg . Length;
+
 			Console . WriteLine (
 			$"\n *** Currently Subscribed Events  ***" +
 			$"\nEditDbViewerSelectedIndexChanged =	{count} " +
 			$"\nNotifyOfDataChange =		 		{count2}" +
-			$"\nSqlHasChangedSelection = 			{count4}" );
-				//$"\nSqlViewerIndexChanged =				{count5} " );
-		//			Console . WriteLine ( $"....................................................................................." );
+			$"\nNotifyOfDataLoaded =		 		{count3}" +
+			$"\nSqlHasChangedSelection = 			{count4}" +
+			$"\nBankCollection. BankDataLoaded =	{count6}" +
+			$"\nCustCollection. CustDataLoaded =	{count7}" +
+			$"\nDetCollection. DetDataLoaded =		{count8}");
+			//$"\nSqlViewerIndexChanged =				{count5} " );
+			//			Console . WriteLine ( $"....................................................................................." );
 
 			bool first = true;
 			Delegate [ ] dglist2 = SqlDbViewer . GetEventCount ( );
@@ -226,7 +241,7 @@ namespace WPFPages . Views
 					//					Console . WriteLine ( );
 				}
 			}
-			dglist2 = EditDb. GetEventCount5 ( );
+			dglist2 = EditDb . GetEventCount5 ( );
 			if ( dglist2 != null )
 			{
 				int cnt = 0;
@@ -244,6 +259,71 @@ namespace WPFPages . Views
 				}
 				//				Console . WriteLine ( "\n" );	// not on last line
 			}
+			dglist2 = BankCollection . GetEventCount6 ( );
+			if ( dglist2 != null )
+			{
+				int cnt = 0;
+				if ( !first )
+				{
+					Console . WriteLine ( $"=====================================================================================" ); first = false;
+				}
+				Console . WriteLine ( $"=====================================================================================" );
+				first = true;
+				foreach ( var item in dglist2 )
+				{
+					if ( cnt > 0 ) Console . WriteLine ( );
+					if( item . Target != null)
+						Console . WriteLine ( $"Delegate : BankCollection. BankDataLoaded:\n >>> {item . Target?.ToString ( )}\nMethod = {item . Method . ToString ( )}" );
+					else
+						Console . WriteLine ( $"Delegate : BankCollection. BankDataLoaded:\n >>> \nMethod = {item . Method . ToString ( )}" );
+						cnt++;
+				}
+				//				Console . WriteLine ( "\n" );	// not on last line
+			}
+			dglist2 = CustCollection . GetEventCount7 ( );
+			if ( dglist2 != null )
+			{
+				int cnt = 0;
+				if ( !first )
+				{
+					Console . WriteLine ( $"=====================================================================================" ); first = false;
+				}
+				Console . WriteLine ( $"=====================================================================================" );
+				first = true;
+				foreach ( var item in dglist2 )
+				{
+					if ( cnt > 0 ) Console . WriteLine ( );
+					if ( item . Target != null )
+						Console . WriteLine ( $"Delegate : CustCollection. CustDataLoaded:\n >>> {item . Target? . ToString ( )}\nMethod = {item . Method . ToString ( )}" );
+					else
+						Console . WriteLine ( $"Delegate : CustCollection. CustDataLoaded:\n >>> \nMethod = {item . Method . ToString ( )}" );
+					cnt++;
+				}
+				//				Console . WriteLine ( "\n" );	// not on last line
+			}
+			dglist2 = DetCollection . GetEventCount8 ( );
+			if ( dglist2 != null )
+			{
+				int cnt = 0;
+				if ( !first )
+				{
+					Console . WriteLine ( $"=====================================================================================" ); first = false;
+				}
+				Console . WriteLine ( $"=====================================================================================" );
+				first = true;
+				foreach ( var item in dglist2 )
+				{
+					if ( cnt > 0 ) Console . WriteLine ( );
+					if ( item . Target != null )
+						Console . WriteLine ( $"Delegate : DetCollection. DetDataLoaded:\n >>> {item . Target? . ToString ( )}\nMethod = {item . Method . ToString ( )}" );
+					else
+						Console . WriteLine ( $"Delegate : DetCollection. DetDataLoaded:\n >>> \nMethod = {item . Method . ToString ( )}" );
+					cnt++;
+				}
+				//				Console . WriteLine ( "\n" );	// not on last line
+			}
+
+
 			Console . WriteLine ( $"+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++" );
 		}
 	}

@@ -64,7 +64,7 @@ namespace WPFPages . Views
 		// Flags to let me handle jupdates to/From SqlViewer
 		private int ViewerChangeType = 0;
 		private int EditChangeType = 0;
-
+		private bool key1 = false;
 		public static EditDb ThisWindow;/// <summary>
 							  /// CONSTRUCTOR for Data Editing Window
 							  /// </summary>		
@@ -1026,9 +1026,12 @@ namespace WPFPages . Views
 				BankAccountViewModel . EditdbWndBank = null;
 				Close ( );
 			}
+			else if ( e . Key == Key . LeftCtrl )
+				key1 = true;
 			else if ( e . Key == Key . RightAlt )
 			{
 				Flags . ListGridviewControlFlags ( );
+				key1 = false;
 			}
 			else if ( e . Key == Key . Up )
 			{
@@ -1046,6 +1049,7 @@ namespace WPFPages . Views
 
 				if ( dg . SelectedItem != null )
 					dg . ScrollIntoView ( dg . SelectedItem );
+				key1 = false;
 			}
 			else if ( e . Key == Key . Down )
 			{
@@ -1063,6 +1067,7 @@ namespace WPFPages . Views
 
 				if ( dg . SelectedItem != null )
 					dg . ScrollIntoView ( dg . SelectedItem );
+				key1 = false;
 			}
 			else if ( e . Key == Key . Home )
 			{
@@ -1078,6 +1083,7 @@ namespace WPFPages . Views
 				dg . SelectedIndex = 0;
 				if ( dg . SelectedItem != null )
 					dg . ScrollIntoView ( dg . SelectedItem );
+				key1 = false;
 			}
 			else if ( e . Key == Key . End )
 			{
@@ -1091,6 +1097,7 @@ namespace WPFPages . Views
 				dg . SelectedIndex = dg . Items . Count - 1;
 				if ( dg . SelectedItem != null )
 					dg . ScrollIntoView ( dg . SelectedItem );
+				key1 = false;
 			}
 			else if ( e . Key == Key . PageDown )
 			{
@@ -1113,6 +1120,7 @@ namespace WPFPages . Views
 					if ( dg . SelectedItem != null )
 						dg . ScrollIntoView ( dg . SelectedItem );
 				}
+				key1 = false;
 			}
 			else if ( e . Key == Key . PageUp )
 			{
@@ -1135,14 +1143,20 @@ namespace WPFPages . Views
 					if ( dg . SelectedItem != null )
 						dg . ScrollIntoView ( dg . SelectedItem );
 				}
+				key1 = false;
 			}
 			else if ( e . Key == Key . OemQuotes )
 			{
 				EventHandlers . ShowSubscribersCount ( );
+				key1 = false;
 			}
 			else if ( e . Key == Key . RWin )
 			{
-				Flags . ShowAllFlags ( );
+				if ( key1 )
+				{
+					Flags . ShowAllFlags ( );
+					key1 = false;
+				}
 			}
 			else if ( e . Key == Key . Delete )
 			{
@@ -1161,6 +1175,7 @@ namespace WPFPages . Views
 					dg . ScrollIntoView ( dg . SelectedItem );
 				e . Handled = true;
 			}
+			key1 = false;
 		}
 
 		private void Button_Click ( object sender, RoutedEventArgs e )

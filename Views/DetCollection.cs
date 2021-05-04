@@ -17,6 +17,19 @@ namespace WPFPages . Views
 
 		public  static DataTable dtDetails = new DataTable();
 
+		// THIS IS  HOW  TO HANDLE EVENTS RIGHT NOW //
+		//Event CallBack for when Asynchronous data loading has been completed in the Various ViewModel classes
+		public   static event EventHandler<LoadedEventArgs> DetDataLoaded;
+		//-------------------------------------------------------------------------------------------------------------------------------------------------//
+		protected virtual void OnDetDataLoaded ( )
+		{
+			if ( DetDataLoaded != null )
+			{
+				Console . WriteLine ( $"Broadcasting from OnDetDataLoaded in " );
+				DetDataLoaded?.Invoke ( this, new LoadedEventArgs ( ) { DataSource = Detcollection, CallerDb = "DETAILS" } );
+			}
+		}
+
 
 		#region startup/load data / load collection (DetCollection)
 
@@ -24,30 +37,34 @@ namespace WPFPages . Views
 		public DetCollection ( )
 		{
 			Detcollection = this;
-			//			Task<bool>  result = LoadDetailsTaskInSortOrder (true  );
-			if ( dtDetails . Rows . Count > 0 )
-				dtDetails . Clear ( );
-			if ( Detcollection . Items . Count > 0 )
-				Detcollection . ClearItems ( );
-			System.Diagnostics . Stopwatch  st = System.Diagnostics . Stopwatch . StartNew ( );
-			Console . WriteLine ( $"Sql : loading Detcollection ...." );
-			LoadDetailsTaskInSortOrder ( true  );
-			st . Stop ( );
-			Console . WriteLine ( $"DetCollection has completed - {Detcollection . Count} records loaded in {( double ) st . ElapsedMilliseconds / ( double ) 1000} Seconds" );
+			//			Task<bool>  result = LoadDetailsTaskInSortOrderAsync (true  );
+			//if ( dtDetails . Rows . Count > 0 )
+			//	dtDetails . Clear ( );
+			//if ( Detcollection . Items . Count > 0 )
+			//	Detcollection . ClearItems ( );
+			//System.Diagnostics . Stopwatch  st = System.Diagnostics . Stopwatch . StartNew ( );
+			//Console . WriteLine ( $"Sql : loading Detcollection ...." );
+			//LoadDetailsTaskInSortOrderAsync ( true  );
+			//st . Stop ( );
+			//Console . WriteLine ( $"DetCollection has completed - {Detcollection . Count} records loaded in {( double ) st . ElapsedMilliseconds / ( double ) 1000} Seconds" );
+			
+			//if ( DetDataLoaded != null )
+			//	DetDataLoaded . Invoke ( Detcollection, new LoadedEventArgs ( ) { CallerDb = "DETAILS", DataSource = Detcollection } );
+
 		}
 
 		// Entry point for all data load/Reload
 		//**************************************************************************************************************************************************************//
-		public async static Task<bool> LoadDetailsTaskInSortOrder ( bool b = false )
+		public async static Task<bool> LoadDetailsTaskInSortOrderAsync ( bool b = false )
 		{
 			Stopwatch  st = Stopwatch . StartNew ( );
 
-			await Task . Run ( ( ) =>
+			await Task . Run ( async  ( ) =>
 			{
-				LoadDetailsDataSql ( );
+				await LoadDetailsDataSql ( );
 
 				Application . Current . Dispatcher . Invoke (
-					( ) =>
+				async 	( ) =>
 					{
 						LoadDetCollection ( );
 					} );
@@ -128,11 +145,32 @@ namespace WPFPages . Views
 				count = i;
 			}
 			Console . WriteLine ( $"Sql data loaded into Details ObservableCollection \"DetCollection\" [{count}] ...." );
+
+			if ( DetDataLoaded != null )
+				DetDataLoaded . Invoke ( Detcollection, new LoadedEventArgs { CallerDb = "DETAILS", DataSource = Detcollection } );
 			return true;
 		}
 
 		//**************************************************************************************************************************************************************//
 
 		#endregion startup/load data / load collection (DetCollection)
+		public static void SubscribeToLoadedEvent ( object o )
+		{
+			if ( o == Detcollection && DetDataLoaded == null )
+				DetDataLoaded += SqlDbViewer . SqlDbViewer_DataLoaded;
+		}
+		public static void UnSubscribeToLoadedEvent ( object o )
+		{
+			if ( DetDataLoaded != null )
+				DetDataLoaded -= SqlDbViewer . SqlDbViewer_DataLoaded;
+		}
+
+		public static Delegate [ ] GetEventCount8 ( )
+		{
+			Delegate [ ] dglist2 = null;
+			if ( DetDataLoaded != null )
+				dglist2 = DetDataLoaded?.GetInvocationList ( );
+			return dglist2;
+		}
 	}
 }

@@ -758,9 +758,7 @@ namespace WPFPages . Views
 
 		public int selection = 0;
 		private int CurrentList = -1;
-		//		private Window thiswin;
-
-
+		private bool key1 = false;
 		// Variable to hold string content for ListBox items in ViewerList of DbSelector.
 		private string _listBoxItemText;
 		public string ListBoxItemText
@@ -771,7 +769,6 @@ namespace WPFPages . Views
 				_listBoxItemText = value;
 				OnPropertyChanged ( ListBoxItemText . ToString ( ) );
 			}
-
 		}
 
 		private void OnWindowLoaded ( object sender, RoutedEventArgs e )
@@ -853,41 +850,6 @@ namespace WPFPages . Views
 		{
 			// close this Db Selector window
 			this . Visibility = Visibility . Collapsed;
-		}
-
-		//*****************************************************************************************//
-		private void Selected_Click ( object sender, MouseButtonEventArgs e )
-		{
-			this . Visibility = Visibility . Collapsed;
-		}
-
-
-		//*****************************************************************************************//
-		private void CheckEnter_Click ( object sender, KeyEventArgs e )
-		{
-			if ( e . Key == Key . Enter )
-			{
-				Flags . DbSelectorOpen = null;
-				Close ( );
-			}
-			else
-			{
-				e . Handled = false;
-				return;
-			}
-		}
-
-
-		//*****************************************************************************************//
-		private void CheckKeyDown_Click ( object sender, KeyEventArgs e )
-		{//keydown in lower list
-			if ( e . Key == Key . Escape )
-			{
-				Flags . DbSelectorOpen = null;
-				Close ( );
-			}
-			else
-				e . Handled = false;
 		}
 
 		private void sqlselector_Select ( object sender, MouseButtonEventArgs e )
@@ -977,37 +939,49 @@ namespace WPFPages . Views
 
 					HandleSelection ( ViewersList, "SELECT" );
 				}
+				key1 = false;
 			}
 			if ( e . Key == Key . NumPad2 || e . Key == Key . Down )
 			{
 				ListBox lb = sender as ListBox;
 				if ( lb . SelectedIndex < lb . Items . Count - 1 )
 					lb . SelectedIndex++;
+				key1 = false;
 				return;
 			}
+			else if ( e . Key == Key . LeftCtrl )
+				key1 = true;
 			else if ( e . Key == Key .RWin)
 			{
-				Flags.ShowAllFlags ( );
+				if ( key1 )
+				{
+					Flags . ShowAllFlags ( );
+					key1 = false;
+				}
 			}
 			else if ( e . Key == Key . OemQuotes )
 			{
 				EventHandlers . ShowSubscribersCount ( );
+				key1 = false;
 			}
 			else if ( e . Key == Key . NumPad8 || e . Key == Key . Up )
 			{
 				ListBox lb = sender as ListBox;
 				if ( lb . SelectedIndex > 0 )
 					lb . SelectedIndex--;
+				key1 = false;
 				return;
 			}
 			else if ( e . Key == Key . Home )
 			{
 				Flags . ListGridviewControlFlags ( );
+				key1 = false;
 				return;
 			}
 			else if ( e . Key == Key . End )
 			{
 				Flags . ListGridviewControlFlags ( 1 );
+				key1 = false;
 				return;
 			}
 			else if ( e . Key == Key . Escape )
@@ -1043,7 +1017,6 @@ namespace WPFPages . Views
 
 			mv . Show ( );
 		}
-
 
 		private void Window_KeyDown ( object sender, KeyEventArgs e )
 		{
@@ -1215,12 +1188,6 @@ namespace WPFPages . Views
 		#region UNUSED FUNCTIONS
 
 
-		public void OnDataLoaded ( object o, LoadedEventArgs e )
-		{
-			Console . WriteLine ( $"\r\n######### Received [ONDATALOADED] Event trigger from DbSelector #########" );
-			Console . WriteLine ( $"LoadedEventArgs = {e . CallerDb }\r\n" );
-		}
-
 		#region Trigger Task for loading for each Grid type
 		private async Task TriggeBankDataLoad ( SqlDbViewer NewSqlViewer )
 		{
@@ -1229,7 +1196,7 @@ namespace WPFPages . Views
 			//and we need to do the same in SqlDbViewer
 			EventHandlers . SendViewerCommand ( 102, ">>> Starting TriggerBankDataLoad()", Flags . CurrentSqlViewer );
 			// The Fn handles the Task.Run()
-			await BankCollection . LoadBankTaskInSortOrder ( true, -1 );
+			await BankCollection . LoadBankTaskInSortOrderasync ( true, -1 );
 			EventHandlers . SendViewerCommand ( 103, "<<< Ended TriggerBankDataLoad()", Flags . CurrentSqlViewer );
 		}
 		private async Task TriggerCustomerDataLoad ( SqlDbViewer NewSqlViewer )
@@ -1242,7 +1209,7 @@ namespace WPFPages . Views
 			try
 			{
 				List<Task<bool>> tasks = new List<Task<bool>> ( );
-				tasks . Add ( CustCollection . LoadCustomerTaskInSortOrder ( true, 0 ) );
+				tasks . Add ( CustCollection . LoadCustomerTaskInSortOrderAsync ( true, 0 ) );
 				var Results = await Task . WhenAll ( tasks );
 			}
 			catch ( Exception ex )
@@ -1258,10 +1225,10 @@ namespace WPFPages . Views
 			//This calls  LoadDetailsTask for us after sorting out the command line sort order requested
 			try
 			{
-				await DetCollection . LoadDetailsTaskInSortOrder ( true );
-				//				await dvm . LoadDetailsTaskInSortOrder ( true, 0 );
+				await DetCollection . LoadDetailsTaskInSortOrderAsync ( true );
+				//				await dvm . LoadDetailsTaskInSortOrderAsync ( true, 0 );
 				//List<Task<bool>> tasks = new List<Task<bool>> ( );
-				//tasks . Add ( dvm . LoadDetailsTaskInSortOrder ( true, 0 ) );
+				//tasks . Add ( dvm . LoadDetailsTaskInSortOrderAsync ( true, 0 ) );
 				//var Results = await Task . WhenAll ( tasks );
 			}
 			catch ( Exception ex )
@@ -1558,27 +1525,7 @@ namespace WPFPages . Views
 
 		}
 		#endregion UNUSED FUNCTIONS
-
-		private void sqlSelector_MouseUp ( object sender, MouseButtonEventArgs e )
-		{
-			//ListBoxItem lbi = new ListBoxItem ( );
-			//Guid tag = Guid . Empty;
-			//lbi = listbox . SelectedItem as ListBoxItem;
-			//if ( lbi == null ) return;
-			//tag = ( Guid ) lbi . Tag;
-			//for ( int x = 0 ; x < ViewersList . Items . Count ; x++ )
-			//{
-			//	if ( MainWindow . gv . ListBoxId [ x ] == tag )
-			//	{
-			//		MainWindow . gv . window [ x ] . Focus ( );
-			//		MainWindow . gv . SqlViewerWindow = MainWindow . gv . window [ x ] as SqlDbViewer;
-			//		//Ensure our global viewer pointer is set to last viewer selected
-			//		Flags . CurrentSqlViewer = MainWindow . gv . window [ x ] as SqlDbViewer;
-			//		break;
-			//	}
-			//}
-		}
-
+	
 		private void sqlSelector_SelectionChanged ( object sender, SelectionChangedEventArgs e )
 		{
 			//ListBoxItem lbi = new ListBoxItem ( );

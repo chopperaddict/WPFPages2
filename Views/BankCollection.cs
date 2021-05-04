@@ -11,12 +11,18 @@ using WPFPages . ViewModels;
 
 namespace WPFPages . Views
 {
+
+	// declre  delegate to be used to notify SqlDbViewers when data is FULLY loaded 
+//	delegate void DataLoaded ( object o );
+
 	public class BankCollection : ObservableCollection<BankAccountViewModel>
 	{
 		//Declare a global pointer to Observable BankAccount Collection
 		public static BankCollection Bankcollection;
 
 		public static DataTable dtBank = new DataTable();
+		
+//		public event DataLoaded(object sender, LoadedEventArgs e);
 
 		#region startup/load data / load collection (BankCollection)
 
@@ -24,41 +30,71 @@ namespace WPFPages . Views
 		public BankCollection ( ) : base ( )
 		{
 			Bankcollection = this;
-			Stopwatch  st = Stopwatch . StartNew ( );
-			Console . WriteLine ( $"Sql : loading Bankcollection ...." );
-			LoadBankTaskInSortOrder ( );
-			st . Stop ( );
-			Console . WriteLine ( $"BankCollection has completed - {Bankcollection . Count} records loaded in {( double ) st . ElapsedMilliseconds / ( double ) 1000} Seconds" );
+//			Stopwatch  st = Stopwatch . StartNew ( );
+//			Console . WriteLine ( $"Sql : **** START ****  loading Bankcollection ...." );
+//			LoadBankTaskInSortOrderasync ( );
+//			st . Stop ( );
+
+			// /NOPE, THIS IS CALLED LONG BEFORE DATA IS LOADED
+//			Console . WriteLine ( $"**** END **** BankCollection has completed - {Bankcollection . Count} records loaded in {( double ) st . ElapsedMilliseconds / ( double ) 1000} Seconds" );
 		}
 
-		// Entry point for all data load/Reload
 		//**************************************************************************************************************************************************************//
-		public async static Task<bool> LoadBankTaskInSortOrder ( bool b = false, int i = -1 )
+
+		// THIS IS  HOW  TO HANDLE EVENTS RIGHT NOW //
+		//Event CallBack for when Asynchronous data loading has been completed in the Various ViewModel classes
+		public static  event EventHandler<LoadedEventArgs> BankDataLoaded;
+		//-------------------------------------------------------------------------------------------------------------------------------------------------//
+		protected virtual void OnBankDataLoaded (  )
 		{
+			if ( BankDataLoaded != null )
+			{
+				Console . WriteLine ( $"Broadcasting from OnBankDataLoaded in " );
+				BankDataLoaded?.Invoke ( this, new LoadedEventArgs ( ) { DataSource = Bankcollection, CallerDb = "BANKACCOUNT"} );
+			}
+		}
+
+		public async static Task<bool> LoadBankTaskInSortOrderasync ( bool b = false, int i = -1 )
+		{
+			if ( Bankcollection == null )
+				Bankcollection = new BankCollection ( );
 			if ( dtBank . Rows . Count > 0 )
 				dtBank . Clear ( );
 			if ( Bankcollection . Items . Count > 0 )
 				Bankcollection . ClearItems ( );
 
-		await Task . Run ( ( ) =>
+			Console . WriteLine ( $"Calling Task.Run in Bankcollection ...." );
+			await Task . Run ( async ( ) =>
 			{
-				LoadBankData ( );
+				Console . WriteLine ( $"Calling LoadBankData in Task.Run in Bankcollection ...." );
+				await LoadBankData ( );
+				Console . WriteLine ( $"Returned from LoadBankData in Task.Run in Bankcollection ...." );
 
 				Application . Current . Dispatcher . Invoke (
-					( ) =>
+					async ( ) =>
 					{
-						LoadBankCollection ( );
+						Console . WriteLine ( $"Calling LoadBankCollection in Task.Run in Bankcollection ...." );
+						await LoadBankCollection ( );
+						Console . WriteLine ( $"Returned from LoadBankCollection in Task.Run in Bankcollection ...." );
 					} );
-				} );
+
+			});
+//			Console . WriteLine ( $"Before WaitAll() in Bankcollection ...." );
+	//		Task . WaitAll ( );
+			Console . WriteLine ( $"**** END **** OF ASYNC CALL METHOD {dtBank.Rows.Count} records in DataTable, {Bankcollection.Count} in Bankcollection ...." );
+			Console . WriteLine ( $"**** END **** A SAFE PLACE TO SEND AN EVENT TRIGGER TO SQLDBVIEWER WINDOW TO LOAD DATAGRID !!!" );
+			if( BankDataLoaded  != null)
+				BankDataLoaded.Invoke(Bankcollection, new LoadedEventArgs { CallerDb = "BANKACCOUNT", DataSource = Bankcollection} );
 			return true;
 		}
-
 		/// Handles the actual conneciton ot SQL to load the Details Db data required
 		/// </summary>
 		/// <returns></returns>
 		//**************************************************************************************************************************************************************//
 		public async static Task<bool> LoadBankData ( int mode = -1, bool isMultiMode = false )
 		{
+			Console . WriteLine ( $"Entered LoadBankData in Bankcollection ...." );
+
 			try
 			{
 				SqlConnection con;
@@ -90,6 +126,8 @@ namespace WPFPages . Views
 					SqlCommand cmd = new SqlCommand ( commandline, con );
 					SqlDataAdapter sda = new SqlDataAdapter ( cmd );
 					sda . Fill ( dtBank );
+					Console . WriteLine ( $"Exiting LoadBankData {dtBank . Rows . Count} records in DataTable" );
+//					Console . WriteLine ( $"Exiting LoadBankData in Bankcollection ...." );
 					return true;
 				}
 			}
@@ -100,9 +138,11 @@ namespace WPFPages . Views
 		}
 
 		//**************************************************************************************************************************************************************//
+
 		public async static Task<bool> LoadBankCollection ( )
 		{
 			int count = 0;
+			Console . WriteLine ( $"Entered LoadBankCollection in Bankcollection ...." );
 			try
 			{
 				for ( int i = 0 ; i < dtBank . Rows . Count ; i++ )
@@ -127,13 +167,30 @@ namespace WPFPages . Views
 			}
 			finally
 			{
-				Console . WriteLine ( $"Sql data loaded into Bank ObservableCollection \"Bankcollection\" [{count}] ...." );
+				Console . WriteLine ( $"Completed load into Bankcollection :  {Bankcollection . Count} records in Bankcollection ...." );
+				if ( BankDataLoaded != null )
+					BankDataLoaded . Invoke ( Bankcollection , new LoadedEventArgs { CallerDb = "DETAILS" , DataSource = Bankcollection } );
 			}
 			return true;
 		}
-
 		//**************************************************************************************************************************************************************//
-
+		public static void SubscribeToLoadedEvent ( object o )
+		{
+			if ( o == Bankcollection && BankDataLoaded == null )
+				BankDataLoaded += SqlDbViewer.SqlDbViewer_DataLoaded;
+		}
+		public static void UnSubscribeToLoadedEvent ( object o )
+		{
+			if ( BankDataLoaded != null )
+				BankDataLoaded -= SqlDbViewer.SqlDbViewer_DataLoaded;
+		}
+		public static Delegate [ ] GetEventCount6 ( )
+		{
+			Delegate [ ] dglist2 = null;
+			if ( BankDataLoaded != null )
+				dglist2 = BankDataLoaded?.GetInvocationList ( );
+			return dglist2;
+		}
 		#endregion startup/load data / load collection (BankCollection)
 	}
 }

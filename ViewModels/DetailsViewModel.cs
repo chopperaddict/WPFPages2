@@ -148,7 +148,7 @@ namespace WPFPages . ViewModels
 		//	}
 		//}
 
-		//public async Task<bool> LoadDetailsTaskInSortOrder ( bool IsOriginator, int mode = -1 )
+		//public async Task<bool> LoadDetailsTaskInSortOrderAsync ( bool IsOriginator, int mode = -1 )
 		//{
 		//	//THIS Fn HANDLES SPAWNING THE TASK/AWAIT
 		//	//and handles the Broadcast Notification
@@ -176,7 +176,7 @@ namespace WPFPages . ViewModels
 
 		//**************************************************************************************************************************************************************//
 		/// <summary>
-		/// // Only called by LoadDetailsTaskInSortOrder()
+		/// // Only called by LoadDetailsTaskInSortOrderAsync()
 		/// </summary>
 		/// <param> </param>
 		public async Task<bool> LoadDetailsTask ( bool isOriginator, int mode = -1 )

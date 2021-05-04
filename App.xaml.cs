@@ -34,7 +34,7 @@ namespace WPFPages
 			//MainWindow window = new MainWindow ();
 			// Create the ViewModel to which 
 			// the main window binds. 
-			string path = "Data/customers.xml";
+//			string path = "Data/customers.xml";
 //?			var viewModel = new MainWindowViewModel (path);
 			// When the ViewModel asks to be closed, 
 			// close the window. 
