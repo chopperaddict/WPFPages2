@@ -553,7 +553,6 @@ Closed="Window_Closed">
 					HorizontalAlignment="Stretch"
 					IsReadOnly="False"
 					IsSynchronizedWithCurrentItem="True"			    
-					LoadingRowDetails="BankGrid_LoadingRowDetails"
 					MinHeight="320"
 					MouseRightButtonUp="BankGrid_MouseRightButtonUp" 
 					MouseRightButtonDown="BankGrid_MouseRightButtonDown" 
@@ -870,7 +869,8 @@ Closed="Window_Closed">
 									StringFormat='##.00 ',
 									UpdateSourceTrigger=LostFocus}"/>
 					<DataGridTextColumn Header="A/c Opened" 
-									Binding ="{Binding Path=ODate, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+									Binding ="{Binding Path=ODate, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, 
+									StringFormat='dd/MM/yyyy'}"/>
 					<!--the next 2 show 2 ways to format a date - 1 a Converter the other a direct Format string-->
 					<DataGridTemplateColumn Header="A/c Closed" Width="80" SortMemberPath="CDate">
 						<DataGridTemplateColumn.CellTemplate>

@@ -22,24 +22,18 @@ namespace WPFPages . Views
 
 		public static DataTable dtBank = new DataTable();
 		
-//		public event DataLoaded(object sender, LoadedEventArgs e);
 
-		#region startup/load data / load collection (BankCollection)
+		#region CONSTRUCTOR
 
-		//**************************************************************************************************************************************************************//
 		public BankCollection ( ) : base ( )
 		{
+			//set the static pointer to this class
 			Bankcollection = this;
-//			Stopwatch  st = Stopwatch . StartNew ( );
-//			Console . WriteLine ( $"Sql : **** START ****  loading Bankcollection ...." );
-//			LoadBankTaskInSortOrderasync ( );
-//			st . Stop ( );
-
-			// /NOPE, THIS IS CALLED LONG BEFORE DATA IS LOADED
-//			Console . WriteLine ( $"**** END **** BankCollection has completed - {Bankcollection . Count} records loaded in {( double ) st . ElapsedMilliseconds / ( double ) 1000} Seconds" );
 		}
+		
+		#endregion CONSTRUCTOR
 
-		//**************************************************************************************************************************************************************//
+		#region DATA LOADED EVENT
 
 		// THIS IS  HOW  TO HANDLE EVENTS RIGHT NOW //
 		//Event CallBack for when Asynchronous data loading has been completed in the Various ViewModel classes
@@ -53,7 +47,9 @@ namespace WPFPages . Views
 				BankDataLoaded?.Invoke ( this, new LoadedEventArgs ( ) { DataSource = Bankcollection, CallerDb = "BANKACCOUNT"} );
 			}
 		}
+		#endregion DATA LOADED EVENT
 
+		#region LOAD THE DATA
 		public async static Task<bool> LoadBankTaskInSortOrderasync ( bool b = false, int i = -1 )
 		{
 			if ( Bankcollection == null )
@@ -90,7 +86,6 @@ namespace WPFPages . Views
 		/// Handles the actual conneciton ot SQL to load the Details Db data required
 		/// </summary>
 		/// <returns></returns>
-		//**************************************************************************************************************************************************************//
 		public async static Task<bool> LoadBankData ( int mode = -1, bool isMultiMode = false )
 		{
 			Console . WriteLine ( $"Entered LoadBankData in Bankcollection ...." );
@@ -137,8 +132,6 @@ namespace WPFPages . Views
 			}
 		}
 
-		//**************************************************************************************************************************************************************//
-
 		public async static Task<bool> LoadBankCollection ( )
 		{
 			int count = 0;
@@ -173,7 +166,10 @@ namespace WPFPages . Views
 			}
 			return true;
 		}
-		//**************************************************************************************************************************************************************//
+
+		#endregion LOAD THE DATA
+
+		#region EVENT Subscription methods
 		public static void SubscribeToLoadedEvent ( object o )
 		{
 			if ( o == Bankcollection && BankDataLoaded == null )
@@ -184,6 +180,9 @@ namespace WPFPages . Views
 			if ( BankDataLoaded != null )
 				BankDataLoaded -= SqlDbViewer.SqlDbViewer_DataLoaded;
 		}
+		
+		#endregion EVENT Subscription methods
+
 		public static Delegate [ ] GetEventCount6 ( )
 		{
 			Delegate [ ] dglist2 = null;
@@ -191,6 +190,6 @@ namespace WPFPages . Views
 				dglist2 = BankDataLoaded?.GetInvocationList ( );
 			return dglist2;
 		}
-		#endregion startup/load data / load collection (BankCollection)
+	
 	}
 }

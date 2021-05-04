@@ -292,7 +292,7 @@
 			ScrollViewer.VerticalScrollBarVisibility="Disabled"
 			Style="{StaticResource _styletest}"
 			IsTabStop="True"
-			TabIndex="0" SelectionChanged="sqlSelector_SelectionChanged" >
+			TabIndex="0" >
 			<ListBox.ItemContainerStyle>
 				<Style TargetType="ListBoxItem">
 					<Setter Property="HorizontalContentAlignment" Value="Stretch"/>

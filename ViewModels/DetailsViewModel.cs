@@ -28,7 +28,7 @@ namespace WPFPages . ViewModels
 				return;         // Nothing to do, it was us that sent the broadcast
 
 			if ( Flags . SqlDetViewer != null )
-				Flags . SqlDetViewer . RefreshDetailsOnUpdateNotification ( sender, Grid, args );
+				Flags . CurrentSqlViewer. RefreshDetailsOnUpdateNotification ( sender, Grid, args );
 			if ( Flags . CurrentEditDbViewer != null )
 				Flags . CurrentEditDbViewer . DbChangedHandler ( sender, Grid, args );
 			return;

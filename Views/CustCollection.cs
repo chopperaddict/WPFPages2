@@ -17,6 +17,8 @@ namespace WPFPages . Views
 
 		public static DataTable dtCust = new DataTable();
 
+		#region LOAD EVENT  Handler
+
 		// THIS IS  HOW  TO HANDLE EVENTS RIGHT NOW //
 		//Event CallBack for when Asynchronous data loading has been completed in the Various ViewModel classes
 		public  static  event EventHandler<LoadedEventArgs> CustDataLoaded;
@@ -26,30 +28,24 @@ namespace WPFPages . Views
 			if ( CustDataLoaded != null )
 			{
 				Console . WriteLine ( $"Broadcasting from OnCustDataLoaded in " );
-				CustDataLoaded?.Invoke ( this, new LoadedEventArgs ( ) { DataSource = Custcollection, CallerDb = "CUSTOMER" } );
+				CustDataLoaded?.Invoke ( this , new LoadedEventArgs ( ) { DataSource = Custcollection , CallerDb = "CUSTOMER" } );
 			}
 		}
 
+		#endregion LOAD EVENT  Handler
 
-		#region startup/load data / load collection (CustCollection)
-
-		//**************************************************************************************************************************************************************//
+		#region CONSTRUCTOR
 		public CustCollection ( ) : base ( )
 		{
+			//set the static pointer to this class
 			Custcollection = this;
-			//System.Diagnostics . Stopwatch  st = System.Diagnostics . Stopwatch . StartNew ( );
-			//Console . WriteLine ( $"Sql : loading Custcollection ...." );
-			//LoadCustomerTaskInSortOrderAsync ( true );
-			//st . Stop ( );
-			//Console . WriteLine ( $"CustCollection has completed - {Custcollection . Count} records loaded in {( double ) st . ElapsedMilliseconds / ( double ) 1000} Seconds" );
-
-			//if ( CustDataLoaded != null )
-			//	CustDataLoaded . Invoke ( Custcollection, new LoadedEventArgs { CallerDb = "CUSTOMER", DataSource = Custcollection } );
 		}
+		#endregion CONSTRUCTOR
 
+		#region startup/load data / load collection (CustCollection)
 		// Entry point for all data load/Reload
 		//**************************************************************************************************************************************************************//
-		public static async Task<bool> LoadCustomerTaskInSortOrderAsync ( bool isOriginator, int mode = -1 )
+		public static async Task<bool> LoadCustomerTaskInSortOrderAsync ( bool isOriginator , int mode = -1 )
 		{
 			if ( dtCust . Rows . Count > 0 )
 				dtCust . Clear ( );
@@ -59,16 +55,16 @@ namespace WPFPages . Views
 			if ( Custcollection . Items . Count > 0 )
 				Custcollection . ClearItems ( );
 
-			await Task . Run (async  ( ) =>
-			{
-				await LoadCustDataSql ( );
+			await Task . Run ( async ( ) =>
+			 {
+				 await LoadCustDataSql ( );
 
-				Application . Current . Dispatcher . Invoke (
-					async ( ) =>
-					{
-						await LoadCustomerCollection ( );
-					} );
-			} );
+				 Application . Current . Dispatcher . Invoke (
+					 async ( ) =>
+					 {
+						 await LoadCustomerCollection ( );
+					 } );
+			 } );
 			return true;
 		}
 
@@ -76,7 +72,7 @@ namespace WPFPages . Views
 		/// Handles the actual conneciton ot SQL to load the Details Db data required
 		/// </summary>
 		/// <returns></returns>
-		public async static Task<int> LoadCustDataSql ( DataTable dt = null, int mode = -1, bool isMultiMode = false )
+		public async static Task<int> LoadCustDataSql ( DataTable dt = null , int mode = -1 , bool isMultiMode = false )
 		//Load data from Sql Server
 		{
 			try
@@ -129,51 +125,56 @@ namespace WPFPages . Views
 			{
 				Custcollection . Add ( new CustomerViewModel
 				{
-					Id = Convert . ToInt32 ( dtCust . Rows [ i ] [ 0 ] ),
-					CustNo = dtCust . Rows [ i ] [ 1 ] . ToString ( ),
-					BankNo = dtCust . Rows [ i ] [ 2 ] . ToString ( ),
-					AcType = Convert . ToInt32 ( dtCust . Rows [ i ] [ 3 ] ),
-					FName = dtCust . Rows [ i ] [ 4 ] . ToString ( ),
-					LName = dtCust . Rows [ i ] [ 5 ] . ToString ( ),
-					Addr1 = dtCust . Rows [ i ] [ 6 ] . ToString ( ),
-					Addr2 = dtCust . Rows [ i ] [ 7 ] . ToString ( ),
-					Town = dtCust . Rows [ i ] [ 8 ] . ToString ( ),
-					County = dtCust . Rows [ i ] [ 9 ] . ToString ( ),
-					PCode = dtCust . Rows [ i ] [ 10 ] . ToString ( ),
-					Phone = dtCust . Rows [ i ] [ 11 ] . ToString ( ),
-					Mobile = dtCust . Rows [ i ] [ 12 ] . ToString ( ),
-					Dob = Convert . ToDateTime ( dtCust . Rows [ i ] [ 13 ] ),
-					ODate = Convert . ToDateTime ( dtCust . Rows [ i ] [ 14 ] ),
+					Id = Convert . ToInt32 ( dtCust . Rows [ i ] [ 0 ] ) ,
+					CustNo = dtCust . Rows [ i ] [ 1 ] . ToString ( ) ,
+					BankNo = dtCust . Rows [ i ] [ 2 ] . ToString ( ) ,
+					AcType = Convert . ToInt32 ( dtCust . Rows [ i ] [ 3 ] ) ,
+					FName = dtCust . Rows [ i ] [ 4 ] . ToString ( ) ,
+					LName = dtCust . Rows [ i ] [ 5 ] . ToString ( ) ,
+					Addr1 = dtCust . Rows [ i ] [ 6 ] . ToString ( ) ,
+					Addr2 = dtCust . Rows [ i ] [ 7 ] . ToString ( ) ,
+					Town = dtCust . Rows [ i ] [ 8 ] . ToString ( ) ,
+					County = dtCust . Rows [ i ] [ 9 ] . ToString ( ) ,
+					PCode = dtCust . Rows [ i ] [ 10 ] . ToString ( ) ,
+					Phone = dtCust . Rows [ i ] [ 11 ] . ToString ( ) ,
+					Mobile = dtCust . Rows [ i ] [ 12 ] . ToString ( ) ,
+					Dob = Convert . ToDateTime ( dtCust . Rows [ i ] [ 13 ] ) ,
+					ODate = Convert . ToDateTime ( dtCust . Rows [ i ] [ 14 ] ) ,
 					CDate = Convert . ToDateTime ( dtCust . Rows [ i ] [ 15 ] )
 				} );
 				count = i;
 			}
 			Console . WriteLine ( $"Sql data loaded into Customers Observable Collection \"CustCollection\"[{count}] ...." );
 
-			if (CustDataLoaded != null )
-				CustDataLoaded . Invoke ( Custcollection, new LoadedEventArgs { CallerDb = "CUSTOMER", DataSource = Custcollection } );
+			if ( CustDataLoaded != null )
+				CustDataLoaded . Invoke ( Custcollection , new LoadedEventArgs { CallerDb = "CUSTOMER" , DataSource = Custcollection } );
 			return true;
 		}
 
 		#endregion startup/load data / load collection (CustCollection)
 
+
+		#region Event Subscription handlers
+
 		public static void SubscribeToLoadedEvent ( object o )
 		{
 			if ( o == Custcollection && CustDataLoaded == null )
-				CustDataLoaded += SqlDbViewer. SqlDbViewer_DataLoaded;
+				CustDataLoaded += SqlDbViewer . SqlDbViewer_DataLoaded;
 		}
 		public static void UnSubscribeToLoadedEvent ( object o )
 		{
 			if ( CustDataLoaded != null )
-				CustDataLoaded -= SqlDbViewer.SqlDbViewer_DataLoaded;
+				CustDataLoaded -= SqlDbViewer . SqlDbViewer_DataLoaded;
 		}
+
+		#endregion Event Subscription handlers
+
 		public static Delegate [ ] GetEventCount7 ( )
 		{
 			Delegate [ ] dglist2 = null;
 			if ( CustDataLoaded != null )
-				dglist2 =  CustDataLoaded?.GetInvocationList ( );
+				dglist2 = CustDataLoaded?.GetInvocationList ( );
 			return dglist2;
 		}
-		//**************************************************************************************************************************************************************//
 	}
 }

@@ -652,7 +652,7 @@ namespace WPFPages . Views
 			Guid guid = ( Guid ) lbi . Tag;
 			if ( Utils . CheckForExistingGuid ( guid ) )
 			{
-				Flags . CurrentSqlViewer . UpdateViewersList ( );
+				Flags . DbSelectorOpen. UpdateViewersList ( );
 			}
 			else
 			{
@@ -1056,6 +1056,29 @@ namespace WPFPages . Views
 				}
 			}
 		}
+
+		/// <summary>
+		///  Refresh the text Content of the ViewersList entires ot match currently selected  Viewer
+		/// </summary>
+		public void UpdateViewersList ( )
+		{
+			if ( this . Tag == null ) return;
+			if ( MainWindow . gv . DbSelectorWindow . ViewersList . Items . Count == 1 )
+				return;
+			for ( int i = 0 ; i < MainWindow . gv . DbSelectorWindow . ViewersList . Items . Count ; i++ )
+			{
+				if ( i + 1 == MainWindow . gv . DbSelectorWindow . ViewersList . Items . Count )
+					return;
+				if ( MainWindow . gv . ListBoxId [ i ] == ( Guid ) Flags . CurrentSqlViewer . Tag )
+				{
+					ListBoxItem lbi = new ListBoxItem ( );
+					lbi = Flags . DbSelectorOpen . ViewersList . Items [ i + 1 ] as ListBoxItem;
+					lbi . Content = MainWindow . gv . CurrentDb [ i ];
+					break;
+				}
+			}
+		}
+
 		#region GetInstance
 		//*****************************************************************************************//
 		//this is really clever stuff
