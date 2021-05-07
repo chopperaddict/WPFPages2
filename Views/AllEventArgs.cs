@@ -8,6 +8,11 @@ using System . Windows . Controls;
 namespace WPFPages . Views
 {
 	#region EventArg Declarations
+	public class DeletionEventArgs : EventArgs	{		
+		public string Sender { get; set; }
+		public string Bankno { get; set; }
+		public string Custno { get; set; }
+	}
 	public class LoadedEventArgs : EventArgs
 	{
 		public string CallerDb { get; set; }

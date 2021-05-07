@@ -44,7 +44,7 @@ namespace WPFPages . Views
 		{
 			if ( BankDataLoaded != null )
 			{
-				Console . WriteLine ( $"Broadcasting from OnBankDataLoaded with {bnkdata.Count} records loaded " );
+				Console . WriteLine ( $"Broadcasting from OnBankDataLoaded with {bnkdata.Count} records loaded " );				  
 				BankDataLoaded?.Invoke ( bnkdata , new LoadedEventArgs ( ) { DataSource = bnkdata , CallerDb = "BANKACCOUNT" } );
 			}
 		}

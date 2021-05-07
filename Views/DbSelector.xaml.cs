@@ -37,6 +37,12 @@ namespace WPFPages . Views
 		private static CustomerViewModel cvm = MainWindow . cvm;
 		private static DetailsViewModel dvm = MainWindow . dvm;
 		public BankCollection Bankcollection;
+
+		public int selection = 0;
+		private int CurrentList = -1;
+		private static bool key1 = false;
+
+
 		//*********************DELEGATE STUFF **************************************************//
 		// I can now just use this : SendViewerCommand(x, "") to send messages to SqlDbViewer window
 		//		EVent trigger for public delegate void NotifyViewer ( int status, string info, SqlDbViewer NewSqlViewer );
@@ -735,10 +741,6 @@ namespace WPFPages . Views
 
 		#endregion Receive  notifications into MyNotification() from SqlViewer - WORKS JUST FINE
 
-		public int selection = 0;
-		private int CurrentList = -1;
-		private bool key1 = false;
-
 		// Variable to hold string content for ListBox items in ViewerList of DbSelector.
 		private string _listBoxItemText;
 
@@ -907,9 +909,40 @@ namespace WPFPages . Views
 		//*******************************MAIN KEY HANDLER FOR LIST BOXES*************************************//
 		private void IsEnterKey ( object sender , KeyEventArgs e )
 		{
-			Console . WriteLine ( $"Key : {e . Key . ToString ( )}" );
+			Console . WriteLine ( $"" +
+				$"Key1 = {key1}, Key : {e . Key . ToString ( )}" );
 			//PreviewKeyDown - in either list
-			if ( e . Key == Key . Enter )
+			if ( e . Key == Key . LeftCtrl )
+			{
+				key1 = true;
+			}
+
+			if ( key1 && e . Key == Key . F9 )     // CTRL + F9
+			{
+				// lists all delegates & Events
+				EventHandlers . ShowSubscribersCount ( );
+				e . Handled = true;
+				key1 = false;
+				return;
+			}
+			else if ( key1 && e . Key == Key . System )     // CTRL + F10
+			{
+				// Major  listof GV[] variables (Guids etc]
+				Flags . ListGridviewControlFlags ( 1 );
+				key1 = false;
+				e . Handled = true;
+				return;
+			}
+			else if ( key1 && e . Key == Key . F11 )  // CTRL + F11
+			{
+				// list various Flags in Console
+				Flags . PrintSundryVariables ( );
+				e . Handled = true;
+				key1 = false;
+				return;
+				//				Console . WriteLine ("Left Ctrl hit");
+			}
+			else if ( e . Key == Key . Enter )
 			{
 				if ( CurrentList == 1 )
 				{ // Top list - new Viewer type
@@ -924,8 +957,9 @@ namespace WPFPages . Views
 					HandleSelection ( ViewersList , "SELECT" );
 				}
 				key1 = false;
+				return;
 			}
-			if ( e . Key == Key . NumPad2 || e . Key == Key . Down )
+			else if ( e . Key == Key . NumPad2 || e . Key == Key . Down )
 			{
 				ListBox lb = sender as ListBox;
 				if ( lb . SelectedIndex < lb . Items . Count - 1 )
@@ -933,15 +967,14 @@ namespace WPFPages . Views
 				key1 = false;
 				return;
 			}
-			else if ( e . Key == Key . LeftCtrl )
-				key1 = true;
-			else if ( e . Key == Key . RWin )
+			else if (key1 &&  e . Key == Key . F12)
 			{
 				if ( key1 )
 				{
 					Flags . ShowAllFlags ( );
 					key1 = false;
 				}
+				return;
 			}
 			else if ( e . Key == Key . OemQuotes )
 			{
@@ -962,7 +995,7 @@ namespace WPFPages . Views
 				key1 = false;
 				return;
 			}
-			else if ( e . Key == Key . End )
+			else if ( key1 && e . Key == Key . End )
 			{
 				Flags . ListGridviewControlFlags ( 1 );
 				key1 = false;
@@ -1003,10 +1036,56 @@ namespace WPFPages . Views
 
 		private void Window_KeyDown ( object sender , KeyEventArgs e )
 		{
-			if ( e . Key == Key . RightAlt )
+			if ( e . Key == Key . LeftCtrl )
+			{
+				key1 = true;
+			}
+			Console . WriteLine ( $"Key1 = {key1}, Key = {e . Key}" );
+
+			if ( key1 && e . Key == Key . F9 )     // CTRL + F9
+			{
+				// lists all delegates & Events
+				EventHandlers . ShowSubscribersCount ( );
+				e . Handled = true;
+				key1 = false;
+				return;
+			}
+			else if ( key1 && e . Key == Key . System )     // CTRL + F10
+			{
+				// Major  listof GV[] variables (Guids etc]
+				Flags . ListGridviewControlFlags ( 1 );
+				key1 = false;
+				e . Handled = true;
+				return;
+			}
+			else if ( key1 && e . Key == Key . F11 )  // CTRL + F11
+			{
+				// list various Flags in Console
+				Flags . PrintSundryVariables ( );
+				e . Handled = true;
+				key1 = false;
+				return;
+				//				Console . WriteLine ("Left Ctrl hit");
+			}
+			else if ( key1 && e . Key == Key . F12 )
+			{
+				if ( key1 )
+				{
+					Flags . ShowAllFlags ( );
+					key1 = false;
+				}
+				return;
+			}
+			else if ( e . Key == Key . RightAlt )
 			{
 				Flags . ListGridviewControlFlags ( );
+				key1 = false;
+				return;
 			}
+			//else
+			//{
+			//	key1 = false;
+			//}
 		}
 
 		/// <summary>

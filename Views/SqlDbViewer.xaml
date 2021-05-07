@@ -802,6 +802,7 @@ Closed="Window_Closed">
 					PreviewMouseDown="DetailsGrid_PreviewMouseDown_1"
 					RowEditEnding="ViewerGrid_RowEditEnding"
 					RowHeight="27"
+	    				SelectedCellsChanged="DetailsGrid_SelectedCellsChanged"
 					SelectionChanged="ItemsView_OnSelectionChanged"
 					TabIndex="3"
 					Visibility="Collapsed"
