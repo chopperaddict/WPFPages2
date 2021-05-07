@@ -82,7 +82,7 @@ namespace WPFPages . Views
 		public static  event EventHandler<NotifyAllViewersOfUpdateEventArgs >  AllViewersUpdate;
 
 		#endregion (TRUE) EVENT CALLBACK Declarations
-		
+
 		// Trigger Method to be sent when data is updated (in a DbEdit Window)
 		public static void OnAllViewersUpdate ( object sender , string CurrentDb )
 		{
@@ -90,7 +90,7 @@ namespace WPFPages . Views
 			{
 				Console . WriteLine ( $"Broadcasting from OnDataLoaded in SQLHandlers()" );
 				AllViewersUpdate?.Invoke ( sender , new NotifyAllViewersOfUpdateEventArgs
-				{ CurrentDb = CurrentDb} );
+				{ CurrentDb = CurrentDb } );
 			}
 		}
 
@@ -550,6 +550,7 @@ namespace WPFPages . Views
 
 				Flags . CurrentEditDbViewer = this;
 				Flags . CurrentEditDbViewer . Name = "BankAccount";
+				Flags . ActiveEditGrid = this;
 
 				DataGrid1 . Focus ( );
 				DataGrid1 . BringIntoView ( );
@@ -600,6 +601,7 @@ namespace WPFPages . Views
 
 				Flags . CurrentEditDbViewer = this;
 				Flags . CurrentEditDbViewer . Name = "Customer";
+				Flags . ActiveEditGrid = this;
 
 				DataGrid2 . Focus ( );
 				DataGrid2 . BringIntoView ( );
@@ -654,6 +656,8 @@ namespace WPFPages . Views
 
 				Flags . CurrentEditDbViewer = this;
 				Flags . CurrentEditDbViewer . Name = "Details";
+				Flags . ActiveEditGrid = this;
+
 				DetailsGrid . Focus ( );
 				DetailsGrid . BringIntoView ( );
 				NotifyOfDataChange += dvm . DbHasChangedHandler; // Callback in REMOTE FILE
@@ -673,10 +677,6 @@ namespace WPFPages . Views
 
 		}
 
-		private void Window_Closed ( object sender , EventArgs e )
-		{
-			// all handled in _Closing method
-		}
 		private void Window_Closing ( object sender , CancelEventArgs e )
 		{
 			if ( NotifyOfDataChange != null )
@@ -684,16 +684,27 @@ namespace WPFPages . Views
 
 			if ( EditDbViewerSelectedIndexChanged != null )
 				EditDbViewerSelectedIndexChanged -= EditDbHasChangedIndex;      // Callback in THIS FILE
-			// Clear up pointers to this instance of an EditDb window
+														    // Clear up pointers to this instance of an EditDb window
 			MainWindow . gv . SqlCurrentEditViewer = null;
 			Flags . CurrentEditDbViewer = null;
 			//Clear flags
 			if ( CurrentDb == "BANKACCOUNT" )
+			{
 				Flags . BankEditDb = null;
+				Flags . CurrentEditDbViewerBankGrid = null;
+			}
 			else if ( CurrentDb == "CUSTOMER" )
+			{
 				Flags . CustEditDb = null;
+				Flags . CurrentEditDbViewerCustomerGrid = null;
+			}
 			else if ( CurrentDb == "DETAILS" )
+			{
 				Flags . DetEditDb = null;
+				Flags . CurrentEditDbViewerDetailsGrid = null;
+			}
+			Flags . ActiveEditGrid = null;
+			Flags . CurrentEditDbViewer = null;
 
 			//Flags.DbSelectorOpen. DeleteCurrentViewer ( );
 		}

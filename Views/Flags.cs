@@ -54,13 +54,13 @@ namespace WPFPages
 			DbSelector DbSelectorOpen;
 			EditDb CurrentEditDbViewer;
 			SqlDbViewer CurrentSqlViewer;
-			SqlDbViewer SqlUpdateOriginatorViewer;
+//			SqlDbViewer SqlUpdateOriginatorViewer;
 			bool EditDbChangeHandled;
 			bool IsFiltered;
 			string FilterCommand;
 			bool EventHandlerDebug;
 			bool IsMultiMode;
-			DataGrid ActiveSqlDbViewer;
+			SqlDbViewer ActiveSqlViewer;
 			bool SqlViewerIsLoading;
 			bool  SqlViewerIndexIsChanging;
 			DataGrid ActiveSqlGrid;
@@ -116,7 +116,7 @@ namespace WPFPages
 		public static DbSelector DbSelectorOpen = null;
 		public static EditDb CurrentEditDbViewer = null;
 		public static SqlDbViewer CurrentSqlViewer = null;
-		public static SqlDbViewer SqlUpdateOriginatorViewer = null;
+//		public static SqlDbViewer SqlUpdateOriginatorViewer = null;
 
 		// pointers  to any open Viewers
 		public static SqlDbViewer CurrentBankViewer;
@@ -136,7 +136,7 @@ namespace WPFPages
 		///  Holds the DataGrid pointer fort each open SqlDbViewer Window as they
 		///  can each have diffrent datasets in use at any one time
 		/// </summary>
-		public static DataGrid ActiveSqlDbViewer = null;
+		public static SqlDbViewer ActiveSqlViewer= null;
 
 		/// <summary>
 		///  Used to  control the initial load of Viewer windows to avoid 
@@ -474,7 +474,7 @@ namespace WPFPages
 		public static void ShowAllFlags ( )
 		{
 			ActiveEditGrid = Flags . ActiveEditGrid;
-			ActiveSqlDbViewer = Flags . ActiveSqlDbViewer;
+			ActiveSqlViewer = Flags . ActiveSqlViewer;
 			ActiveSqlGrid = Flags . ActiveSqlGrid;
 
 			CurrentEditDbViewer = Flags . CurrentEditDbViewer;
@@ -503,7 +503,7 @@ namespace WPFPages
 			SqlCustCurrentIndex = Flags . SqlCustCurrentIndex;
 			SqlDetCurrentIndex = Flags . SqlDetCurrentIndex;
 
-			SqlUpdateOriginatorViewer = Flags . SqlUpdateOriginatorViewer;
+//			SqlUpdateOriginatorViewer = Flags . SqlUpdateOriginatorViewer;
 			SqlViewerIsLoading = Flags . SqlViewerIsLoading;
 			 SqlViewerIndexIsChanging = Flags .  SqlViewerIndexIsChanging;
 
@@ -529,7 +529,6 @@ namespace WPFPages
 			$"\nbool SqlViewerIsLoading									: {SqlViewerIsLoading}" +
 			$"\nbool  SqlViewerIndexIsChanging							: { SqlViewerIndexIsChanging}" +
 			"\n" +
-			$"\nDataGrid ActiveSqlDbViewer								: {ActiveSqlDbViewer?.Name}" +
 			$"\nDataGrid ActiveSqlGrid									: {ActiveSqlGrid?.Name}" +
 			$"\nDataGrid CurrentEditDbViewerBankGrid					: {CurrentEditDbViewerBankGrid?.Name}" +
 			$"\nDataGrid CurrentEditDbViewerCustomerGrid				: {CurrentEditDbViewerCustomerGrid?.Name}" +
@@ -550,21 +549,22 @@ namespace WPFPages
 			$"\nint SqlCustCurrentIndex									: {SqlCustCurrentIndex}" +
 			$"\nint SqlDetCurrentIndex									: {SqlDetCurrentIndex}" +
 			"\n" +
-			//$"\nList< DataGrid > CurrentEditDbViewerBankGridList		: {CurrentEditDbViewerBankGridList}" +
-			//$"\nList< DataGrid > CurrentEditDbViewerCustomerGridList	: {CurrentEditDbViewerCustomerGridList}" +
-			//$"\nList< DataGrid > CurrentEditDbViewerDetailsGridList		: {CurrentEditDbViewerDetailsGridList}" +
-			//"\n" +
-			$"\nSqlDbViewer CurrentSqlViewer							: {CurrentSqlViewer?.Name}" +
+						//$"\nList< DataGrid > CurrentEditDbViewerBankGridList		: {CurrentEditDbViewerBankGridList}" +
+						//$"\nList< DataGrid > CurrentEditDbViewerCustomerGridList	: {CurrentEditDbViewerCustomerGridList}" +
+						//$"\nList< DataGrid > CurrentEditDbViewerDetailsGridList		: {CurrentEditDbViewerDetailsGridList}" +
+						//"\n" +
+			$"\nSqlDbViewer ActiveSqlViewer								: {ActiveSqlViewer?.CurrentDb}" +
+			$"\nSqlDbViewer CurrentSqlViewer							: {CurrentSqlViewer?.CurrentDb}" +
 			$"\nSqlDbViewer SqlBankViewer								: {SqlBankViewer} + {Flags.SqlBankViewer?.BankGrid?.Name}" +
 			$"\nSqlDbViewer SqlCustViewer								: {SqlCustViewer} + {Flags . SqlCustViewer?.CustomerGrid?.Name}" +
 			$"\nSqlDbViewer SqlDetViewer								: {SqlDetViewer} + {Flags . SqlDetViewer?.DetailsGrid?.Name}" +
-			$"\nSqlDbViewer SqlUpdateOriginatorViewer					: {SqlUpdateOriginatorViewer?.Name}" +
+//			$"\nSqlDbViewer SqlUpdateOriginatorViewer					: {SqlUpdateOriginatorViewer?.Name}" +
 			"\n" +
 			$"\nstring FilterCommand									: {FilterCommand}" +
 			$"\nstring MultiAccountCommandString						: {MultiAccountCommandString}\n" +
 			$"dtBank = {BankCollection . dtBank? . Rows?. Count}, Collection = {BankCollection . Bankcollection? . Count}\n" +
 			$"dtCust = {CustCollection . dtCust?. Rows?.Count}, Collection = {CustCollection . Custcollection? . Count}\n" +
-			$"dtBank = {DetCollection . dtDetails?. Rows? . Count}, Collection = {DetCollection . Detcollection? . Count}\n"	+
+			$"dtDet = {DetCollection . dtDetails?. Rows? . Count}, Collection = {DetCollection . Detcollection? . Count}\n"	+
 			$"CurrentThread											: {Thread.CurrentThread.ManagedThreadId}"
 					);
 		}

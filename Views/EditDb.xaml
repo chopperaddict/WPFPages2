@@ -7,12 +7,14 @@
 		xmlns:data="clr-namespace:WPFPages.Views"
 		xmlns:myData="clr-namespace:WPFPages.ViewModels" 
 		mc:Ignorable="d"
-		Title="Database Editing Window - " 
+		Closing="Window_Closing" 
+		GotFocus="Window_GotFocus"
 		Height="640" Width="700"
 		MinHeight="640" MinWidth="700"		 		
 		Loaded="WindowLoaded"	  
 		PreviewKeyDown="Window_PreviewKeyDown"
-		Closed="Window_Closed" Closing="Window_Closing" GotFocus="Window_GotFocus">
+	  Title="Database Editing Window - " 
+		>
 
 	<!-- 
 	#pragma MVVM TODO

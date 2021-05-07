@@ -44,8 +44,8 @@ namespace WPFPages . Views
 		{
 			if ( BankDataLoaded != null )
 			{
-				Console . WriteLine ( $"Broadcasting from OnBankDataLoaded in " );
-				BankDataLoaded?.Invoke ( bnkdata , new LoadedEventArgs ( ) { DataSource = Bankcollection , CallerDb = "BANKACCOUNT" } );
+				Console . WriteLine ( $"Broadcasting from OnBankDataLoaded with {bnkdata.Count} records loaded " );
+				BankDataLoaded?.Invoke ( bnkdata , new LoadedEventArgs ( ) { DataSource = bnkdata , CallerDb = "BANKACCOUNT" } );
 			}
 		}
 
@@ -63,7 +63,7 @@ namespace WPFPages . Views
 
 			// This all woks just fine, and DOES switch back to UI thread that is MANDATORY before doing the Collection load processing
 			// thanks to the use of TaskScheduler.FromCurrentSynchronizationContext() that oerforms the magic switch back to the UI thread
-			Console . WriteLine ( $"\nEntering Method to call Task.Run in BankCollection  : Thread = { Thread . CurrentThread . ManagedThreadId}" );
+			Console . WriteLine ( $"Entering Method to call Task.Run in BankCollection  : Thread = { Thread . CurrentThread . ManagedThreadId}" );
 
 			#region process code to load data
 
@@ -76,26 +76,25 @@ namespace WPFPages . Views
 						// throw new AccessViolationException();
 					}
 				);
+
 			t1 . ContinueWith
 			(
 				async ( Bankcollection ) =>
 				{
 					Console . WriteLine ( $"Before starting second Task.Run() : Thread = { Thread . CurrentThread . ManagedThreadId}" );
-					await LoadBankCollection ( );
-//					Console . WriteLine ( $"After second Task.Run() : Thread = { Thread . CurrentThread . ManagedThreadId}" );
+					Bankcollection =  LoadBankCollection ( );
 				} , TaskScheduler . FromCurrentSynchronizationContext ( )
 			 );
-
 			#endregion process code to load data
 
 			#region Success//Error reporting/handling
 
 			// Now handle "post processing of errors etc"
 			//This will ONLY run if there were No Exceptions  and it ALL ran successfully!!
-			t1 . ContinueWith (
-				( Bankcollection ) =>
+			t1. ContinueWith (
+				(Bankcollection  ) =>
 				{
-					Console . WriteLine ( $"BankCollection : Task.Run() processes all succeeded. \nBankcollection Status was [ {Bankcollection . Status} ]." );
+					Console . WriteLine ( $"BankCollection : Task.Run() processes all succeeded. \nBankcollection Status was [ {Bankcollection . Status}." );
 				} , CancellationToken . None , TaskContinuationOptions . OnlyOnRanToCompletion , TaskScheduler . FromCurrentSynchronizationContext ( )
 			);
 			//This will iterate through ALL of the Exceptions that may have occured in the previous Tasks
@@ -133,6 +132,7 @@ namespace WPFPages . Views
 					}
 				} , CancellationToken . None , TaskContinuationOptions . OnlyOnFaulted , TaskScheduler . FromCurrentSynchronizationContext ( )
 			);
+			//t1 . Wait ( );
 
 			#endregion Success//Error reporting/handling
 
@@ -257,6 +257,7 @@ namespace WPFPages . Views
 			finally
 			{
 				Console . WriteLine ( $"Completed load into Bankcollection :  {Bankcollection . Count} records in Bankcollection ...." );
+				OnBankDataLoaded ( Bankcollection );
 			}
 			return true;
 		}

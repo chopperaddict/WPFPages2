@@ -50,7 +50,7 @@ namespace WPFPages . ViewModels
 		private int selectedIndex;
 
 		//		private Timer timer = new Timer ();
-		public static DataTable dtBank = null;
+//		public static DataTable dtBank = null;
 
 		public int Id
 		{
