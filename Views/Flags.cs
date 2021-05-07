@@ -8,6 +8,7 @@
 using System;
 using System . Collections . Generic;
 using System . Diagnostics;
+using System . Threading;
 using System . Windows . Controls;
 
 using WPFPages . Views;
@@ -24,6 +25,8 @@ namespace WPFPages
 		public static DataGrid SqlBankGrid = null;
 		public static SqlDbViewer SqlBankViewer = null;
 		public static  DataGrid CurrentEditDbViewerBankGrid = null;
+		public static DetCollection DetailsCollection = null;
+
 		private struct AllFlags
 		{
 
@@ -73,6 +76,7 @@ namespace WPFPages
 		public static DataGrid SqlDetGrid = null;
 		public static SqlDbViewer SqlDetViewer = null;
 		public static  DataGrid CurrentEditDbViewerDetailsGrid = null;
+
 		public static List< DataGrid > CurrentEditDbViewerBankGridList;
 		public static List< DataGrid > CurrentEditDbViewerCustomerGridList;
 		public static List< DataGrid > CurrentEditDbViewerDetailsGridList;
@@ -98,6 +102,10 @@ namespace WPFPages
 		public static bool isEditDbCaller = false;
 		public static bool SqlDataChanged = false;
 		public static bool EditDbDataChanged = false;
+		// system wide flags to avoid selection change processing when we are loading/Reloading FULL DATA in SqlDbViewer
+		public static bool  DataLoadIngInProgress = false;
+		public static bool UpdateInProgress = false;
+
 		public static EditDb BankEditDb = null;
 		public static EditDb CustEditDb = null;
 		public static EditDb DetEditDb = null;
@@ -109,6 +117,12 @@ namespace WPFPages
 		public static EditDb CurrentEditDbViewer = null;
 		public static SqlDbViewer CurrentSqlViewer = null;
 		public static SqlDbViewer SqlUpdateOriginatorViewer = null;
+
+		// pointers  to any open Viewers
+		public static SqlDbViewer CurrentBankViewer;
+		public static SqlDbViewer CurrentCustomerViewer;
+		public static SqlDbViewer  CurrentDetailsViewer;
+
 		public static bool EditDbChangeHandled = false;
 
 		public static bool IsFiltered = false;
@@ -536,21 +550,22 @@ namespace WPFPages
 			$"\nint SqlCustCurrentIndex									: {SqlCustCurrentIndex}" +
 			$"\nint SqlDetCurrentIndex									: {SqlDetCurrentIndex}" +
 			"\n" +
-			$"\nList< DataGrid > CurrentEditDbViewerBankGridList		: {CurrentEditDbViewerBankGridList}" +
-			$"\nList< DataGrid > CurrentEditDbViewerCustomerGridList	: {CurrentEditDbViewerCustomerGridList}" +
-			$"\nList< DataGrid > CurrentEditDbViewerDetailsGridList		: {CurrentEditDbViewerDetailsGridList}" +
-			"\n" +
+			//$"\nList< DataGrid > CurrentEditDbViewerBankGridList		: {CurrentEditDbViewerBankGridList}" +
+			//$"\nList< DataGrid > CurrentEditDbViewerCustomerGridList	: {CurrentEditDbViewerCustomerGridList}" +
+			//$"\nList< DataGrid > CurrentEditDbViewerDetailsGridList		: {CurrentEditDbViewerDetailsGridList}" +
+			//"\n" +
 			$"\nSqlDbViewer CurrentSqlViewer							: {CurrentSqlViewer?.Name}" +
-			$"\nSqlDbViewer SqlBankViewer								: {SqlBankViewer?.Name}" +
-			$"\nSqlDbViewer SqlCustViewer								: {SqlCustViewer?.Name}" +
-			$"\nSqlDbViewer SqlDetViewer								: {SqlDetViewer?.Name}" +
+			$"\nSqlDbViewer SqlBankViewer								: {SqlBankViewer} + {Flags.SqlBankViewer?.BankGrid?.Name}" +
+			$"\nSqlDbViewer SqlCustViewer								: {SqlCustViewer} + {Flags . SqlCustViewer?.CustomerGrid?.Name}" +
+			$"\nSqlDbViewer SqlDetViewer								: {SqlDetViewer} + {Flags . SqlDetViewer?.DetailsGrid?.Name}" +
 			$"\nSqlDbViewer SqlUpdateOriginatorViewer					: {SqlUpdateOriginatorViewer?.Name}" +
 			"\n" +
 			$"\nstring FilterCommand									: {FilterCommand}" +
 			$"\nstring MultiAccountCommandString						: {MultiAccountCommandString}\n" +
 			$"dtBank = {BankCollection . dtBank? . Rows?. Count}, Collection = {BankCollection . Bankcollection? . Count}\n" +
 			$"dtCust = {CustCollection . dtCust?. Rows?.Count}, Collection = {CustCollection . Custcollection? . Count}\n" +
-			$"dtBank = {DetCollection . dtDetails?. Rows? . Count}, Collection = {DetCollection . Detcollection? . Count}\n"
+			$"dtBank = {DetCollection . dtDetails?. Rows? . Count}, Collection = {DetCollection . Detcollection? . Count}\n"	+
+			$"CurrentThread											: {Thread.CurrentThread.ManagedThreadId}"
 					);
 		}
 	}

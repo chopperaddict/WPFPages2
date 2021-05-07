@@ -2,35 +2,35 @@
 using System . Collections . ObjectModel;
 using System . Data;
 using System . Data . SqlClient;
-using System . Diagnostics;
 using System . Threading;
 using System . Threading . Tasks;
 using System . Windows;
+using System . Windows . Threading;
 
 using WPFPages . ViewModels;
 
 namespace WPFPages . Views
 {
-
-	// declre  delegate to be used to notify SqlDbViewers when data is FULLY loaded 
-//	delegate void DataLoaded ( object o );
+	// declre  delegate to be used to notify SqlDbViewers when data is FULLY loaded
+	//	delegate void DataLoaded ( object o );
 
 	public class BankCollection : ObservableCollection<BankAccountViewModel>
 	{
 		//Declare a global pointer to Observable BankAccount Collection
-		public static BankCollection Bankcollection;
+		public static BankCollection Bankcollection = new BankCollection();
 
 		public static DataTable dtBank = new DataTable();
-		
 
 		#region CONSTRUCTOR
 
 		public BankCollection ( ) : base ( )
 		{
 			//set the static pointer to this class
-			Bankcollection = this;
+			//			Bankcollection = this;
+			//			Flags .B= this;
+
 		}
-		
+
 		#endregion CONSTRUCTOR
 
 		#region DATA LOADED EVENT
@@ -38,55 +38,149 @@ namespace WPFPages . Views
 		// THIS IS  HOW  TO HANDLE EVENTS RIGHT NOW //
 		//Event CallBack for when Asynchronous data loading has been completed in the Various ViewModel classes
 		public static  event EventHandler<LoadedEventArgs> BankDataLoaded;
+
 		//-------------------------------------------------------------------------------------------------------------------------------------------------//
-		protected virtual void OnBankDataLoaded (  )
+		private static void OnBankDataLoaded ( BankCollection bnkdata )
 		{
 			if ( BankDataLoaded != null )
 			{
 				Console . WriteLine ( $"Broadcasting from OnBankDataLoaded in " );
-				BankDataLoaded?.Invoke ( this, new LoadedEventArgs ( ) { DataSource = Bankcollection, CallerDb = "BANKACCOUNT"} );
+				BankDataLoaded?.Invoke ( bnkdata , new LoadedEventArgs ( ) { DataSource = Bankcollection , CallerDb = "BANKACCOUNT" } );
 			}
 		}
+
 		#endregion DATA LOADED EVENT
 
 		#region LOAD THE DATA
-		public async static Task<bool> LoadBankTaskInSortOrderasync ( bool b = false, int i = -1 )
+
+		public async Task<BankCollection> LoadBankTaskInSortOrderasync ( bool b = false , int i = -1 )
 		{
-			if ( Bankcollection == null )
-				Bankcollection = new BankCollection ( );
 			if ( dtBank . Rows . Count > 0 )
 				dtBank . Clear ( );
+
 			if ( Bankcollection . Items . Count > 0 )
 				Bankcollection . ClearItems ( );
 
-			Console . WriteLine ( $"Calling Task.Run in Bankcollection ...." );
-			await Task . Run ( async ( ) =>
-			{
-				Console . WriteLine ( $"Calling LoadBankData in Task.Run in Bankcollection ...." );
-				await LoadBankData ( );
-				Console . WriteLine ( $"Returned from LoadBankData in Task.Run in Bankcollection ...." );
+			// This all woks just fine, and DOES switch back to UI thread that is MANDATORY before doing the Collection load processing
+			// thanks to the use of TaskScheduler.FromCurrentSynchronizationContext() that oerforms the magic switch back to the UI thread
+			Console . WriteLine ( $"\nEntering Method to call Task.Run in BankCollection  : Thread = { Thread . CurrentThread . ManagedThreadId}" );
 
-				Application . Current . Dispatcher . Invoke (
+			#region process code to load data
+
+			Task t1 = Task . Run(
 					async ( ) =>
 					{
-						Console . WriteLine ( $"Calling LoadBankCollection in Task.Run in Bankcollection ...." );
-						await LoadBankCollection ( );
-						Console . WriteLine ( $"Returned from LoadBankCollection in Task.Run in Bankcollection ...." );
-					} );
+						await LoadBankData ( );
+						Console . WriteLine ( $"After initial Task.Run() : Thread = { Thread . CurrentThread . ManagedThreadId}" );
+						//Test Exception handler
+						// throw new AccessViolationException();
+					}
+				);
+			t1 . ContinueWith
+			(
+				async ( Bankcollection ) =>
+				{
+					Console . WriteLine ( $"Before starting second Task.Run() : Thread = { Thread . CurrentThread . ManagedThreadId}" );
+					await LoadBankCollection ( );
+//					Console . WriteLine ( $"After second Task.Run() : Thread = { Thread . CurrentThread . ManagedThreadId}" );
+				} , TaskScheduler . FromCurrentSynchronizationContext ( )
+			 );
 
-			});
-//			Console . WriteLine ( $"Before WaitAll() in Bankcollection ...." );
-	//		Task . WaitAll ( );
-			Console . WriteLine ( $"**** END **** OF ASYNC CALL METHOD {dtBank.Rows.Count} records in DataTable, {Bankcollection.Count} in Bankcollection ...." );
-			Console . WriteLine ( $"**** END **** A SAFE PLACE TO SEND AN EVENT TRIGGER TO SQLDBVIEWER WINDOW TO LOAD DATAGRID !!!" );
-			if( BankDataLoaded  != null)
-				BankDataLoaded.Invoke(Bankcollection, new LoadedEventArgs { CallerDb = "BANKACCOUNT", DataSource = Bankcollection} );
-			return true;
+			#endregion process code to load data
+
+			#region Success//Error reporting/handling
+
+			// Now handle "post processing of errors etc"
+			//This will ONLY run if there were No Exceptions  and it ALL ran successfully!!
+			t1 . ContinueWith (
+				( Bankcollection ) =>
+				{
+					Console . WriteLine ( $"BankCollection : Task.Run() processes all succeeded. \nBankcollection Status was [ {Bankcollection . Status} ]." );
+				} , CancellationToken . None , TaskContinuationOptions . OnlyOnRanToCompletion , TaskScheduler . FromCurrentSynchronizationContext ( )
+			);
+			//This will iterate through ALL of the Exceptions that may have occured in the previous Tasks
+			// but ONLY if there were any Exceptions !!
+			t1 . ContinueWith (
+				( Bankcollection ) =>
+				{
+					AggregateException ae =  t1 . Exception . Flatten ( );
+					Console . WriteLine ( $"Exception in BankCollection data processing \n" );
+					foreach ( var item in ae . InnerExceptions )
+					{
+						Console . WriteLine ( $"BankCollection : Exception : {item . Message}, : {item . Data}" );
+					}
+				} , CancellationToken . None , TaskContinuationOptions . OnlyOnFaulted , TaskScheduler . FromCurrentSynchronizationContext ( )
+			);
+
+			// Now handle "post processing of errors etc"
+			//This will ONLY run if there were No Exceptions  and it ALL ran successfully!!
+			t1 . ContinueWith (
+				( Bankcollection ) =>
+				{
+					Console . WriteLine ( $"BankCollection : Task.Run() processes all succeeded. \nBankcollection Status was [ {Bankcollection . Status} ]." );
+				} , CancellationToken . None , TaskContinuationOptions . OnlyOnRanToCompletion , TaskScheduler . FromCurrentSynchronizationContext ( )
+			);
+			//This will iterate through ALL of the Exceptions that may have occured in the previous Tasks
+			// but ONLY if there were any Exceptions !!
+			t1 . ContinueWith (
+				( Bankcollection ) =>
+				{
+					AggregateException ae =  t1 . Exception . Flatten ( );
+					Console . WriteLine ( $"Exception in BankCollection data processing \n" );
+					foreach ( var item in ae . InnerExceptions )
+					{
+						Console . WriteLine ( $"BankCollection : Exception : {item . Message}, : {item . Data}" );
+					}
+				} , CancellationToken . None , TaskContinuationOptions . OnlyOnFaulted , TaskScheduler . FromCurrentSynchronizationContext ( )
+			);
+
+			#endregion Success//Error reporting/handling
+
+			return Bankcollection;
+			//await Task . Run ( async ( ) =>
+			//{
+			//	Console . WriteLine ( $"Calling LoadBankData in Task.Run in Bankcollection : Thread = {Thread . CurrentThread . ManagedThreadId}...." );
+			//	await LoadBankData ( );
+			//	Console . WriteLine ( $"Returned from LoadBankData in Task.Run in Bankcollection, calling LoadBankCollection ()  : Thread = {Thread . CurrentThread . ManagedThreadId}...." );
+
+			//	DispatcherExtensions . SwitchToUi (SqlDbViewer.UiThread);
+			//	Console . WriteLine ( $"After thread switchback call	: Thread = { Thread . CurrentThread . ManagedThreadId}" );
+
+			//	await LoadBankCollection();
+			//	//(
+			//	//	 ( ) =>
+			//	//	{
+			//	//		Console . WriteLine ( $"Calling LoadBankCollection in Task.Run in Bankcollection : Thread = {Thread . CurrentThread . ManagedThreadId}...." );
+			//	//		LoadBankCollection ( );
+			//	//		Console . WriteLine ( $"Returned from LoadBankCollection in Task.Run in Bankcollection : Thread = {Thread . CurrentThread . ManagedThreadId}...." );
+			//	//	}
+			//	//);
+			//} );
+
+			//Console . WriteLine ( $"**** END **** OF ASYNC CALL METHOD {dtBank . Rows . Count} records in DataTable, {Bankcollection . Count} in Bankcollection ...." );
+			//Console . WriteLine ( $"**** END **** SENDING CALLBACK MESSAGE TO SQLDBVIEWER WINDOW TO LOAD THEIR DATAGRID !!!" );
+			//Console . WriteLine ( $": Thread = { Thread . CurrentThread . ManagedThreadId}" );
+			//// Make sure we are back on UI thread
+			//Console . WriteLine ( $"Before thread switchback call	: Thread = { Thread . CurrentThread . ManagedThreadId}" );
+			//DispatcherExtensions . SwitchToUi ( Dispatcher . CurrentDispatcher );
+			//Console . WriteLine ( $"After thread  switchback call   : Thread = { Thread . CurrentThread . ManagedThreadId}\n" );
+			//return Bankcollection;
+			//				OnBankDataLoaded ( Bankcollection );
+			//				if ( BankDataLoaded != null )
+			//					BankDataLoaded . Invoke ( Bankcollection , new LoadedEventArgs { CallerDb = "BANKACCOUNT" , DataSource = Bankcollection } );
+			//		}
+			//catch ( Exception ex )
+			//{
+			//	Console . WriteLine ( $"ERROR in LoadBankTaskInSortOrderAsync() : {ex . Message}, : {ex . Data}\n" );
+			//	return null;
+			//}
+			//return Bankcollection;
 		}
+
 		/// Handles the actual conneciton ot SQL to load the Details Db data required
 		/// </summary>
 		/// <returns></returns>
-		public async static Task<bool> LoadBankData ( int mode = -1, bool isMultiMode = false )
+		public async static Task<bool> LoadBankData ( int mode = -1 , bool isMultiMode = false )
 		{
 			Console . WriteLine ( $"Entered LoadBankData in Bankcollection ...." );
 
@@ -122,14 +216,16 @@ namespace WPFPages . Views
 					SqlDataAdapter sda = new SqlDataAdapter ( cmd );
 					sda . Fill ( dtBank );
 					Console . WriteLine ( $"Exiting LoadBankData {dtBank . Rows . Count} records in DataTable" );
-//					Console . WriteLine ( $"Exiting LoadBankData in Bankcollection ...." );
+					//					Console . WriteLine ( $"Exiting LoadBankData in Bankcollection ...." );
 					return true;
 				}
 			}
 			catch ( Exception ex )
 			{
 				Console . WriteLine ( $"Failed to load Bank Details - {ex . Message}, {ex . Data}" ); return false;
+				return false;
 			}
+			return true;
 		}
 
 		public async static Task<bool> LoadBankCollection ( )
@@ -142,14 +238,14 @@ namespace WPFPages . Views
 				{
 					Bankcollection . Add ( new BankAccountViewModel
 					{
-						Id = Convert . ToInt32 ( dtBank . Rows [ i ] [ 0 ] ),
-						BankNo = dtBank . Rows [ i ] [ 1 ] . ToString ( ),
-						CustNo = dtBank . Rows [ i ] [ 2 ] . ToString ( ),
-						AcType = Convert . ToInt32 ( dtBank . Rows [ i ] [ 3 ] ),
-						Balance = Convert . ToDecimal ( dtBank . Rows [ i ] [ 4 ] ),
-						IntRate = Convert . ToDecimal ( dtBank . Rows [ i ] [ 5 ] ),
-						ODate = Convert . ToDateTime ( dtBank . Rows [ i ] [ 6 ] ),
-						CDate = Convert . ToDateTime ( dtBank . Rows [ i ] [ 7 ] ),
+						Id = Convert . ToInt32 ( dtBank . Rows [ i ] [ 0 ] ) ,
+						BankNo = dtBank . Rows [ i ] [ 1 ] . ToString ( ) ,
+						CustNo = dtBank . Rows [ i ] [ 2 ] . ToString ( ) ,
+						AcType = Convert . ToInt32 ( dtBank . Rows [ i ] [ 3 ] ) ,
+						Balance = Convert . ToDecimal ( dtBank . Rows [ i ] [ 4 ] ) ,
+						IntRate = Convert . ToDecimal ( dtBank . Rows [ i ] [ 5 ] ) ,
+						ODate = Convert . ToDateTime ( dtBank . Rows [ i ] [ 6 ] ) ,
+						CDate = Convert . ToDateTime ( dtBank . Rows [ i ] [ 7 ] ) ,
 					} );
 					count = i;
 				}
@@ -161,8 +257,6 @@ namespace WPFPages . Views
 			finally
 			{
 				Console . WriteLine ( $"Completed load into Bankcollection :  {Bankcollection . Count} records in Bankcollection ...." );
-				if ( BankDataLoaded != null )
-					BankDataLoaded . Invoke ( Bankcollection , new LoadedEventArgs { CallerDb = "DETAILS" , DataSource = Bankcollection } );
 			}
 			return true;
 		}
@@ -170,17 +264,19 @@ namespace WPFPages . Views
 		#endregion LOAD THE DATA
 
 		#region EVENT Subscription methods
+
 		public static void SubscribeToLoadedEvent ( object o )
 		{
-			if ( o == Bankcollection && BankDataLoaded == null )
-				BankDataLoaded += SqlDbViewer.SqlDbViewer_DataLoaded;
+			//			if ( o == Bankcollection && BankDataLoaded == null )
+			BankDataLoaded += SqlDbViewer . SqlDbViewer_DataLoaded;
 		}
+
 		public static void UnSubscribeToLoadedEvent ( object o )
 		{
 			if ( BankDataLoaded != null )
-				BankDataLoaded -= SqlDbViewer.SqlDbViewer_DataLoaded;
+				BankDataLoaded -= SqlDbViewer . SqlDbViewer_DataLoaded;
 		}
-		
+
 		#endregion EVENT Subscription methods
 
 		public static Delegate [ ] GetEventCount6 ( )
@@ -190,6 +286,5 @@ namespace WPFPages . Views
 				dglist2 = BankDataLoaded?.GetInvocationList ( );
 			return dglist2;
 		}
-	
 	}
 }

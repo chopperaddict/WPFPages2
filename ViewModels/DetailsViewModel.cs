@@ -6,6 +6,8 @@ using System;
 using System . Data;
 using System . Threading . Tasks;
 
+using WPFPages . Views;
+
 using DataGrid = System . Windows . Controls . DataGrid;
 
 namespace WPFPages . ViewModels
@@ -13,31 +15,35 @@ namespace WPFPages . ViewModels
 	public class DetailsViewModel : Observable
 	{
 		#region CONSTRUCTORS
+
 		// CONSTRUCTOR
 		public DetailsViewModel ( )
 		{
 		}
+
 		#endregion CONSTRUCTORS
 
 		/// Callback for db change notifications
 		/// </summary>
 		/// <param name="sender"></param>
-		public void DbHasChangedHandler ( SqlDbViewer sender, DataGrid Grid, DataChangeArgs args )
+		public void DbHasChangedHandler ( SqlDbViewer sender , DataGrid Grid , DataChangeArgs args )
 		{
 			if ( Grid . Name == "DetailsGrid" )
 				return;         // Nothing to do, it was us that sent the broadcast
 
 			if ( Flags . SqlDetViewer != null )
-				Flags . CurrentSqlViewer. RefreshDetailsOnUpdateNotification ( sender, Grid, args );
+				Flags . CurrentSqlViewer . RefreshDetailsOnUpdateNotification ( sender , Grid , args );
+
+			// See if we need to update EditDb window as well
 			if ( Flags . CurrentEditDbViewer != null )
-				Flags . CurrentEditDbViewer . DbChangedHandler ( sender, Grid, args );
+				Flags . CurrentEditDbViewer . DbChangedHandler ( sender , Grid , args );
 			return;
 		}
 
 		public static bool SqlUpdating = false;
 		public static int CurrentSelectedIndex = 0;
-		public static DataTable dtDetails = null;
-//		private static bool IsSubscribedToObsNotifications = false;
+//		public static DataTable dtDetails = null;
+		//		private static bool IsSubscribedToObsNotifications = false;
 		//		LayoutSettings;
 
 		//==================================
@@ -110,6 +116,7 @@ namespace WPFPages . ViewModels
 		public int SelectedItem
 		{
 			get { return selectedItem; }
+
 			set
 			{
 				selectedItem = value;
@@ -120,6 +127,7 @@ namespace WPFPages . ViewModels
 		public int SelectedRow
 		{
 			get { return selectedRow; }
+
 			set
 			{
 				selectedRow = value;
@@ -179,7 +187,7 @@ namespace WPFPages . ViewModels
 		/// // Only called by LoadDetailsTaskInSortOrderAsync()
 		/// </summary>
 		/// <param> </param>
-		public async Task<bool> LoadDetailsTask ( bool isOriginator, int mode = -1 )
+		public async Task<bool> LoadDetailsTask ( bool isOriginator , int mode = -1 )
 		{
 			//Mouse . OverrideCursor = Cursors . Wait;
 			//// load SQL data in DataTable

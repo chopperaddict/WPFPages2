@@ -49,6 +49,8 @@ namespace WPFPages . Views
 
 			if ( Flags . SqlCustViewer != null )
 				Flags . SqlCustViewer . RefreshCustomerOnUpdateNotification ( sender, Grid, args );
+
+			// See if we need to update EditDb window as well
 			if ( Flags . CurrentEditDbViewer != null )
 				Flags . CurrentEditDbViewer . DbChangedHandler ( sender, Grid, args );
 			return;

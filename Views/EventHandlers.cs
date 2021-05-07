@@ -1,7 +1,10 @@
 ﻿
 using System;
 using System . Diagnostics;
+using System . Runtime . CompilerServices;
 using System . Windows . Controls;
+using System . Windows . Threading;
+
 using DocumentFormat . OpenXml . Spreadsheet;
 using WPFPages . ViewModels;
 using static WPFPages . SqlDbViewer;
@@ -70,29 +73,12 @@ namespace WPFPages . Views
 	public class EventHandlers
 	{
 		#region DELEGATES IN USE
+
 		//Delegates I AM USING
-		//Declare our Event that hopefully will call us back once the data has been loaded Asynchronously
-
-		// Event sent by ALL ViewModel classes  to notify of Db changes
-		//		public static DbUpdated NotifyOfDataChange;
-
-
-		// Event sent by EditDb to notify SqlDbViewer of index change
-
-		//		public static EditDbDataChanged EditDbViewerSelectedIndexChanged;
-
 		public static NotifyViewer SendViewerCommand;
-
 		public static SqlSelectedRowChanged SqlViewerIndexChanged;
+
 		#endregion DELEGATES IN USE
-
-		//NOT USED - 28/4/21
-		//		public static event SqlViewerRowChange SqlViewerSelectedIndexChanged;
-
-
-		//Delegates I AM NOT USING RIGHT NOW ??
-		//		public static SqlViewerRowChange SqlViewerRowChanged;
-		//		public static EditDbDataChanged EditDbDataChangedd;
 
 		public MainWindow mw = null;
 
@@ -109,15 +95,7 @@ namespace WPFPages . Views
 			//if ( Flags . EventHandlerDebug )
 			//{
 			Console . WriteLine ( $"EventHandler.EventHandlers(51) : In Constructor - CallerName = {CallerName}." );
-			//if ( CallerName == "SQLDBVIEWER" )
-			//	Console . WriteLine ( $"EventHandler.EventHandlers(59) : Subscribing to Event SQLVSelChange - CallerName = {CallerName}, hWnd={sqlDb}." );
-			//if ( CallerName == "CUSTOMER" )
-			//	Console . WriteLine ( $"EventHandler.EventHandlers(59) : Subscribing to Event SQLVSelChange - CallerName = {CallerName}, hWnd={sqlDb}." );
-			//else
-			//	Console . WriteLine ( $"EventHandler.EventHandlers(63) : Subscribing to Event SqlHasChangedSelection - CallerName = {CallerName}, hWnd={edDb}." );
-			//				ShowSubscribersCount ( );
-			//}
-		}
+			}
 
 		// Not used if DEBUG is UnDefined
 		[Conditional ( "DEBUG" )]
@@ -131,34 +109,34 @@ namespace WPFPages . Views
 			int count6 = -1;
 			int count7 = -1;
 			int count8 = -1;
+			int count9 = -1;
+			int count10 =-1;
 			if ( !BankAccountViewModel . ShowSubscribeData )
 				return;
-			//if ( NotifyOfDataChange != null )
-			//{
-			//	try
 			//EditDbViewerSelectedIndexChanged
 			Delegate [ ] dg = SqlDbViewer . GetEventCount ( );
-			if ( dg != null )	count = dg . Length;
-			
+			if ( dg != null )	count = dg . Length;		    			
 			// NotifyOfDataChange
 			dg = SqlDbViewer . GetEventCount2 ( );
 			if ( dg != null )	count2 = dg . Length;
-
 			// NotifyOfDataLoaded
 			dg = SqlDbViewer . GetEventCount3 ( );
 			if ( dg != null )	count3 = dg . Length;
-
 			// SqlHasChangedSelection
 			dg = EditDb . GetEventCount4 ( );
 			if ( dg != null )	count4 = dg . Length;
-
 			// SqlViewerIndexChanged
-			dg = EditDb. GetEventCount5 ( );			
-			if ( dg != null )	count5 = dg . Length;
-
+			dg = EditDb. GetEventCount5 ( );
+			if ( dg != null ) count5 = dg . Length;
 			// DetCollection. DetDataLoaded 
-			dg = BankCollection. GetEventCount6 ( );
-			if ( dg != null ) count6 = dg . Length;
+			dg = BankCollection . GetEventCount6 ( );
+			if ( dg != null ) count6 = dg . Length;			    			
+			//SQLHandlers. DataUpdated
+			dg = EditDb . GetEventCount9 ( );
+			if ( dg != null ) count9 = dg . Length;
+			//AllViewersUpdate
+			dg = EditDb . GetEventCount9 ( );
+			if ( dg != null ) count10 = dg . Length;
 
 			Console . WriteLine (
 			$"\n *** Currently Subscribed Events  ***" +
@@ -166,11 +144,13 @@ namespace WPFPages . Views
 			$"\nNotifyOfDataChange =		 		{count2}" +
 			$"\nNotifyOfDataLoaded =		 		{count3}" +
 			$"\nSqlHasChangedSelection = 			{count4}" +
+			$"\nSqlViewerIndexChanged =				{ count5}" + 
 			$"\nBankCollection. BankDataLoaded =	{count6}" +
 			$"\nCustCollection. CustDataLoaded =	{count7}" +
-			$"\nDetCollection. DetDataLoaded =		{count8}");
-			//$"\nSqlViewerIndexChanged =				{count5} " );
-			//			Console . WriteLine ( $"....................................................................................." );
+			$"\nDetCollection. DetDataLoaded =		{count8}"+
+			$"\nSQLHandler.DataUpdated =			{count9}" + 
+			$"\nDbEdit.AllViewersUpdate =			{count10}"
+			); 
 
 			bool first = true;
 			Delegate [ ] dglist2 = SqlDbViewer . GetEventCount ( );
@@ -188,7 +168,6 @@ namespace WPFPages . Views
 					if ( cnt > 0 ) Console . WriteLine ( );
 					Console . WriteLine ( $"Delegate : EditDbViewerSelectedIndexChanged :\n >>> {item . Target . ToString ( )}\nMethod = {item . Method . ToString ( )}" );
 					cnt++;
-					//					Console . WriteLine ( );
 				}
 			}
 			dglist2 = SqlDbViewer . GetEventCount2 ( );
@@ -206,7 +185,6 @@ namespace WPFPages . Views
 					if ( cnt > 0 ) Console . WriteLine ( );
 					Console . WriteLine ( $"Delegate : NotifyOfDataChange : \n >>> {item . Target . ToString ( )}\nMethod = {item . Method . ToString ( )}" );
 					cnt++;
-					//					Console . WriteLine ( );
 				}
 			}
 			dglist2 = SqlDbViewer . GetEventCount3 ( );
@@ -224,7 +202,6 @@ namespace WPFPages . Views
 					if ( cnt > 0 ) Console . WriteLine ( );
 					Console . WriteLine ( $"Delegate : NotifyOfDataLoaded: \n >>> {item . Target . ToString ( )}\nMethod = {item . Method . ToString ( )}" );
 					cnt++;
-					//					Console . WriteLine ( );
 				}
 			}
 			dglist2 = EditDb. GetEventCount4 ( );
@@ -238,7 +215,6 @@ namespace WPFPages . Views
 					if ( cnt > 0 ) Console . WriteLine ( );
 					Console . WriteLine ( $"Delegate : SqlHasChangedSelection :\n >>> {item . Target . ToString ( )}\nMethod = {item . Method . ToString ( )}" );
 					cnt++;
-					//					Console . WriteLine ( );
 				}
 			}
 			dglist2 = EditDb . GetEventCount5 ( );
@@ -257,7 +233,6 @@ namespace WPFPages . Views
 					Console . WriteLine ( $"Delegate : SqlViewerIndexChanged :\n >>> {item . Target . ToString ( )}\nMethod = {item . Method . ToString ( )}" );
 					cnt++;
 				}
-				//				Console . WriteLine ( "\n" );	// not on last line
 			}
 			dglist2 = BankCollection . GetEventCount6 ( );
 			if ( dglist2 != null )
@@ -278,7 +253,6 @@ namespace WPFPages . Views
 						Console . WriteLine ( $"Delegate : BankCollection. BankDataLoaded:\n >>> \nMethod = {item . Method . ToString ( )}" );
 						cnt++;
 				}
-				//				Console . WriteLine ( "\n" );	// not on last line
 			}
 			dglist2 = CustCollection . GetEventCount7 ( );
 			if ( dglist2 != null )
@@ -299,7 +273,6 @@ namespace WPFPages . Views
 						Console . WriteLine ( $"Delegate : CustCollection. CustDataLoaded:\n >>> \nMethod = {item . Method . ToString ( )}" );
 					cnt++;
 				}
-				//				Console . WriteLine ( "\n" );	// not on last line
 			}
 			dglist2 = DetCollection . GetEventCount8 ( );
 			if ( dglist2 != null )
@@ -315,16 +288,90 @@ namespace WPFPages . Views
 				{
 					if ( cnt > 0 ) Console . WriteLine ( );
 					if ( item . Target != null )
-						Console . WriteLine ( $"Delegate : DetCollection. DetDataLoaded:\n >>> {item . Target? . ToString ( )}\nMethod = {item . Method . ToString ( )}" );
+						Console . WriteLine ( $"Delegate : DetCollection. DetDataLoaded:\n >>> {item . Target?.ToString ( )}\nMethod = {item . Method . ToString ( )}" );
 					else
 						Console . WriteLine ( $"Delegate : DetCollection. DetDataLoaded:\n >>> \nMethod = {item . Method . ToString ( )}" );
 					cnt++;
 				}
-				//				Console . WriteLine ( "\n" );	// not on last line
+			}
+			dglist2 = EditDb . GetEventCount9 ( );
+			if ( dglist2 != null )
+			{
+				int cnt = 0;
+				if ( !first )
+				{
+					Console . WriteLine ( $"=====================================================================================" ); first = false;
+				}
+				Console . WriteLine ( $"=====================================================================================" );
+				first = true;
+				foreach ( var item in dglist2 )
+				{
+					if ( cnt > 0 ) Console . WriteLine ( );
+					if ( item . Target != null )
+						Console . WriteLine ( $"Delegate : SQLHandlers.DataUpdated:\n >>> {item . Target?.ToString ( )}\nMethod = {item . Method . ToString ( )}" );
+					else
+						Console . WriteLine ( $"Delegate : SQLHandlers.DataUpdated::\n >>> \nMethod = {item . Method . ToString ( )}" );
+					cnt++;
+				}
+			}
+			dglist2 = EditDb . GetEventCount10 ( );
+			if ( dglist2 != null )
+			{
+				int cnt = 0;
+				if ( !first )
+				{
+					Console . WriteLine ( $"=====================================================================================" ); first = false;
+				}
+				Console . WriteLine ( $"=====================================================================================" );
+				first = true;
+				foreach ( var item in dglist2 )
+				{
+					if ( cnt > 0 ) Console . WriteLine ( );
+					if ( item . Target != null )
+						Console . WriteLine ( $"Delegate : DbEdit.AllViewersUpdate .:\n >>> {item . Target?.ToString ( )}\nMethod = {item . Method . ToString ( )}" );
+					else
+						Console . WriteLine ( $"Delegate : DbEdit.AllViewersUpdate ::\n >>> \nMethod = {item . Method . ToString ( )}" );
+					cnt++;
+				}
 			}
 
 
 			Console . WriteLine ( $"+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++" );
+		}
+	}
+
+
+	public static class DispatcherExtensions
+	{
+		public static SwitchToUiAwaitable SwitchToUi ( this Dispatcher dispatcher )
+		{
+			return new SwitchToUiAwaitable ( dispatcher );
+		}
+
+		public struct SwitchToUiAwaitable : INotifyCompletion
+		{
+			private readonly Dispatcher _dispatcher;
+
+			public SwitchToUiAwaitable ( Dispatcher dispatcher )
+			{
+				_dispatcher = dispatcher;
+			}
+
+			public SwitchToUiAwaitable GetAwaiter ( )
+			{
+				return this;
+			}
+
+			public void GetResult ( )
+			{
+			}
+
+			public bool IsCompleted => _dispatcher . CheckAccess ( );
+
+			public void OnCompleted ( Action continuation )
+			{
+				_dispatcher . BeginInvoke ( continuation );
+			}
 		}
 	}
 } // End namespace

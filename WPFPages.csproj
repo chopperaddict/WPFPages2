@@ -72,6 +72,7 @@
     <Compile Include="Behaviours\DataGridBehaviour.cs" />
     <Compile Include="BindingTracer.cs" />
     <Compile Include="Observable.cs" />
+    <Compile Include="Views\AllEventArgs.cs" />
     <Compile Include="Views\BankCollection.cs" />
     <Compile Include="Views\CustCollection.cs" />
     <Compile Include="Views\DetCollection.cs" />

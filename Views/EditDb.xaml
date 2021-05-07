@@ -9,10 +9,10 @@
 		mc:Ignorable="d"
 		Title="Database Editing Window - " 
 		Height="640" Width="700"
-		MinHeight="640" MinWidth="700"
+		MinHeight="640" MinWidth="700"		 		
 		Loaded="WindowLoaded"	  
 		PreviewKeyDown="Window_PreviewKeyDown"
-		Closed="Window_Closed" Closing="Window_Closing">
+		Closed="Window_Closed" Closing="Window_Closing" GotFocus="Window_GotFocus">
 
 	<!-- 
 	#pragma MVVM TODO
@@ -583,14 +583,16 @@
 
 			<!--#region Customer TextBOX columns setup-->
 			<TextBox Name="BanknoEdit2" 
+				 Background="{StaticResource Gray3}"
 				 Grid.Row="1"
-				 Margin="3,3,3,3"	
 				 Height="25"
 				 IsEnabled="True"
-				 Background="{StaticResource Gray3}"
 				 HorizontalContentAlignment="Center"
-				 VerticalContentAlignment="Center"
-				 Text="{Binding BankNo, UpdateSourceTrigger=LostFocus, Mode=TwoWay}"   LostFocus="BanknoEdit2_LostFocus" />
+				   LostFocus="BanknoEdit2_LostFocus" 
+				 Margin="3,3,3,3"	
+				 VerticalContentAlignment="Center"				  
+				 Text="{Binding BankNo, UpdateSourceTrigger=LostFocus, Mode=TwoWay}"   
+				TextChanged="BanknoEdit2_TextChanged" />
 
 			<TextBox x:Name="CustnoEdit2" 
 				 Grid.Row="2"
@@ -602,9 +604,11 @@
 				 Foreground="{StaticResource Black0}"
 				 HorizontalContentAlignment="Center"
 				 VerticalContentAlignment="Center"
-			Text="{Binding CustNo, UpdateSourceTrigger=LostFocus, Mode=TwoWay}"  LostFocus="CustnoEdit2_LostFocus" />
+			Text="{Binding CustNo, UpdateSourceTrigger=LostFocus, Mode=TwoWay}"  
+				   LostFocus="CustnoEdit2_LostFocus" />
 
 			<TextBox x:Name="AcType2" 
+				  
 				 Grid.Row="3"
 				 Margin="1"				 
 				 Height="25"
@@ -617,6 +621,7 @@
 				 HorizontalContentAlignment="Center"
 				 VerticalContentAlignment="Center"
 				Text="{Binding AcType, UpdateSourceTrigger=LostFocus, Mode=TwoWay}"  
+				   TextChanged="AcType2_TextChanged"
 				LostFocus="AcTypeEdit2_LostFocus" 
 				   />
 
@@ -1216,6 +1221,7 @@
 					</LinearGradientBrush>
 				</Button.Background>
 			</Button>
+			
 			<Button  x:Name="CloseButton"
 			         Click="Button_Click"				  
 			         Content ="Close Document"
@@ -1238,8 +1244,6 @@
 						<GradientStop Color="#222222" Offset="0" />
 					</LinearGradientBrush>
 				</Button.Background>
-				
-
 				<!--<VisualStateManager.VisualStateGroups>
 					--><!--Define the states and transitions for the common states.
 	      The states in the VisualStateGroup are mutually exclusive to each other.--><!--

@@ -118,8 +118,6 @@ namespace WPFPages . ViewModels
 
 		#region SETUP/DECLARATIONS
 
-		//		public event PropertyChangedEventHandler PropertyChanged;
-
 		//public flags
 		//**************************************************************************************************************************************************************//
 		public static bool EditDbEventInProcess = false;
@@ -162,8 +160,14 @@ namespace WPFPages . ViewModels
 			// Send it to the correct open viewer window
 			if ( Flags . SqlBankViewer != null )
 				Flags . SqlBankViewer . RefreshBankOnUpdateNotification ( sender, Grid, args );
+			//if ( Flags . SqlCustViewer != null )
+			//	Flags . SqlCustViewer . RefreshCustomerOnUpdateNotification ( sender , Grid , args );
+			//if ( Flags . SqlDetViewer != null )
+			//	Flags . SqlDetViewer . RefreshDetailsOnUpdateNotification ( sender , Grid , args );
+
+			// See if we need to update EditDb window as well
 			if ( Flags . CurrentEditDbViewer != null )
-				Flags . CurrentEditDbViewer . DbChangedHandler ( sender, Grid, args );
+				Flags . CurrentEditDbViewer . DbChangedHandler ( sender , Grid , args );
 			return;
 		}
 				#endregion EVENT CALLBACKS

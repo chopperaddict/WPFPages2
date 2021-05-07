@@ -2,11 +2,8 @@
 using System . Collections . ObjectModel;
 using System . Data;
 using System . Data . SqlClient;
-using System . Diagnostics;
-using System . Threading;
 using System . Threading . Tasks;
 using System . Windows;
-using System . Windows . Threading;
 
 namespace WPFPages . Views
 {
@@ -16,7 +13,7 @@ namespace WPFPages . Views
 	public class CustCollection : ObservableCollection<CustomerViewModel>
 	{
 		//Declare a global pointer to Observable Customers Collection
-		public static CustCollection Custcollection = new CustCollection();
+		public static CustCollection Custcollection;
 
 		public static DataTable dtCust = new DataTable();
 
@@ -27,12 +24,12 @@ namespace WPFPages . Views
 		public  static  event EventHandler<LoadedEventArgs> CustDataLoaded;
 
 		//-------------------------------------------------------------------------------------------------------------------------------------------------//
-		private static void OnCustDataLoaded ( CustCollection cdata )
+		protected virtual void OnCustDataLoaded ( )
 		{
 			if ( CustDataLoaded != null )
 			{
 				Console . WriteLine ( $"Broadcasting from OnCustDataLoaded in " );
-				CustDataLoaded?.Invoke ( cdata , new LoadedEventArgs ( ) { DataSource = cdata , CallerDb = "CUSTOMER" } );
+				CustDataLoaded?.Invoke ( this , new LoadedEventArgs ( ) { DataSource = Custcollection , CallerDb = "CUSTOMER" } );
 			}
 		}
 
@@ -43,7 +40,7 @@ namespace WPFPages . Views
 		public CustCollection ( ) : base ( )
 		{
 			//set the static pointer to this class
-			//			Custcollection = this;
+			Custcollection = this;
 		}
 
 		#endregion CONSTRUCTOR
@@ -53,73 +50,66 @@ namespace WPFPages . Views
 		//**************************************************************************************************************************************************************//
 		// Entry point for all data load/Reload
 		//**************************************************************************************************************************************************************//
-		public async Task<CustCollection> LoadCustomerTaskInSortOrderAsync ( bool isOriginator = false , int mode = -1 )
+		public static async Task<bool> LoadCustomerTaskInSortOrderAsync ( bool isOriginator , int mode = -1 )
 		{
-			if ( dtCust . Rows . Count > 0 )
-				dtCust . Clear ( );
+			try
+			{
+				if ( dtCust . Rows . Count > 0 )
+					dtCust . Clear ( );
 
-			if ( Custcollection . Items . Count > 0 )
-				Custcollection . ClearItems ( );
+				if ( Custcollection . Items . Count > 0 )
+					Custcollection . ClearItems ( );
 
-			// This all woks just fine, and DOES switch back to UI thread that is MANDATORY before doing the Collection load processing
-			// thanks to the use of TaskScheduler.FromCurrentSynchronizationContext() that oerforms the magic switch back to the UI thread
-			Console . WriteLine ( $"\nEntering Method to call Task.Run in CustCollection  : Thread = { Thread . CurrentThread . ManagedThreadId}" );
+				Custcollection = new CustCollection ( );
 
-			#region process code to load data
+				Console . WriteLine ( $"Calling Task.Run in custcollection ...." );
 
-			Task t1 = Task . Run(
-					async ( ) =>
+				await Task . Run ( async ( ) =>
+				{
+					Console . WriteLine ( $"Calling LoadCustDataSql in Task.Run in Bankcollection ...." );
+					try
 					{
-						Console . WriteLine ( $"Before starting initial Task.Run() : Thread = { Thread . CurrentThread . ManagedThreadId}" );
 						await LoadCustDataSql ( );
-						Console . WriteLine ( $"After initial Task.Run() : Thread = { Thread . CurrentThread . ManagedThreadId}" );
+						Console . WriteLine ( $"Returned from LoadCustDataSql in Task.Run in Custcollection ...." );
 					}
-				);
-			t1 . ContinueWith
-			(
-				async ( Custcollection ) =>
-				{
-					Console . WriteLine ( $"Before starting second Task.Run() : Thread = { Thread . CurrentThread . ManagedThreadId}" );
-					await LoadCustomerCollection ( );
-				} , TaskScheduler . FromCurrentSynchronizationContext ( )
-			 );
-			Console . WriteLine ( $"After second Task.Run() : Thread = { Thread . CurrentThread . ManagedThreadId}" );
-
-			#endregion process code to load data
-
-			#region Success//Error reporting/handling
-
-			// Now handle "post processing of errors etc"
-			//This will ONLY run if there were No Exceptions  and it ALL ran successfully!!
-			t1 . ContinueWith (
-				( Custcollection ) =>
-				{
-					Console . WriteLine ( $"BankCollection : Task.Run() processes all succeeded. \nBankcollection Status was [ {Custcollection . Status} ]." );
-				} , CancellationToken . None , TaskContinuationOptions . OnlyOnRanToCompletion , TaskScheduler . FromCurrentSynchronizationContext ( )
-			);
-			//This will iterate through ALL of the Exceptions that may have occured in the previous Tasks
-			// but ONLY if there were any Exceptions !!
-			t1 . ContinueWith (
-				( Custcollection ) =>
-				{
-					AggregateException ae =  t1 . Exception . Flatten ( );
-					Console . WriteLine ( $"Exception in CustCollection  data processing \n" );
-					foreach ( var item in ae . InnerExceptions )
+					catch (Exception ex )
 					{
-						Console . WriteLine ( $"CustCollection : Exception : {item . Message}, : {item . Data}" );
+						Console . WriteLine ( $"ERROR in LoadCustData Task{ex.Message}, {ex.Data}...." );
 					}
-				} , CancellationToken . None , TaskContinuationOptions . OnlyOnFaulted , TaskScheduler . FromCurrentSynchronizationContext ( )
-			);
 
-			#endregion Success//Error reporting/handling
+					Application . Current . Dispatcher . Invoke (
+						async ( ) =>
+						{
+							Console . WriteLine ( $"Calling LoadCustomerCollection in Task.Run in Custcollection ...." );
+							try
+							{ 
+							await LoadCustomerCollection ( );
+								Console . WriteLine ( $"Returned from LoadCustmerCollection Task.Run in Custcollection ...." );
+							}
+							catch ( Exception ex )
+							{
+								Console . WriteLine ( $"ERROR in LoadCustomerCollection Task {ex . Message}, {ex . Data}...." );
+							}
+						} );
+				} );
+				Console . WriteLine ( $"**** END **** OF ASYNC CALL METHOD {dtCust . Rows . Count} records in DataTable, {Custcollection . Count} in Custcollection ...." );
+				Console . WriteLine ( $"**** END **** SENDING CALLBACK MESSAGE TO SQLDBVIEWER WINDOW TO LOAD THEIR DATAGRID !!!" );
 
-			return Custcollection;
+				if ( CustDataLoaded != null )
+					CustDataLoaded . Invoke ( Custcollection , new LoadedEventArgs { CallerDb = "CUSTOMER" , DataSource = Custcollection } );
+			}
+			catch (Exception ex )
+			{
+				Console . WriteLine ( $"ERROR in LoadCustomerTaskInSortOrderAsync() : {ex . Message}, : {ex . Data}" );
+				return false;
+			}
+			return true;
 		}
 
 		/// Handles the actual conneciton ot SQL to load the Details Db data required
 		/// </summary>
 		/// <returns></returns>
-		public async Task<bool> LoadCustDataSql ( DataTable dt = null , int mode = -1 , bool isMultiMode = false )
+		public async static Task<int> LoadCustDataSql ( DataTable dt = null , int mode = -1 , bool isMultiMode = false )
 		//Load data from Sql Server
 		{
 			try
@@ -154,15 +144,14 @@ namespace WPFPages . Views
 					SqlDataAdapter sda = new SqlDataAdapter ( cmd );
 					sda . Fill ( dtCust );
 					Console . WriteLine ( $"Sql data loaded into Customers DataTable [{dtCust . Rows . Count}] ...." );
-					return true;
+					return dtCust . Rows . Count;
 				}
 			}
 			catch ( Exception ex )
 			{
 				Console . WriteLine ( $"Failed to load Customer Details - {ex . Message}" );
-				return false;
+				return 0;
 			}
-			return true;
 		}
 
 		//**************************************************************************************************************************************************************//
@@ -204,13 +193,13 @@ namespace WPFPages . Views
 		public static void SubscribeToLoadedEvent ( object o )
 		{
 			if ( o == Custcollection && CustDataLoaded == null )
-				CustDataLoaded += SqlDbViewer . SqlDbViewer_DataLoaded;
+				CustDataLoaded += Flags . CurrentSqlViewer . SqlDbViewer_DataLoaded;
 		}
 
 		public static void UnSubscribeToLoadedEvent ( object o )
 		{
 			if ( CustDataLoaded != null )
-				CustDataLoaded -= SqlDbViewer . SqlDbViewer_DataLoaded;
+				CustDataLoaded -= Flags . CurrentSqlViewer . SqlDbViewer_DataLoaded;
 		}
 
 		#endregion Event Subscription handlers

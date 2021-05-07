@@ -7,7 +7,6 @@ using System . Runtime . CompilerServices;
 using System . Threading;
 using System . Threading . Tasks;
 using System . Windows;
-using System . Windows . Threading;
 
 using WPFPages . ViewModels;
 
@@ -16,8 +15,8 @@ namespace WPFPages . Views
 	public class DetCollection : ObservableCollection<DetailsViewModel>//, INotifyCompletion
 	{
 		//Declare a global pointer to Observable Details Collection
-		//		public  DetCollection DetcollectionStatic;
-		public static DetCollection Detcollection = new DetCollection();
+//		public  DetCollection DetcollectionStatic;
+		public static DetCollection Detcollection;
 
 		public  static DataTable dtDetails = new DataTable();
 		public static Stopwatch  st;
@@ -31,12 +30,12 @@ namespace WPFPages . Views
 		public   static event EventHandler<LoadedEventArgs> DetDataLoaded;
 
 		//-------------------------------------------------------------------------------------------------------------------------------------------------//
-		private static void OnDetDataLoaded ( DetCollection dtdata )
+		protected virtual void OnDetDataLoaded ( )
 		{
 			if ( DetDataLoaded != null )
 			{
 				Console . WriteLine ( $"Broadcasting from OnDetDataLoaded in " );
-				DetDataLoaded?.Invoke ( dtdata , new LoadedEventArgs ( ) { DataSource = dtdata , CallerDb = "DETAILS" } );
+				DetDataLoaded?.Invoke ( this , new LoadedEventArgs ( ) { DataSource = Detcollection , CallerDb = "DETAILS" } );
 			}
 		}
 
@@ -47,7 +46,7 @@ namespace WPFPages . Views
 		public DetCollection ( )
 		{
 			//set the static pointer to this class
-			//			Detcollection = this;
+			Detcollection = this;
 			Flags . DetailsCollection = this;
 		}
 
@@ -60,75 +59,55 @@ namespace WPFPages . Views
 		CancellationTokenSource  cts = new CancellationTokenSource();
 
 		//**************************************************************************************************************************************************************//
-		public async Task<DetCollection> LoadDetailsTaskInSortOrderAsync ( bool b = false )
+		public async static Task<bool> LoadDetailsTaskInSortOrderAsync ( bool b = false )
 		{
-			if ( dtDetails . Rows . Count > 0 )
-				dtDetails . Clear ( );
+			try
+			{
+				if ( dtDetails . Rows . Count > 0 )
+					dtDetails . Clear ( );
 
-			if ( Detcollection . Items . Count > 0 )
-				Detcollection . ClearItems ( );
+				if ( Detcollection . Items . Count > 0 )
+					Detcollection . ClearItems ( );
+				Detcollection = new DetCollection ( );
 
-			// This all woks just fine, and DOES switch back to UI thread that is MANDATORY before doing the Collection load processing
-			// thanks to the use of TaskScheduler.FromCurrentSynchronizationContext() that oerforms the magic switch back to the UI thread
-			Console . WriteLine ( $"\nEntering Method to call Task.Run in DetCollection  : Thread = { Thread . CurrentThread . ManagedThreadId}" );
+				st = Stopwatch . StartNew ( );
+				Console . WriteLine ( $"Calling Task.Run in Detcollection ...." );
 
-			#region process code to load data
 
-			Task t1 = Task . Run(
-					async ( ) =>
-						{
-							Console . WriteLine ( $"Before starting initial Task.Run() : Thread = { Thread . CurrentThread . ManagedThreadId}" );
-							await LoadDetailsDataSql();
-							Console . WriteLine ( $"After initial Task.Run() : Thread = { Thread . CurrentThread . ManagedThreadId}" );
-						}
-				);
-			t1 . ContinueWith
-			(
-				async ( Detcollection ) =>
+				await Task . Run ( async ( ) =>
 				{
-					Console . WriteLine ( $"Before starting second Task.Run() : Thread = { Thread . CurrentThread . ManagedThreadId}" );
-					await LoadDetCollection ( );
-				} , TaskScheduler . FromCurrentSynchronizationContext ( )
-			 );
-			Console . WriteLine ( $"After second Task.Run() : Thread = { Thread . CurrentThread . ManagedThreadId}" );
-			
-			#endregion process code to load data
+					Console . WriteLine ( $"Calling LoadtailsDataSql in Task.Run in Detcollection ...." );
+					await LoadDetailsDataSql ( );
+					Console . WriteLine ( $"Returned from  LoadDetailsDataSql in Task.Run in Detcollection ...." );
+				} );
 
-			#region Success//Error reporting/handling
-
-			// Now handle "post processing of errors etc"
-			//This will ONLY run if there were No Exceptions  and it ALL ran successfully!!
-			t1 . ContinueWith (
-				( Detcollection ) =>
-				{
-					Console . WriteLine ( $"DetCollection : Task.Run() processes all succeeded. \nBankcollection Status was [ {Detcollection . Status} ]." );
-				} , CancellationToken . None , TaskContinuationOptions . OnlyOnRanToCompletion , TaskScheduler . FromCurrentSynchronizationContext ( )
-			);
-			//This will iterate through ALL of the Exceptions that may have occured in the previous Tasks
-			// but ONLY if there were any Exceptions !!
-			t1 . ContinueWith (
-				( Detcollection ) =>
-				{
-					AggregateException ae =  t1 . Exception . Flatten ( );
-					Console . WriteLine ( $"Exception in DetCollection data processing \n" );
-					foreach ( var item in ae . InnerExceptions )
+				Application . Current . Dispatcher . Invoke (
+					 ( ) =>
 					{
-						Console . WriteLine ( $"DetCollection : Exception : {item . Message}, : {item . Data}" );
-					}
-				} , CancellationToken . None , TaskContinuationOptions . OnlyOnFaulted , TaskScheduler . FromCurrentSynchronizationContext ( )
-			);
-			#endregion Success//Error reporting/handling
+						LoadDetCollection ( );
 
-			return Detcollection;
-	}
+					} );
+				st . Stop ( );
+				Console . WriteLine ( $"**** END **** OF ASYNC CALL METHOD {dtDetails . Rows . Count} records in DataTable, {Detcollection . Count} in Detcollection ...." );
+				Console . WriteLine ( $"**** END **** SENDING CALLBACK MESSAGE TO SQLDBVIEWER WINDOW TO LOAD THEIR DATAGRID !!!" );
+
+				if ( DetDataLoaded != null )
+					DetDataLoaded . Invoke ( Detcollection , new LoadedEventArgs { CallerDb = "DETAILS" , DataSource = Detcollection } );
+			}
+			catch ( Exception ex )
+			{
+				Console . WriteLine ( $"ERROR in LoadDetailsTaskInSortOrderAsync() : {ex . Message}, : {ex . Data}" );
+				return false;
+			}
+			return true;
+		}
 
 		/// Handles the actual conneciton ot SQL to load the Details Db data required
 		/// </summary>
 		/// <returns></returns>
 		//**************************************************************************************************************************************************************//
-		public async Task<bool> LoadDetailsDataSql ( bool isMultiMode = false )
+		public static async Task<bool> LoadDetailsDataSql ( bool isMultiMode = false )
 		{
-			Stopwatch st = new Stopwatch();
 			try
 			{
 				st . Start ( );
@@ -175,7 +154,7 @@ namespace WPFPages . Views
 		}
 
 		//**************************************************************************************************************************************************************//
-		public static async Task<DetCollection> LoadDetCollection ( )
+		public static async Task<bool> LoadDetCollection ( )
 		{
 			int count = 0;
 			try
@@ -196,12 +175,12 @@ namespace WPFPages . Views
 					count = i;
 				}
 				Console . WriteLine ( $"Sql data loaded into Details ObservableCollection \"DetCollection\" [{count}] ...." );
-				return Detcollection;
+				return true;
 			}
 			catch ( Exception ex )
 			{
 				Console . WriteLine ( $"ERROR in  LoadDetCollection() : loading Details into ObservableCollection \"DetCollection\" : [{ex . Message}] : {ex . Data} ...." );
-				return null;
+				return false;
 			}
 		}
 
@@ -214,13 +193,13 @@ namespace WPFPages . Views
 		public static void SubscribeToLoadedEvent ( object o )
 		{
 			if ( o == Detcollection && DetDataLoaded == null )
-				DetDataLoaded += SqlDbViewer . SqlDbViewer_DataLoaded;
+				DetDataLoaded += Flags . CurrentSqlViewer . SqlDbViewer_DataLoaded;
 		}
 
 		public static void UnSubscribeToLoadedEvent ( object o )
 		{
 			if ( DetDataLoaded != null )
-				DetDataLoaded -= SqlDbViewer . SqlDbViewer_DataLoaded;
+				DetDataLoaded -= Flags . CurrentSqlViewer . SqlDbViewer_DataLoaded;
 		}
 
 		#endregion Event Subscribing Hsndlers
@@ -279,22 +258,3 @@ namespace WPFPages . Views
 		#endregion TEST CODE
 	}
 }
-/*
- * 
- 				Console . WriteLine ( $"\nCalling dat aload system in DetCollection  : Thread = { Thread . CurrentThread . ManagedThreadId}" );
-				Task t1 = Task . Run( 
-					async ( ) =>
-						{
-//							Console . WriteLine ( $"Before starting initial Task.Run() : Thread = { Thread . CurrentThread . ManagedThreadId}" );
-							await LoadDetailsDataSql();
-//							Console . WriteLine ( $"After initial Task.Run() : Thread = { Thread . CurrentThread . ManagedThreadId}" );
-						}
-				) . ContinueWith (
-					{
-//					Console . WriteLine ( $"Before starting second Task.Run() : Thread = { Thread . CurrentThread . ManagedThreadId}" );
-					async ( Detcollection ) => await LoadDetCollection ( ),
-						TaskScheduler . FromCurrentSynchronizationContext ( )
-//					Console . WriteLine ( $"After second Task.Run() : Thread = { Thread . CurrentThread . ManagedThreadId}" );
-				}
-				);
-* */
