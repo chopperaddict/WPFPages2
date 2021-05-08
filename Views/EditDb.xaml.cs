@@ -12,7 +12,6 @@ using WPFPages . ViewModels;
 
 namespace WPFPages . Views
 {
-
 	//	public delegate void SqlSelChange ( int RowIndex, object selRowItem );
 	//	public delegate void SelectedRowChanged ( int row, string CurentDb );
 
@@ -20,18 +19,18 @@ namespace WPFPages . Views
 	/// Interaction logic for EditDb.xaml
 	/// </summary>
 
-
 	public partial class EditDb : INotifyPropertyChanged
 	{
-
 		#region CLASS DECLARATIONS
 
 		public static event SqlSelectedRowChanged SqlViewerIndexChanged;
+
 		public static event DbUpdated NotifyOfDataChange;
+
 		public static event EditDbGridSelectionChanged SqlHasChangedSelection;
+
 		// Event we TRIGGER to notify SqlViewer of  a selectedindex change
 		public static event EditDbDataChanged EditDbViewerSelectedIndexChanged;
-
 
 		public BankAccountViewModel bvm = MainWindow . bvm;
 		public CustomerViewModel cvm = MainWindow . cvm;
@@ -47,31 +46,34 @@ namespace WPFPages . Views
 		//flag to let us know we sent the notification
 		private bool  EditHasNotifiedOfChange = false;
 
-		DataTable dt = new DataTable ( );
-		SQLDbSupport sqlsupport = new SQLDbSupport ( );
-		int CurrentIndex = -1;
-		object CurrentItem = null;
-		SqlDbViewer sqldbv = null;
+		private DataTable dt = new DataTable ( );
+		private SQLDbSupport sqlsupport = new SQLDbSupport ( );
+		private int CurrentIndex = -1;
+		private object CurrentItem = null;
+		private SqlDbViewer sqldbv = null;
 		public DataGrid CurrentGrid = null;
 		public string CurrentDb = "";
 		public EventHandlers EventHandler = null;
 		public BankAccountViewModel Bank;
 		private RowInfoPopup rip = null;
 		private bool PopupActive = false;
+
 		//		private static bool EditHasChangedData = true;
 		private SQLEditOcurred SqlEditOccurred = HandleSQLEdit;
+
 		private EditEventArgs EditArgs = null;
 		public Task mainTask = null;
 		public static bool SqlUpdating = false;
 		public static bool EditStart = false;
+
 		// Flags to let me handle jupdates to/From SqlViewer
 		private int ViewerChangeType = 0;
+
 		private int EditChangeType = 0;
 		private bool key1 = false;
 		public static EditDb ThisWindow;
 
 		#endregion CLASS DECLARATIONS
-
 
 		#region (TRUE) EVENT CALLBACK Declarations
 
@@ -95,6 +97,7 @@ namespace WPFPages . Views
 		}
 
 		#region DELEGATE Handlers
+
 		public void EditDbHasChangedIndex ( int a , int b , string s )
 		{
 			//This gets called whenever we change data in a  grid cell ?
@@ -103,6 +106,7 @@ namespace WPFPages . Views
 			Console . WriteLine ( $"EditDbHasChangedIndex in EditDb has been called after a change in data ...." );
 			//			SendDataChanged ( Flags.CurrentSqlViewer, null , CurrentDb);
 		}
+
 		public void EditDbDataHasChanged ( )
 		// UNUSED
 		{
@@ -125,12 +129,13 @@ namespace WPFPages . Views
 				EditHasNotifiedOfChange = false;
 			}
 		}
+
 		public static void HandleSQLEdit ( object sender , EditEventArgs e )
 		{
 			//Handler for Datagrid Edit occurred delegate
 			Console . WriteLine ( $"\r\nDelegate Recieved in EDITDB (83) Caller={e . Caller}, Index = {e . CurrentIndex},   {e . DataType . ToString ( )} \r\n" );
 			//We no have at our disposal (in e) the entire Updated record, including its Index in the sender grid
-			// plus we know its Model type from e.Caller (eg"BANKACCOUNT") 
+			// plus we know its Model type from e.Caller (eg"BANKACCOUNT")
 			//and we even have a pointer to the datagrid in the sender parameter
 			int RowToFind = -1;
 			if ( ThisWindow != null )
@@ -138,7 +143,6 @@ namespace WPFPages . Views
 				//only try this if we actually have an EditDb window open
 				if ( e . Caller == "BANKACCOUNT" )
 				{
-
 				}
 			}
 		}
@@ -167,6 +171,7 @@ namespace WPFPages . Views
 		#endregion DELEGATE Handlers
 
 		#region CONSTRUCTOR
+
 		public EditDb ( string Caller , int index , object Item , SqlDbViewer sqldb )
 		{
 			//Get handle to SQLDbViewer Window
@@ -192,12 +197,13 @@ namespace WPFPages . Views
 			// Subscribe to event that noitifies us when a data change has occured
 			DataUpdated += EditDb_DataUpdated;
 		}
+
 		#endregion CONSTRUCTOR
 
-		#region General EventHandlers 
+		#region General EventHandlers
 
 		/// <summary>
-		///  Function that is broadcasts a notification to whoever to 
+		///  Function that is broadcasts a notification to whoever to
 		///  notify that one of the Obs collections has been changed by something
 		/// </summary>
 		/// <param name="o"> The sending object</param>
@@ -276,9 +282,9 @@ namespace WPFPages . Views
 					dg = DetailsGrid;
 				Itemdata = dg . SelectedItem;
 				Console . WriteLine ( $"edit data = " );
-
 			}
 		}
+
 		private void NotifyviewerOfDataChange ( int selectedindex , string currentDb , object selecteditem )
 		{
 			dca . DbName = CurrentDb;
@@ -356,6 +362,7 @@ namespace WPFPages . Views
 			EditChangeType = 0;
 			ViewerChangeType = 0;
 		}
+
 		private void TriggerEditOccurred ( string Caller , int index , object datatype )
 		{
 			//EditArgs . Caller = Caller;
@@ -364,9 +371,12 @@ namespace WPFPages . Views
 			//SqlEditOccurred ( this, EditArgs );
 		}
 
-		#endregion General EventHandlers 
+		#endregion General EventHandlers
+
+
 
 		#region Display utilities
+
 		private void SetupBackgroundGradient ( )
 		{
 			//Get a new LinearGradientBrush
@@ -489,15 +499,15 @@ namespace WPFPages . Views
 				myLinearGradientBrush2 . GradientStops . Add ( gs4 );
 				myLinearGradientBrush2 . GradientStops . Add ( gs5 );
 				myLinearGradientBrush2 . GradientStops . Add ( gs6 );
-
 			}
 			// Use the brush to paint the rectangle.
 			Background = myLinearGradientBrush;
-
 		}
+
 		#endregion Display utilities
 
 		#region Window Handling Methods
+
 		private void WindowLoaded ( object sender , RoutedEventArgs e )
 		{
 			// Subscribe to notifications of data changes to SQL data
@@ -661,20 +671,18 @@ namespace WPFPages . Views
 				DetailsGrid . Focus ( );
 				DetailsGrid . BringIntoView ( );
 				NotifyOfDataChange += dvm . DbHasChangedHandler; // Callback in REMOTE FILE
-
 			}
 
 			MainWindow . gv . SqlCurrentEditViewer = this;
 
 			// Set Form wide flags to see what  actions we need to take ?  (Edited value or not)
 			ViewerChangeType = 0;        // Change made in Viewer
-			EditChangeType = 0;     // We have not done anything  
+			EditChangeType = 0;     // We have not done anything
 
 			EditDbViewerSelectedIndexChanged += EditDbHasChangedIndex;      // Callback in THIS FILE
 
 			// set up our windows dragging
 			this . MouseDown += delegate { DoDragMove ( ); };
-
 		}
 
 		private void Window_Closing ( object sender , CancelEventArgs e )
@@ -708,10 +716,12 @@ namespace WPFPages . Views
 
 			//Flags.DbSelectorOpen. DeleteCurrentViewer ( );
 		}
+
 		private void Window_GotFocus ( object sender , RoutedEventArgs e )
 		{
 			Flags . CurrentEditDbViewer = this;
 		}
+
 		private void Window_PreviewKeyDown ( object sender , KeyEventArgs e )
 		{
 			Console . WriteLine ( $"Key : {e . Key}" );
@@ -878,6 +888,7 @@ namespace WPFPages . Views
 			}
 			key1 = false;
 		}
+
 		// Window is closing via Close Button Click event
 		private void Button_Click ( object sender , RoutedEventArgs e )
 		{
@@ -887,7 +898,6 @@ namespace WPFPages . Views
 		}
 
 		#endregion Window Handling Methods
-
 
 		#region INotifyPropertyChanged Members
 
@@ -902,10 +912,10 @@ namespace WPFPages . Views
 			}
 		}
 
-
-		#endregion
+		#endregion INotifyPropertyChanged Members
 
 		#region Cell Editing methods
+
 		private async void DataGrid1_CellEditEnding ( object sender , DataGridCellEditEndingEventArgs e )
 		{
 			int currindx = DataGrid1 . SelectedIndex;
@@ -1048,6 +1058,7 @@ namespace WPFPages . Views
 			}
 			Flags . EditDbDataChanged = false;
 		}
+
 		//Customer grid
 		private async void DataGrid2_RowEditEnding ( object sender , DataGridRowEditEndingEventArgs e )
 		{
@@ -1084,6 +1095,7 @@ namespace WPFPages . Views
 			}
 			Flags . EditDbDataChanged = false;
 		}
+
 		//Details Grid
 		private async void DetailsGrid_RowEditEnding ( object sender , DataGridRowEditEndingEventArgs e )
 		{
@@ -1134,14 +1146,11 @@ namespace WPFPages . Views
 		//	}
 		//	else if ( CurrentDb == "CUSTOMER" )
 		//	{
-
 		//	}
 		//	else if ( CurrentDb == "DETAILS" )
 		//	{
-
 		//	}
 		//}
-
 
 		// BankAccount
 		/// <summary>
@@ -1241,86 +1250,124 @@ namespace WPFPages . Views
 			DetailsEditFields . DataContext = DetailsGrid . SelectedItem;
 			//DetailsGrid . Focus ( );
 		}
+
 		#endregion RowSelection handlers
 
 		#region Edit fields "LostFocus" handlers (Calls RefreshItems()
 
 		//Bank Edit fields
+
 		#region Bank Editing fields
+
 		private void ActypeEdit_LostFocus ( object sender , RoutedEventArgs e )
 		{ RefreshItemsSource ( DataGrid1 ); }
+
 		private void BanknoEdit_LostFocus ( object sender , RoutedEventArgs e )
 		{ RefreshItemsSource ( DataGrid1 ); }
+
 		private void CustNoEdit_LostFocus ( object sender , RoutedEventArgs e )
 		{ RefreshItemsSource ( DataGrid1 ); }
+
 		private void BalanceEdit_LostFocus ( object sender , RoutedEventArgs e )
 		{ RefreshItemsSource ( DataGrid1 ); }
+
 		private void IntRateEdit_LostFocus ( object sender , RoutedEventArgs e )
 		{ RefreshItemsSource ( DataGrid1 ); }
+
 		private void OpenDateEdit_LostFocus ( object sender , RoutedEventArgs e )
 		{ RefreshItemsSource ( DataGrid1 ); }
+
 		private void CloseDateEdit_LostFocus ( object sender , RoutedEventArgs e )
 		{ RefreshItemsSource ( DataGrid1 ); }
 
 		#endregion Bank Editing fields
+
 		//Customer edit fields
+
 		#region Customer Editing fields
+
 		private void BanknoEdit2_LostFocus ( object sender , RoutedEventArgs e )
 		{ RefreshItemsSource ( DataGrid2 ); }
+
 		private void CustnoEdit2_LostFocus ( object sender , RoutedEventArgs e )
 		{ RefreshItemsSource ( DataGrid2 ); }
+
 		private void openDateEdit2_LostFocus ( object sender , RoutedEventArgs e )
 		{ RefreshItemsSource ( DataGrid2 ); }
+
 		private void CloseDateEdit2_LostFocus ( object sender , RoutedEventArgs e )
 		{ RefreshItemsSource ( DataGrid2 ); }
+
 		private void AcTypeEdit2_LostFocus ( object sender , RoutedEventArgs e )
 		{
 			CustomerViewModel cvm = DataGrid2.SelectedItem as CustomerViewModel ;
 			cvm . AcType = Convert . ToInt32 ( AcType2 . Text );
 			RefreshItemsSource2 ( DataGrid2 , cvm , DataGrid2 . SelectedIndex );
 		}
+
 		private void Addr1Edit2_LostFocus ( object sender , RoutedEventArgs e )
 		{ RefreshItemsSource ( DataGrid2 ); }
+
 		private void Addr2Edit2_LostFocus ( object sender , RoutedEventArgs e )
 		{ RefreshItemsSource ( DataGrid2 ); }
+
 		private void MobileEdit2_LostFocus ( object sender , RoutedEventArgs e )
 		{ RefreshItemsSource ( DataGrid2 ); }
+
 		private void PhoneEdit2_LostFocus ( object sender , RoutedEventArgs e )
 		{ RefreshItemsSource ( DataGrid2 ); }
+
 		private void CountyEdit2_LostFocus ( object sender , RoutedEventArgs e )
 		{ RefreshItemsSource ( DataGrid2 ); }
+
 		private void PcodeEdit2_LostFocus ( object sender , RoutedEventArgs e )
 		{ RefreshItemsSource ( DataGrid2 ); }
+
 		private void DobEdit2_LostFocus ( object sender , RoutedEventArgs e )
 		{ RefreshItemsSource ( DataGrid2 ); }
+
 		private void FirstnameEdit2_LostFocus ( object sender , RoutedEventArgs e )
 		{ RefreshItemsSource ( DataGrid2 ); }
+
 		private void LastnameEdit2_LostFocus ( object sender , RoutedEventArgs e )
 		{ RefreshItemsSource ( DataGrid2 ); }
+
 		private void TownEdit2_LostFocus ( object sender , RoutedEventArgs e )
 		{ RefreshItemsSource ( DataGrid2 ); }
+
 		private void ODate2_LostFocus ( object sender , RoutedEventArgs e )
 		{ RefreshItemsSource ( DataGrid2 ); }
+
 		private void CDate2_LostFocus ( object sender , RoutedEventArgs e )
 		{ RefreshItemsSource ( DataGrid2 ); }
+
 		private void Dob2_LostFocus ( object sender , RoutedEventArgs e )
 		{ RefreshItemsSource ( DataGrid2 ); }
+
 		#endregion Customer Editing fields
 
 		// Details Edit fields
+
 		#region Details Editing fields
+
 		private void ActypeEdit3LostFocus ( object sender , RoutedEventArgs e )
 		{ RefreshItemsSource ( DetailsGrid ); }
+
 		private void CustnoEdit3_LostFocus ( object sender , RoutedEventArgs e )
 		{ RefreshItemsSource ( DetailsGrid ); }
+
 		private void BanknoEdit3_LostFocus ( object sender , RoutedEventArgs e )
 		{ RefreshItemsSource ( DetailsGrid ); }
+
 		private void BalanceEdit3_LostFocus ( object sender , RoutedEventArgs e )
 		{ RefreshItemsSource ( DetailsGrid ); }
+
 		private void IntRateEdit3_LostFocus ( object sender , RoutedEventArgs e )
 		{ RefreshItemsSource ( DetailsGrid ); }
+
 		private void OpenDateEdit3_LostFocus ( object sender , RoutedEventArgs e )
 		{ RefreshItemsSource ( DetailsGrid ); }
+
 		private void CloseDateEdit3_LostFocus ( object sender , RoutedEventArgs e )
 		{ RefreshItemsSource ( DetailsGrid ); }
 
@@ -1342,7 +1389,6 @@ namespace WPFPages . Views
 				Console . WriteLine ( $"Broadcasting from OnDataLoaded in SQLHandlers()" );
 				DataUpdated?.Invoke ( this , new DataUpdatedEventArgs { CurrentDb = CurrentDb , Row = Row } );
 			}
-
 		}
 
 		private void RefreshItemsSource ( DataGrid Grid )
@@ -1361,10 +1407,10 @@ namespace WPFPages . Views
 			Flags . EditDbDataChanged = false;
 		}
 
-
 		#endregion Edit fields "LostFocus" handlers (Calls RefreshItems()
 
 		#region Mouse Preview handlers
+
 		private void DoDragMove ( )
 		{
 			//Handle the button NOT being the left mouse button
@@ -1461,13 +1507,13 @@ namespace WPFPages . Views
 		#endregion Mouse Preview handlers
 
 		#region Task experimentation - NO LONGER USED
+
 		//***********************************************************************************//
 		//************************Task to handle selection changes**********************************//
 		//***********************************************************************************//
 
 		//		public async void HandleSelChange ()
 		//		{
-
 		////			if(tokenSource  != null)
 		//			try
 		//			{
@@ -1538,7 +1584,8 @@ namespace WPFPages . Views
 		//				DataGrid1.SelectedIndex = MainWindow.DgControl.SelectedIndex;
 		//			});
 		//		}
-		#endregion Task experimentation
+
+		#endregion Task experimentation - NO LONGER USED
 
 		private void Viewer_Click ( object sender , RoutedEventArgs e )
 		{
@@ -1579,9 +1626,9 @@ namespace WPFPages . Views
 				Flags . CurrentSqlViewer . CustomerGrid . Refresh ( );
 			}
 		}
+
 		private void BanknoEdit2_TextChanged ( object sender , TextChangedEventArgs e )
 		{
-
 		}
 
 		private void AcType2_TextChanged ( object sender , TextChangedEventArgs e )
@@ -1597,6 +1644,7 @@ namespace WPFPages . Views
 				dglist2 = SqlViewerIndexChanged . GetInvocationList ( );
 			return dglist2;
 		}
+
 		public static Delegate [ ] GetEventCount4 ( )
 		{
 			Delegate [ ] dglist2 = null;
@@ -1604,7 +1652,6 @@ namespace WPFPages . Views
 				dglist2 = SqlHasChangedSelection?.GetInvocationList ( );
 			return dglist2;
 		}
-
 
 		public static Delegate [ ] GetEventCount9 ( )
 		{
@@ -1621,7 +1668,7 @@ namespace WPFPages . Views
 				dglist2 = AllViewersUpdate?.GetInvocationList ( );
 			return dglist2;
 		}
+
 		#endregion Debug support methods
 	}
 }
-

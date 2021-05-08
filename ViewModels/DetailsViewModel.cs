@@ -3,7 +3,6 @@
 #define TASK1
 
 using System;
-using System . Data;
 using System . Threading . Tasks;
 
 using WPFPages . Views;
@@ -42,7 +41,7 @@ namespace WPFPages . ViewModels
 
 		public static bool SqlUpdating = false;
 		public static int CurrentSelectedIndex = 0;
-//		public static DataTable dtDetails = null;
+		//		public static DataTable dtDetails = null;
 		//		private static bool IsSubscribedToObsNotifications = false;
 		//		LayoutSettings;
 

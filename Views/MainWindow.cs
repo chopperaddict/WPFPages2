@@ -6,7 +6,7 @@ using System . Windows . Input;
 using WPFPages . Views;
 using WPFPages . ViewModels;
 
-using WpfUI;
+//using WpfUI;
 using static System . Windows . Forms . VisualStyles . VisualStyleElement . Window;
 
 namespace WPFPages
@@ -34,7 +34,7 @@ namespace WPFPages
 
 		public Frame theFrame;
 		public static Page _Blank = new BlankPage ( );
-		public static Page _Page0 = new Page0 ( );
+		//public static Page _Page0 = new Page0 ( );
 		//public static Page _Page1 = new Page1 ( );
 		//public static Page _Page2 = new Page2 ( );
 		//public static Page _Page3 = new Page3 ( );
@@ -190,7 +190,7 @@ namespace WPFPages
 		{
 			//Button btn = (Button)sender;
 			//btn.FontSize = 28;
-			MainPageHolder . NavigationService . Navigate ( MainWindow . _Page0 );
+//			MainPageHolder . NavigationService . Navigate ( MainWindow . _Page0 );
 		}
 		private void Page1_Click ( object sender, RoutedEventArgs e )
 		{

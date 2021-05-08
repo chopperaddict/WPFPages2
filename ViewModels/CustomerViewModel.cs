@@ -40,7 +40,7 @@ namespace WPFPages . Views
 		/// so we need to update OURSELVES
 		/// </summary>
 		/// <param name="sender"></param>
-		public void DbHasChangedHandler ( SqlDbViewer sender, DataGrid Grid, DataChangeArgs args )
+		public void DbHasChangedHandler ( SqlDbViewer sender , DataGrid Grid , DataChangeArgs args )
 		{
 			if ( Grid . Name == "CustomerGrid" )
 				return;         // Nothing to do, it was us that sent the broadcast
@@ -48,15 +48,15 @@ namespace WPFPages . Views
 						    // FIRST check to see what sort of Grid we are displaying so we can refresh it correctly
 
 			if ( Flags . SqlCustViewer != null )
-				Flags . SqlCustViewer . RefreshCustomerOnUpdateNotification ( sender, Grid, args );
+				Flags . SqlCustViewer . RefreshCustomerOnUpdateNotification ( sender , Grid , args );
 
 			// See if we need to update EditDb window as well
 			if ( Flags . CurrentEditDbViewer != null )
-				Flags . CurrentEditDbViewer . DbChangedHandler ( sender, Grid, args );
+				Flags . CurrentEditDbViewer . DbChangedHandler ( sender , Grid , args );
 			return;
 		}
 
-		public void CustomersObs_CollectionChanged ( object sender, System . Collections . Specialized . NotifyCollectionChangedEventArgs e )
+		public void CustomersObs_CollectionChanged ( object sender , System . Collections . Specialized . NotifyCollectionChangedEventArgs e )
 		{
 			OnPropertyChanged ( "CustomerViewModel.CustomerObs" );
 		}
@@ -84,14 +84,17 @@ namespace WPFPages . Views
 		private int selectedRow;
 
 		private static bool loaded = false;
-//		private string columnToFilterOn = "";
+
+		//		private string columnToFilterOn = "";
 		private string filtervalue1 = "";
+
 		private string filtervalue2 = "";
 		private string operand = "";
 		public bool FilterResult = false;
 		private string IsFiltered = "";
 		private string FilterCommand = "";
-//		private string PrettyDetails = "";
+
+		//		private string PrettyDetails = "";
 		public bool isMultiMode = false;
 
 		private static bool IsSubscribedToObsNotifications = false;
@@ -100,8 +103,6 @@ namespace WPFPages . Views
 		public static DataTable dtCust = new DataTable ( );
 
 		#endregion PRIVATE Variables declarations
-
-
 
 		#region PROPERTY SETTERS
 
@@ -204,6 +205,7 @@ namespace WPFPages . Views
 		public int SelectedItem
 		{
 			get { return selectedItem; }
+
 			set
 			{
 				selectedItem = value;
@@ -214,6 +216,7 @@ namespace WPFPages . Views
 		public int SelectedIndex
 		{
 			get { return selectedIndex; }
+
 			set
 			{
 				selectedIndex = value;
@@ -224,6 +227,7 @@ namespace WPFPages . Views
 		public int SelectedRow
 		{
 			get { return selectedRow; }
+
 			set
 			{
 				selectedRow = value;

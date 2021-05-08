@@ -1,13 +1,10 @@
-﻿
-using System;
+﻿using System;
 using System . Diagnostics;
 using System . Runtime . CompilerServices;
 using System . Windows . Controls;
 using System . Windows . Threading;
 
-using DocumentFormat . OpenXml . Spreadsheet;
 using WPFPages . ViewModels;
-using static WPFPages . SqlDbViewer;
 
 namespace WPFPages . Views
 {
@@ -17,24 +14,23 @@ namespace WPFPages . Views
 	//This object will contain information about the triggered event.
 	//	public delegate void SelectionChanged (object source, SelectedEventArgs e);
 
-
 	#region KNOWN DELEGATES IN USE
-	public delegate bool DbReloaded ( object sender, DataLoadedArgs args );
 
-	public delegate void DbUpdated ( SqlDbViewer sender, DataGrid Grid, DataChangeArgs args );
+	public delegate bool DbReloaded ( object sender , DataLoadedArgs args );
 
-	public delegate void EditDbGridSelectionChanged ( int ChangeType, int value, string caller );
+	public delegate void DbUpdated ( SqlDbViewer sender , DataGrid Grid , DataChangeArgs args );
 
-	public delegate void EditDbDataChanged ( int EditDbChangeType, int row, string CurentDb );
+	public delegate void EditDbGridSelectionChanged ( int ChangeType , int value , string caller );
 
-	public delegate void NotifyViewer ( int status, string info, SqlDbViewer NewSqlViewer );
+	public delegate void EditDbDataChanged ( int EditDbChangeType , int row , string CurentDb );
 
-	public delegate void SQLViewerSelectionChanged ( int ChangeType, int row, string CurrentDb );
+	public delegate void NotifyViewer ( int status , string info , SqlDbViewer NewSqlViewer );
 
-	public delegate void SqlSelectedRowChanged ( int ChangeType, int row, string CurentDb );
+	public delegate void SQLViewerSelectionChanged ( int ChangeType , int row , string CurrentDb );
 
-	public delegate void SqlViewerNotify ( int status, string info, SqlDbViewer NewSqlViewer );
+	public delegate void SqlSelectedRowChanged ( int ChangeType , int row , string CurentDb );
 
+	public delegate void SqlViewerNotify ( int status , string info , SqlDbViewer NewSqlViewer );
 
 	//************************************************
 
@@ -44,21 +40,25 @@ namespace WPFPages . Views
 	{
 		// declare event based on delegate above
 		public static event ChimeEventHandler Chime;
+
 		public static void sChimeFivePm ( )
 		{
 			Console . WriteLine ( $"" );
 			Chime ( );
 		}
+
 		public static void sChimeSixAm ( )
 		{
 			Console . WriteLine ( $"" );
 			Chime ( );
 		}
+
 		public void ChimeFivePm ( )
 		{
 			Console . WriteLine ( $"" );
 			Chime ( );
 		}
+
 		public void ChimeSixAm ( )
 		{
 			Console . WriteLine ( $"" );
@@ -76,6 +76,7 @@ namespace WPFPages . Views
 
 		//Delegates I AM USING
 		public static NotifyViewer SendViewerCommand;
+
 		public static SqlSelectedRowChanged SqlViewerIndexChanged;
 
 		#endregion DELEGATES IN USE
@@ -85,7 +86,7 @@ namespace WPFPages . Views
 		/// ONLY CONSTRUCTOR (Specialised)
 		/// <param name="edb"> This is the Caller class</param>
 		/// <param name="dg"> This is the (Active) Datagrid in the above class</param>
-		public EventHandlers ( DataGrid dg, string CallerName, out EventHandlers thisWin )
+		public EventHandlers ( DataGrid dg , string CallerName , out EventHandlers thisWin )
 		{
 			thisWin = this;
 			if ( !BankAccountViewModel . ShowSubscribeData )
@@ -95,7 +96,7 @@ namespace WPFPages . Views
 			//if ( Flags . EventHandlerDebug )
 			//{
 			Console . WriteLine ( $"EventHandler.EventHandlers(51) : In Constructor - CallerName = {CallerName}." );
-			}
+		}
 
 		// Not used if DEBUG is UnDefined
 		[Conditional ( "DEBUG" )]
@@ -115,22 +116,22 @@ namespace WPFPages . Views
 				return;
 			//EditDbViewerSelectedIndexChanged
 			Delegate [ ] dg = SqlDbViewer . GetEventCount ( );
-			if ( dg != null )	count = dg . Length;		    			
+			if ( dg != null ) count = dg . Length;
 			// NotifyOfDataChange
 			dg = SqlDbViewer . GetEventCount2 ( );
-			if ( dg != null )	count2 = dg . Length;
+			if ( dg != null ) count2 = dg . Length;
 			// NotifyOfDataLoaded
 			dg = SqlDbViewer . GetEventCount3 ( );
-			if ( dg != null )	count3 = dg . Length;
+			if ( dg != null ) count3 = dg . Length;
 			// SqlHasChangedSelection
 			dg = EditDb . GetEventCount4 ( );
-			if ( dg != null )	count4 = dg . Length;
+			if ( dg != null ) count4 = dg . Length;
 			// SqlViewerIndexChanged
-			dg = EditDb. GetEventCount5 ( );
+			dg = EditDb . GetEventCount5 ( );
 			if ( dg != null ) count5 = dg . Length;
-			// DetCollection. DetDataLoaded 
+			// DetCollection. DetDataLoaded
 			dg = BankCollection . GetEventCount6 ( );
-			if ( dg != null ) count6 = dg . Length;			    			
+			if ( dg != null ) count6 = dg . Length;
 			//SQLHandlers. DataUpdated
 			dg = EditDb . GetEventCount9 ( );
 			if ( dg != null ) count9 = dg . Length;
@@ -144,13 +145,13 @@ namespace WPFPages . Views
 			$"\nNotifyOfDataChange =		 		{count2}" +
 			$"\nNotifyOfDataLoaded =		 		{count3}" +
 			$"\nSqlHasChangedSelection = 			{count4}" +
-			$"\nSqlViewerIndexChanged =				{ count5}" + 
+			$"\nSqlViewerIndexChanged =				{ count5}" +
 			$"\nBankCollection. BankDataLoaded =	{count6}" +
 			$"\nCustCollection. CustDataLoaded =	{count7}" +
-			$"\nDetCollection. DetDataLoaded =		{count8}"+
-			$"\nSQLHandler.DataUpdated =			{count9}" + 
+			$"\nDetCollection. DetDataLoaded =		{count8}" +
+			$"\nSQLHandler.DataUpdated =			{count9}" +
 			$"\nDbEdit.AllViewersUpdate =			{count10}"
-			); 
+			);
 
 			bool first = true;
 			Delegate [ ] dglist2 = SqlDbViewer . GetEventCount ( );
@@ -204,7 +205,7 @@ namespace WPFPages . Views
 					cnt++;
 				}
 			}
-			dglist2 = EditDb. GetEventCount4 ( );
+			dglist2 = EditDb . GetEventCount4 ( );
 			if ( dglist2 != null )
 			{
 				int cnt = 0;
@@ -247,11 +248,11 @@ namespace WPFPages . Views
 				foreach ( var item in dglist2 )
 				{
 					if ( cnt > 0 ) Console . WriteLine ( );
-					if( item . Target != null)
+					if ( item . Target != null )
 						Console . WriteLine ( $"Delegate : BankCollection. BankDataLoaded:\n >>> {item . Target?.ToString ( )}\nMethod = {item . Method . ToString ( )}" );
 					else
 						Console . WriteLine ( $"Delegate : BankCollection. BankDataLoaded:\n >>> \nMethod = {item . Method . ToString ( )}" );
-						cnt++;
+					cnt++;
 				}
 			}
 			dglist2 = CustCollection . GetEventCount7 ( );
@@ -268,7 +269,7 @@ namespace WPFPages . Views
 				{
 					if ( cnt > 0 ) Console . WriteLine ( );
 					if ( item . Target != null )
-						Console . WriteLine ( $"Delegate : CustCollection. CustDataLoaded:\n >>> {item . Target? . ToString ( )}\nMethod = {item . Method . ToString ( )}" );
+						Console . WriteLine ( $"Delegate : CustCollection. CustDataLoaded:\n >>> {item . Target?.ToString ( )}\nMethod = {item . Method . ToString ( )}" );
 					else
 						Console . WriteLine ( $"Delegate : CustCollection. CustDataLoaded:\n >>> \nMethod = {item . Method . ToString ( )}" );
 					cnt++;
@@ -335,11 +336,9 @@ namespace WPFPages . Views
 				}
 			}
 
-
 			Console . WriteLine ( $"+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++" );
 		}
 	}
-
 
 	public static class DispatcherExtensions
 	{
@@ -375,7 +374,3 @@ namespace WPFPages . Views
 		}
 	}
 } // End namespace
-
-
-
-

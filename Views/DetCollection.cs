@@ -70,7 +70,7 @@ namespace WPFPages . Views
 
 			// This all woks just fine, and DOES switch back to UI thread that is MANDATORY before doing the Collection load processing
 			// thanks to the use of TaskScheduler.FromCurrentSynchronizationContext() that oerforms the magic switch back to the UI thread
-			Console . WriteLine ( $"Entering Method to call Task.Run in DetCollection  : Thread = { Thread . CurrentThread . ManagedThreadId}" );
+			Console . WriteLine ( $"DETAILS : Entering Method to call Task.Run in DetCollection  : Thread = { Thread . CurrentThread . ManagedThreadId}" );
 
 			#region process code to load data
 
@@ -162,20 +162,21 @@ namespace WPFPages . Views
 					SqlDataAdapter sda = new SqlDataAdapter ( cmd );
 					sda . Fill ( dtDetails );
 					st . Stop ( );
-					Console . WriteLine ( $"Sql data loaded  [{dtDetails . Rows . Count}] row(s) into Details DataTable in {( double ) st . ElapsedMilliseconds / ( double ) 1000}...." );
+					Console . WriteLine ( $"DETAILS : Sql data loaded  [{dtDetails . Rows . Count}] row(s) into Details DataTable in {( double ) st . ElapsedMilliseconds / ( double ) 1000}...." );
 					return true;
 				}
 			}
 			catch ( Exception ex )
 			{
-				Console . WriteLine ( $"ERROR in LoadDetailsDataSql(): Failed to load Details Details - {ex . Message}, {ex . Data}" );
+				Console . WriteLine ( $"DETAILS : ERROR in LoadDetailsDataSql(): Failed to load Details Details - {ex . Message}, {ex . Data}" );
+				MessageBox . Show ( $"DETAILS : ERROR in LoadDetailsDataSql(): Failed to load Details Details - {ex . Message}, {ex . Data}" );
 				return false;
 			}
 			return true;
 		}
 
 		//**************************************************************************************************************************************************************//
-		public static async Task<DetCollection> LoadDetCollection ( )
+		public static async Task<DetCollection> LoadDetCollection (bool Notify = true )
 		{
 			int count = 0;
 			try
@@ -195,13 +196,15 @@ namespace WPFPages . Views
 					} );
 					count = i;
 				}
-				Console . WriteLine ( $"Sql data loaded into Details ObservableCollection \"DetCollection\" [{count}] ...." );
-				OnDetDataLoaded ( Detcollection );
+				Console . WriteLine ( $"DETAILS : Sql data loaded into Details ObservableCollection \"DetCollection\" [{count}] ...." );
+				if(Notify)
+					OnDetDataLoaded ( Detcollection );
 				return Detcollection;
 			}
 			catch ( Exception ex )
 			{
-				Console . WriteLine ( $"ERROR in  LoadDetCollection() : loading Details into ObservableCollection \"DetCollection\" : [{ex . Message}] : {ex . Data} ...." );
+				Console . WriteLine ( $"DETAILS : ERROR in  LoadDetCollection() : loading Details into ObservableCollection \"DetCollection\" : [{ex . Message}] : {ex . Data} ...." );
+				MessageBox . Show ( $"DETAILS : ERROR in  LoadDetCollection() : loading Details into ObservableCollection \"DetCollection\" : [{ex . Message}] : {ex . Data} ...." );
 				return null;
 			}
 		}

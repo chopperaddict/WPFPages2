@@ -177,6 +177,23 @@ Closed="Window_Closed">
 			</Grid>
 		</ControlTemplate>-->
 
+		<Style x:Key="gradientblue" TargetType="TextBlock">
+			<Setter Property="Background" Value="{StaticResource HeaderBrushBlue}" />
+			<Setter Property="Foreground" Value="White" />
+			<!--<Setter Property="BorderBrush" Value="{StaticResource HeaderBorderBrushBlue}" />-->
+			<!--<Setter Property="BorderThickness" Value="1" />-->
+			<Setter Property="SnapsToDevicePixels" Value="True" />
+			<!--<Setter Property="HorizontalContentAlignment" Value="Center" />-->
+			<!--<Setter Property="MinWidth" Value="0" />
+			<Setter Property="MinHeight" Value="30" />
+			<Setter Property="Cursor" Value="Hand" />-->
+			<!--<Style.Triggers>
+				<Trigger Property="IsMouseOver" Value="True">
+					<Setter Property= "Background" Value="{StaticResource HeaderBorderBrushBlue}" />
+				</Trigger>
+			</Style.Triggers>-->
+		</Style>
+		
 		<Style x:Key="HeaderStyleBlue" TargetType="DataGridColumnHeader">
 			<Setter Property="Background" Value="{StaticResource HeaderBrushBlue}" />
 			<Setter Property="Foreground" Value="White" />
@@ -245,7 +262,7 @@ Closed="Window_Closed">
 			<RowDefinition Height="65" />
 			<RowDefinition Height="*" />
 			<RowDefinition Height="*" />
-			<RowDefinition Height="35" />
+			<RowDefinition Height="45" />
 			<RowDefinition Height="15" />
 		</Grid.RowDefinitions>
 		<Grid.ColumnDefinitions>
@@ -879,10 +896,11 @@ Closed="Window_Closed">
 				Foreground="Black"
 				Grid.Row="6" Grid.Column="0"
 				Grid.ColumnSpan="2"
-				Height="25"
+				Height="30"
 				HorizontalAlignment="Stretch"	  			
-				Margin="15,5,0,0"
+				Margin="15,10,5,0"
 				Padding="3"
+				Style="{StaticResource gradientblue}"
 				Text="Please wait, loading data from SQL Database...."
 				TextAlignment="Center"
 				VerticalAlignment="Top" 
@@ -893,9 +911,9 @@ Closed="Window_Closed">
 			Grid.Column="2"
 			Grid.ColumnSpan="2"
 			Grid.Row="6"
-			Height="30"
+			Height="35"
 			HorizontalAlignment="Right"
-			Margin="0,2,10,0"
+			Margin="0,7,0,0"
 			Style="{StaticResource ToggleBkGrndOnmouseover}"
 			VerticalAlignment="Top"
 			Width="150"

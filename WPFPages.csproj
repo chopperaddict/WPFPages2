@@ -39,7 +39,8 @@
     <StartupObject>WPFPages.App</StartupObject>
   </PropertyGroup>
   <PropertyGroup>
-    <ApplicationIcon>favicon.ico</ApplicationIcon>
+    <ApplicationIcon>
+    </ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="DocumentFormat.OpenXml, Version=2.12.3.0, Culture=neutral, PublicKeyToken=8fb06cb64d019a17, processorArchitecture=MSIL">
@@ -69,31 +70,26 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="Behaviours\DataGridBehaviour.cs" />
-    <Compile Include="BindingTracer.cs" />
     <Compile Include="Observable.cs" />
     <Compile Include="Views\AllEventArgs.cs" />
     <Compile Include="Views\BankCollection.cs" />
+    <Compile Include="Views\CloseReturnButton.xaml.cs">
+      <DependentUpon>CloseReturnButton.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\CustCollection.cs" />
+    <Compile Include="Views\DataGridNavigation.cs" />
+    <Compile Include="Views\DelegateSelection.xaml.cs">
+      <DependentUpon>DelegateSelection.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\DetCollection.cs" />
-    <Compile Include="Views\RelayCommand.cs" />
     <Compile Include="DateOnlyConverter.cs" />
     <Compile Include="SalaryConvertor.cs" />
-    <Compile Include="CustomControl1.cs" />
     <Compile Include="Views\GridViewer.cs" />
-    <Compile Include="ExceptionTracker.cs" />
-    <Compile Include="ExceptionWindow.xaml.cs">
-      <DependentUpon>ExceptionWindow.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Item.cs" />
-    <Compile Include="Items.cs" />
     <Compile Include="Views\DataGridSupport.cs" />
     <Compile Include="SQLDbSupport.cs" />
     <Compile Include="TaskHandling.cs" />
     <Compile Include="Utils.cs" />
-    <Compile Include="ViewModels\BankAccountViewModel-BANK.cs" />
     <Compile Include="ViewModels\BankAccountViewModel.cs" />
-    <Compile Include="Views\CommandViewModel.cs" />
     <Compile Include="Views\DataGridHelper.cs" />
     <Compile Include="Views\Flags.cs" />
     <Compile Include="ViewModels\CustomerViewModel.cs" />
@@ -104,10 +100,8 @@
       <DependentUpon>RowPopup.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\SQLHandlers.cs" />
-    <Compile Include="Views\TaskExtension.cs" />
     <Compile Include="Views\ViewEditdb.cs" />
     <Compile Include="Views\ViewModelBase.cs" />
-    <Compile Include="Views\DataGridNavigation.cs" />
     <Compile Include="Views\DbSelector.xaml.cs">
       <DependentUpon>DbSelector.xaml</DependentUpon>
     </Compile>
@@ -123,35 +117,12 @@
     <Compile Include="Views\SQLFilter.xaml.cs">
       <DependentUpon>SQLFilter.xaml</DependentUpon>
     </Compile>
-    <Compile Include="DataSources\AllStaff.cs" />
-    <Compile Include="FormatServicePeriodConvertor.cs" />
     <Compile Include="Views\SqlDbViewer.xaml.cs">
       <DependentUpon>SqlDbViewer.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\OurStaff.cs" />
-    <Compile Include="Views\Person.cs" />
     <Compile Include="Views\BlankPage.xaml.cs">
       <DependentUpon>BlankPage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\DependencyUserControl1.xaml.cs">
-      <DependentUpon>DependencyUserControl1.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="FormatIntValuesConvertor.cs" />
-    <Compile Include="Views\ItemsCollection.cs" />
-    <Compile Include="Views\Page0.xaml.cs">
-      <DependentUpon>Page0.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Views\CloseReturnButton.xaml.cs">
-      <DependentUpon>CloseReturnButton.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Views\EllipseExitButton.xaml.cs">
-      <DependentUpon>EllipseExitButton.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Views\People.cs" />
-    <Compile Include="Views\testwin.xaml.cs">
-      <DependentUpon>testwin.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Views\TodoItem.cs" />
     <Compile Include="Views\Triggers.xaml.cs">
       <DependentUpon>Triggers.xaml</DependentUpon>
     </Compile>
@@ -175,11 +146,15 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="ExceptionWindow.xaml">
+    <Page Include="Views\CloseReturnButton.xaml">
+      <SubType>Designer</SubType>
+      <Generator>XamlIntelliSenseFileGenerator</Generator>
+    </Page>
+    <Page Include="Views\DbSelector.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views\DbSelector.xaml">
+    <Page Include="Views\DelegateSelection.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -219,22 +194,6 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views\DependencyUserControl1.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Views\Page0.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Views\CloseReturnButton.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Views\EllipseExitButton.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
     <Page Include="Dicts\YTButtonStackPanel.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -260,10 +219,6 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Dicts\TestDictionary.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Views\testwin.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -300,24 +255,10 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Images\ian.jpg" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="Images\BLANK GREEN.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="Images\XPLANE.PNG" />
-  </ItemGroup>
-  <ItemGroup>
+    <Folder Include="Behaviours\" />
     <Folder Include="Converters\" />
+    <Folder Include="DataSources\" />
     <Folder Include="Libraries\" />
-    <Folder Include="UserControls\" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="Images\olwen.jpg" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="favicon.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

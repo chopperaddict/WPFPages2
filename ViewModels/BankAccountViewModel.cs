@@ -5,10 +5,7 @@
 
 using System;
 using System . Collections . Generic;
-using System . Data;
-using System . Data . SqlClient;
 using System . Windows . Controls;
-using System . Windows . Input;
 
 using WPFPages . Views;
 
@@ -50,7 +47,7 @@ namespace WPFPages . ViewModels
 		private int selectedIndex;
 
 		//		private Timer timer = new Timer ();
-//		public static DataTable dtBank = null;
+		//		public static DataTable dtBank = null;
 
 		public int Id
 		{
@@ -73,6 +70,7 @@ namespace WPFPages . ViewModels
 		public int AcType
 		{
 			get { return actype; }
+
 			set
 			{ actype = value; OnPropertyChanged ( AcType . ToString ( ) ); }
 		}
@@ -80,6 +78,7 @@ namespace WPFPages . ViewModels
 		public decimal Balance
 		{
 			get { return balance; }
+
 			set
 			{ balance = value; OnPropertyChanged ( Balance . ToString ( ) ); }
 		}
@@ -152,14 +151,14 @@ namespace WPFPages . ViewModels
 		/// </summary>
 		/// <param name="sender"></param>
 		//**************************************************************************************************************************************************************//
-		public void DbHasChangedHandler ( SqlDbViewer sender, DataGrid Grid, DataChangeArgs args )
+		public void DbHasChangedHandler ( SqlDbViewer sender , DataGrid Grid , DataChangeArgs args )
 		{
 			if ( Grid . Name == "BankGrid" )
 				return;         // Nothing to do, it was us that sent the broadcast
 
 			// Send it to the correct open viewer window
 			if ( Flags . SqlBankViewer != null )
-				Flags . SqlBankViewer . RefreshBankOnUpdateNotification ( sender, Grid, args );
+				Flags . SqlBankViewer . RefreshBankOnUpdateNotification ( sender , Grid , args );
 			//if ( Flags . SqlCustViewer != null )
 			//	Flags . SqlCustViewer . RefreshCustomerOnUpdateNotification ( sender , Grid , args );
 			//if ( Flags . SqlDetViewer != null )
@@ -170,28 +169,31 @@ namespace WPFPages . ViewModels
 				Flags . CurrentEditDbViewer . DbChangedHandler ( sender , Grid , args );
 			return;
 		}
-				#endregion EVENT CALLBACKS
+
+		#endregion EVENT CALLBACKS
 
 		// MVVM TO DO STUFF/INFO
 		// How to configure a RelayCommand with lambda expressions:
+
 		#region MVVMstuff
+
 		//**************************************************************************************************************************************************************//
-		private RelayCommand _saveCommand; public ICommand SaveCommand
+		//		private RelayCommand _saveCommand; public ICommand SaveCommand
 
-		{
-			get
-			{
-				if ( _saveCommand == null )
-				{
-#pragma MVVM TODO
-					//_saveCommand = new RelayCommand (param => this.Save (),
-					//    param => this.CanSave);
-				}
-				return _saveCommand;
-			}
-		}
+		//		{
+		//			get
+		//			{
+		//				if ( _saveCommand == null )
+		//				{
+		//#pragma MVVM TODO
+		//					//_saveCommand = new RelayCommand (param => this.Save (),
+		//					//    param => this.CanSave);
+		//				}
+		//				return _saveCommand;
+		//			}
+		//		}
+
 		#endregion MVVMstuff
-
 	}
 }
 

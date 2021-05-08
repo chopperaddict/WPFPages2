@@ -53,7 +53,7 @@ namespace WPFPages . Views
 
 		#region LOAD THE DATA
 
-		public async Task<BankCollection> LoadBankTaskInSortOrderasync ( bool b = false , int i = -1 )
+		public async Task<BankCollection> LoadBankTaskInSortOrderasync ( bool Notify  = false , int i = -1 )
 		{
 			if ( dtBank . Rows . Count > 0 )
 				dtBank . Clear ( );
@@ -63,7 +63,7 @@ namespace WPFPages . Views
 
 			// This all woks just fine, and DOES switch back to UI thread that is MANDATORY before doing the Collection load processing
 			// thanks to the use of TaskScheduler.FromCurrentSynchronizationContext() that oerforms the magic switch back to the UI thread
-			Console . WriteLine ( $"Entering Method to call Task.Run in BankCollection  : Thread = { Thread . CurrentThread . ManagedThreadId}" );
+			Console . WriteLine ( $"BANK : Entering Method to call Task.Run in BankCollection  : Thread = { Thread . CurrentThread . ManagedThreadId}" );
 
 			#region process code to load data
 
@@ -82,7 +82,7 @@ namespace WPFPages . Views
 				async ( Bankcollection ) =>
 				{
 					Console . WriteLine ( $"Before starting second Task.Run() : Thread = { Thread . CurrentThread . ManagedThreadId}" );
-					Bankcollection =  LoadBankCollection ( );
+					await   LoadBankCollection ( Notify );
 				} , TaskScheduler . FromCurrentSynchronizationContext ( )
 			 );
 			#endregion process code to load data
@@ -104,6 +104,7 @@ namespace WPFPages . Views
 				{
 					AggregateException ae =  t1 . Exception . Flatten ( );
 					Console . WriteLine ( $"Exception in BankCollection data processing \n" );
+					MessageBox . Show ( $"Exception in BankCollection data processing \n" );
 					foreach ( var item in ae . InnerExceptions )
 					{
 						Console . WriteLine ( $"BankCollection : Exception : {item . Message}, : {item . Data}" );
@@ -126,6 +127,7 @@ namespace WPFPages . Views
 				{
 					AggregateException ae =  t1 . Exception . Flatten ( );
 					Console . WriteLine ( $"Exception in BankCollection data processing \n" );
+					MessageBox . Show ( $"Exception in BankCollection data processing \n" );
 					foreach ( var item in ae . InnerExceptions )
 					{
 						Console . WriteLine ( $"BankCollection : Exception : {item . Message}, : {item . Data}" );
@@ -137,52 +139,14 @@ namespace WPFPages . Views
 			#endregion Success//Error reporting/handling
 
 			return Bankcollection;
-			//await Task . Run ( async ( ) =>
-			//{
-			//	Console . WriteLine ( $"Calling LoadBankData in Task.Run in Bankcollection : Thread = {Thread . CurrentThread . ManagedThreadId}...." );
-			//	await LoadBankData ( );
-			//	Console . WriteLine ( $"Returned from LoadBankData in Task.Run in Bankcollection, calling LoadBankCollection ()  : Thread = {Thread . CurrentThread . ManagedThreadId}...." );
-
-			//	DispatcherExtensions . SwitchToUi (SqlDbViewer.UiThread);
-			//	Console . WriteLine ( $"After thread switchback call	: Thread = { Thread . CurrentThread . ManagedThreadId}" );
-
-			//	await LoadBankCollection();
-			//	//(
-			//	//	 ( ) =>
-			//	//	{
-			//	//		Console . WriteLine ( $"Calling LoadBankCollection in Task.Run in Bankcollection : Thread = {Thread . CurrentThread . ManagedThreadId}...." );
-			//	//		LoadBankCollection ( );
-			//	//		Console . WriteLine ( $"Returned from LoadBankCollection in Task.Run in Bankcollection : Thread = {Thread . CurrentThread . ManagedThreadId}...." );
-			//	//	}
-			//	//);
-			//} );
-
-			//Console . WriteLine ( $"**** END **** OF ASYNC CALL METHOD {dtBank . Rows . Count} records in DataTable, {Bankcollection . Count} in Bankcollection ...." );
-			//Console . WriteLine ( $"**** END **** SENDING CALLBACK MESSAGE TO SQLDBVIEWER WINDOW TO LOAD THEIR DATAGRID !!!" );
-			//Console . WriteLine ( $": Thread = { Thread . CurrentThread . ManagedThreadId}" );
-			//// Make sure we are back on UI thread
-			//Console . WriteLine ( $"Before thread switchback call	: Thread = { Thread . CurrentThread . ManagedThreadId}" );
-			//DispatcherExtensions . SwitchToUi ( Dispatcher . CurrentDispatcher );
-			//Console . WriteLine ( $"After thread  switchback call   : Thread = { Thread . CurrentThread . ManagedThreadId}\n" );
-			//return Bankcollection;
-			//				OnBankDataLoaded ( Bankcollection );
-			//				if ( BankDataLoaded != null )
-			//					BankDataLoaded . Invoke ( Bankcollection , new LoadedEventArgs { CallerDb = "BANKACCOUNT" , DataSource = Bankcollection } );
-			//		}
-			//catch ( Exception ex )
-			//{
-			//	Console . WriteLine ( $"ERROR in LoadBankTaskInSortOrderAsync() : {ex . Message}, : {ex . Data}\n" );
-			//	return null;
-			//}
-			//return Bankcollection;
-		}
+	}
 
 		/// Handles the actual conneciton ot SQL to load the Details Db data required
 		/// </summary>
 		/// <returns></returns>
 		public async static Task<bool> LoadBankData ( int mode = -1 , bool isMultiMode = false )
 		{
-			Console . WriteLine ( $"Entered LoadBankData in Bankcollection ...." );
+			Console . WriteLine ( $"BANK : Entered LoadBankData in Bankcollection ...." );
 
 			try
 			{
@@ -223,15 +187,16 @@ namespace WPFPages . Views
 			catch ( Exception ex )
 			{
 				Console . WriteLine ( $"Failed to load Bank Details - {ex . Message}, {ex . Data}" ); return false;
+				MessageBox . Show ( $"Failed to load Bank Details - {ex . Message}, {ex . Data}" ); return false; 
 				return false;
 			}
 			return true;
 		}
 
-		public async static Task<bool> LoadBankCollection ( )
+		public async static Task<bool> LoadBankCollection (bool Notify = true)
 		{
 			int count = 0;
-			Console . WriteLine ( $"Entered LoadBankCollection in Bankcollection ...." );
+			Console . WriteLine ( $"BANK : Entered LoadBankCollection in Bankcollection ...." );
 			try
 			{
 				for ( int i = 0 ; i < dtBank . Rows . Count ; i++ )
@@ -252,12 +217,14 @@ namespace WPFPages . Views
 			}
 			catch ( Exception ex )
 			{
-				Console . WriteLine ( $"SQL Error in BankCollection load function : {ex . Message}, {ex . Data}" );
+				Console . WriteLine ( $"BANK : SQL Error in BankCollection load function : {ex . Message}, {ex . Data}" );
+				MessageBox . Show ( $"BANK : SQL Error in BankCollection load function : {ex . Message}, {ex . Data}" );
 			}
 			finally
 			{
-				Console . WriteLine ( $"Completed load into Bankcollection :  {Bankcollection . Count} records in Bankcollection ...." );
-				OnBankDataLoaded ( Bankcollection );
+				Console . WriteLine ( $"BANK : Completed load into Bankcollection :  {Bankcollection . Count} records in Bankcollection ...." );
+				if ( Notify )
+					OnBankDataLoaded ( Bankcollection );
 			}
 			return true;
 		}
