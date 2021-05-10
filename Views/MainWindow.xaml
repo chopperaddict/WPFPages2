@@ -6,11 +6,12 @@
 	xmlns:local="clr-namespace:WPFPages"
 	mc:Ignorable="d"   
 	   Title="My Experimentation System"
-	   Width="1100" Height="450" 
-	  MinWidth="1100" MinHeight="450"
+	   Width="500" Height="250" 
+	  MinWidth="500" MinHeight="250"
 	   x:Name="Main"
 	   WindowStartupLocation="CenterScreen"
 	   WindowStyle="SingleBorderWindow"
+	  Topmost="True"
 	  Closing="OnClosing"
 	   Loaded="Loaded_click" PreviewKeyDown="Main_PreviewKeyDown"
 	 >
@@ -89,7 +90,7 @@
 				   Background="Gray"
 				   ></Border>
 
-				<Button 
+				<!--<Button 
 					x:Name="btn0"
 					Height="40" Width="90" 
 					Margin="1"
@@ -214,7 +215,7 @@
 						BorderThickness="2"
 						Margin="5,0,7,0"
 						Background="Gray"
-					></Border>
+					></Border>-->
 			
 				<Button  
 					x:Name="DBViewerBtn"
@@ -263,6 +264,18 @@
 							VerticalAlignment="Center" FontSize="15" Foreground="white"/>
 					</StackPanel>
 				</Button>
+				
+				<CheckBox x:Name="OntopChkbox"	  		
+				Click="OntopChkbox_Click"
+				Content="On Top"
+					    Foreground="White"
+				Margin="5,0,0,0"
+				HorizontalAlignment="Left"
+				    IsChecked="True"
+				VerticalAlignment="Center"
+				Width="70" />
+
+
 				<!--End of buttos wrappanel-->
 			</WrapPanel>
 

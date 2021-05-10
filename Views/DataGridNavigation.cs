@@ -84,7 +84,7 @@ namespace WPFPages.Views
 		public static void SelectRowByIndex (DataGrid dataGrid, int rowIndex, int GetCellindex)
 		{
 			DataGrid caller = null;
-			DataGrid slaveGrid = null;
+//			DataGrid slaveGrid = null;
 			if (!dataGrid.SelectionUnit.Equals (DataGridSelectionUnit.FullRow))
 			{
 				Console.WriteLine ("The SelectionUnit of the DataGrid must be set to FullRow.");
@@ -160,10 +160,26 @@ namespace WPFPages.Views
 
 		public static T FindVisualChild<T> (DependencyObject obj) where T : DependencyObject
 		{
+			if ( VisualTreeHelper . GetChildrenCount ( obj ) > 0 )
+			{
+				Decorator border = VisualTreeHelper.GetChild(obj, 0) as Decorator;
+				if ( border != null )
+				{
+					Decorator borderChild = border.Child as Decorator;
+					if ( borderChild != null )
+					{
+						ScrollViewer scroll = borderChild.Child as ScrollViewer;
+						if ( scroll != null )
+						{
+							scroll . ScrollChanged += new ScrollChangedEventHandler ( Flags.CurrentSqlViewer.Scroll_ScrollChanged );
+						}
+					}
+				}
+			}
 			for (int i = 0; i < VisualTreeHelper.GetChildrenCount (obj); i++)
 			{
 				DependencyObject child = VisualTreeHelper.GetChild (obj, i);
-				if (child != null && child is T)
+				if (child != null && child is T)   
 					return (T)child;
 				else
 				{
@@ -174,6 +190,49 @@ namespace WPFPages.Views
 			}
 			return null;
 		}
+
+		//public static T FindVisualChild2<T> ( DependencyObject obj ) where T : DependencyObject
+		//{
+			// Different version of above ?????
+
+			//if ( VisualTreeHelper . GetChildrenCount ( obj ) > 0 )
+			//{
+			//	Decorator border = VisualTreeHelper.GetChild(obj, 0) as Decorator;
+			//	if ( border != null )
+			//	{
+			//		Decorator borderChild = border.Child as Decorator;
+			//		if ( borderChild != null )
+			//		{
+			//			ScrollViewer scroll = borderChild.Child as ScrollViewer;
+			//			if ( scroll != null )
+			//			{
+			//				scroll . ScrollChanged += new ScrollChangedEventHandler ( Flags . CurrentSqlViewer . Scroll_ScrollChanged );
+			//			}
+			//		}
+			//	}
+			//}
+			//DependencyObject child = null;
+			//for ( int i = 0 ; i < VisualTreeHelper . GetChildrenCount ( obj ) ; i++ )
+			//{
+			//	child = VisualTreeHelper . GetChild ( obj , i );
+			//	if ( child != null && child is T )
+			//	{
+			//		break;
+			//		//return ( T ) child;
+			//	}
+			//	else
+			//	{
+			//		T childOfChild = FindVisualChild<T> (child);
+			//		if ( childOfChild != null )
+			//		{
+			//			child = childOfChild;
+			//			break;
+			//			//return childOfChild;
+			//		}
+			//	}
+			//}
+			//return ( T ) child;
+//		}
 
 
 		public static void SelectCellByIndex (DataGrid dataGrid, int rowIndex, int columnIndex)

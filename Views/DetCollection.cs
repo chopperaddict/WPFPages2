@@ -31,12 +31,12 @@ namespace WPFPages . Views
 		public   static event EventHandler<LoadedEventArgs> DetDataLoaded;
 
 		//-------------------------------------------------------------------------------------------------------------------------------------------------//
-		private static void OnDetDataLoaded ( DetCollection dtdata )
+		private static void OnDetDataLoaded ( DetCollection dtdata , int row)
 		{
 			if ( DetDataLoaded != null )
 			{
-				Console . WriteLine ( $"Broadcasting from OnDetDataLoaded in " );
-				DetDataLoaded?.Invoke ( dtdata , new LoadedEventArgs ( ) { DataSource = dtdata , CallerDb = "DETAILS" } );
+				Console . WriteLine ( $"DETAILS : Broadcasting DATA LOADED NOTIFICATION from OnDetDataLoaded" );
+				DetDataLoaded?.Invoke ( dtdata , new LoadedEventArgs ( ) { DataSource = dtdata , CallerDb = "DETAILS", CurrSelection = row } );
 			}
 		}
 
@@ -60,7 +60,7 @@ namespace WPFPages . Views
 		CancellationTokenSource  cts = new CancellationTokenSource();
 
 		//**************************************************************************************************************************************************************//
-		public async Task<DetCollection> LoadDetailsTaskInSortOrderAsync ( bool b = false )
+		public async Task<DetCollection> LoadDetailsTaskInSortOrderAsync (  int row, bool b = false )
 		{
 			if ( dtDetails . Rows . Count > 0 )
 				dtDetails . Clear ( );
@@ -87,7 +87,7 @@ namespace WPFPages . Views
 				async ( Detcollection ) =>
 				{
 					Console . WriteLine ( $"Before starting second Task.Run() : Thread = { Thread . CurrentThread . ManagedThreadId}" );
-					await LoadDetCollection ( );
+					await LoadDetCollection (row, b );
 				} , TaskScheduler . FromCurrentSynchronizationContext ( )
 			 );
 			Console . WriteLine ( $"After second Task.Run() : Thread = { Thread . CurrentThread . ManagedThreadId}" );
@@ -101,7 +101,7 @@ namespace WPFPages . Views
 			t1 . ContinueWith (
 				( Detcollection ) =>
 				{
-					Console . WriteLine ( $"DetCollection : Task.Run() processes all succeeded. \nBankcollection Status was [ {Detcollection . Status} ]." );
+					Console . WriteLine ( $"DetCollection : Task.Run() Completed : Status was [ {Detcollection . Status} ]." );
 				} , CancellationToken . None , TaskContinuationOptions . OnlyOnRanToCompletion , TaskScheduler . FromCurrentSynchronizationContext ( )
 			);
 			//This will iterate through ALL of the Exceptions that may have occured in the previous Tasks
@@ -115,8 +115,10 @@ namespace WPFPages . Views
 					{
 						Console . WriteLine ( $"DetCollection : Exception : {item . Message}, : {item . Data}" );
 					}
-				} , CancellationToken . None , TaskContinuationOptions . OnlyOnFaulted , TaskScheduler . FromCurrentSynchronizationContext ( )
+				} , CancellationToken . None , TaskContinuationOptions.NotOnRanToCompletion, TaskScheduler . FromCurrentSynchronizationContext ( )
 			);
+
+			Console . WriteLine ($"DETAILS : END OF PROCESSING & Error checking functionality\nDETAILS : *** Detcollection total = {Detcollection.Count} ***\n\n");
 			#endregion Success//Error reporting/handling
 
 			return Detcollection;
@@ -163,7 +165,6 @@ namespace WPFPages . Views
 					sda . Fill ( dtDetails );
 					st . Stop ( );
 					Console . WriteLine ( $"DETAILS : Sql data loaded  [{dtDetails . Rows . Count}] row(s) into Details DataTable in {( double ) st . ElapsedMilliseconds / ( double ) 1000}...." );
-					return true;
 				}
 			}
 			catch ( Exception ex )
@@ -176,7 +177,7 @@ namespace WPFPages . Views
 		}
 
 		//**************************************************************************************************************************************************************//
-		public static async Task<DetCollection> LoadDetCollection (bool Notify = true )
+		public static async Task<DetCollection> LoadDetCollection (int row, bool Notify = true )
 		{
 			int count = 0;
 			try
@@ -198,7 +199,7 @@ namespace WPFPages . Views
 				}
 				Console . WriteLine ( $"DETAILS : Sql data loaded into Details ObservableCollection \"DetCollection\" [{count}] ...." );
 				if(Notify)
-					OnDetDataLoaded ( Detcollection );
+					OnDetDataLoaded ( Detcollection , row);
 				return Detcollection;
 			}
 			catch ( Exception ex )
@@ -218,13 +219,21 @@ namespace WPFPages . Views
 		public static void SubscribeToLoadedEvent ( object o )
 		{
 			if ( o == Detcollection && DetDataLoaded == null )
-				DetDataLoaded += SqlDbViewer . SqlDbViewer_DataLoaded;
+			{
+				if( Flags . CurrentSqlViewer != null)
+				DetDataLoaded += Flags . CurrentSqlViewer . SqlDbViewer_DataLoaded;
+				MultiViewer mv = new MultiViewer();
+				DetDataLoaded += mv. MultiViewer_DataLoaded;
+			}
 		}
 
 		public static void UnSubscribeToLoadedEvent ( object o )
 		{
-			if ( DetDataLoaded != null )
-				DetDataLoaded -= SqlDbViewer . SqlDbViewer_DataLoaded;
+			if ( DetDataLoaded != null ) { 
+				DetDataLoaded -= Flags . CurrentSqlViewer . SqlDbViewer_DataLoaded;
+				MultiViewer mv = new MultiViewer();
+				DetDataLoaded -= mv . MultiViewer_DataLoaded;
+			}
 		}
 
 		#endregion Event Subscribing Hsndlers

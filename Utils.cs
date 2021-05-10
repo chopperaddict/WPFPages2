@@ -26,14 +26,35 @@ namespace WPFPages
 
 		public static void ScrollRecordIntoView ( DataGrid Dgrid )
 		{
-			// Believe it or not, it takes all this to force a scrollinto view correctly
-			if ( Dgrid == null || Dgrid . Items . Count == 0 ) return;
+			double currentTop = 0;
+			double currentBottom= 0;
+			if ( Dgrid . Name == "CustomerGrid" )
+			{
+				currentTop = Flags . TopVisibleDetGridRow;
+				currentBottom = Flags . BottomVisibleDetGridRow;
+			}
+			else if ( Dgrid . Name == "BankGrid" )
+			{
+				currentTop = Flags . TopVisibleDetGridRow;
+				currentBottom = Flags . BottomVisibleDetGridRow;
+			}
+			else if ( Dgrid . Name == "DetailsGrid" )
+			{
+				currentTop = Flags . TopVisibleDetGridRow;
+				currentBottom = Flags . BottomVisibleDetGridRow;
+			}     // Believe it or not, it takes all this to force a scrollinto view correctly
+			if ( Dgrid == null || Dgrid . Items . Count == 0 || Dgrid . SelectedItem == null ) return;
 			Dgrid . UpdateLayout ( );
 			Dgrid . ScrollIntoView ( Dgrid . Items . Count - 1 );
 			Dgrid . UpdateLayout ( );
-			if( Dgrid . SelectedItem  != null)
+			if ( Dgrid . SelectedItem != null )
 				Dgrid . ScrollIntoView ( Dgrid . SelectedItem );
 			Dgrid . UpdateLayout ( );
+			
+			Flags.CurrentSqlViewer.SetScrollVariables ( Dgrid);
+
+//			Flags . TopVisibleDetGridRow = currentTop;
+//			Flags . BottomVisibleDetGridRow = currentBottom;
 		}
 
 		//		public NewFlags Flags = new NewFlags();
@@ -46,7 +67,7 @@ namespace WPFPages
 		/// <returns></returns>
 		public static string GetDataSortOrder ( string commandline )
 		{
-			if ( Flags . SortOrderRequested == ( int ) Flags . SortOrderEnum . DEFAULT)
+			if ( Flags . SortOrderRequested == ( int ) Flags . SortOrderEnum . DEFAULT )
 				commandline += "Custno, BankNo";
 			else if ( Flags . SortOrderRequested == ( int ) Flags . SortOrderEnum . ID )
 				commandline += "ID";

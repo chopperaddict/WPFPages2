@@ -156,22 +156,22 @@ namespace WPFPages . Views
 		private void UpdateCollection ( )
 		{
 			return;
-			if ( CurrentDb == "BANKACCOUNT" )
-			{
+			//if ( CurrentDb == "BANKACCOUNT" )
+			//{
 
-			}
-			if ( CurrentDb == "CUSTOMER" )
-			{
-				int selected;
-				selected = ParentGrid.SelectedIndex;
-				ParentGrid.ItemsSource = null;
-				ParentGrid.ItemsSource = CustCollection.Custcollection;
-				ParentGrid.SelectedIndex = selected;
-				ParentGrid . Refresh();
-			}
-			if ( CurrentDb == "DETAILS" )
-			{
-			}
+			//}
+			//if ( CurrentDb == "CUSTOMER" )
+			//{
+			//	int selected;
+			//	selected = ParentGrid.SelectedIndex;
+			//	ParentGrid.ItemsSource = null;
+			//	ParentGrid.ItemsSource = CustCollection.Custcollection;
+			//	ParentGrid.SelectedIndex = selected;
+			//	ParentGrid . Refresh();
+			//}
+			//if ( CurrentDb == "DETAILS" )
+			//{
+			//}
 		}
 	}
 }

@@ -31,7 +31,7 @@ namespace WPFPages . Views
 		{
 			if ( CustDataLoaded != null )
 			{
-				Console . WriteLine ( $"Broadcasting from OnCustDataLoaded in " );
+				Console . WriteLine ( $"CUSTOMERS :Broadcasting DATA LOADED NOTIFICATION from OnCustDataLoaded" );
 				CustDataLoaded?.Invoke ( cdata , new LoadedEventArgs ( ) { DataSource = cdata , CallerDb = "CUSTOMER" } );
 			}
 		}
@@ -94,7 +94,7 @@ namespace WPFPages . Views
 			t1 . ContinueWith (
 				( Custcollection ) =>
 				{
-					Console . WriteLine ( $"BankCollection : Task.Run() processes all succeeded. \nBankcollection Status was [ {Custcollection . Status} ]." );
+					Console . WriteLine ( $"custCollection : Task.Run() Completed : Status was [ {Custcollection . Status} ]." );
 				} , CancellationToken . None , TaskContinuationOptions . OnlyOnRanToCompletion , TaskScheduler . FromCurrentSynchronizationContext ( )
 			);
 			//This will iterate through ALL of the Exceptions that may have occured in the previous Tasks
@@ -111,6 +111,7 @@ namespace WPFPages . Views
 					}
 				} , CancellationToken . None , TaskContinuationOptions . OnlyOnFaulted , TaskScheduler . FromCurrentSynchronizationContext ( )
 			);
+			Console . WriteLine ( $"CUSTOMER : END OF PROCESSING & Erro checking functionality\nCUSTOMER : *** Detcollection total = {Custcollection . Count} ***\n\n" );
 
 			#endregion Success//Error reporting/handling
 
@@ -155,7 +156,6 @@ namespace WPFPages . Views
 					SqlDataAdapter sda = new SqlDataAdapter ( cmd );
 					sda . Fill ( dtCust );
 					Console . WriteLine ( $"CUSTOMERS : Sql data loaded into Customers DataTable [{dtCust . Rows . Count}] ...." );
-					return true;
 				}
 			}
 			catch ( Exception ex )
@@ -213,14 +213,17 @@ namespace WPFPages . Views
 
 		public static void SubscribeToLoadedEvent ( object o )
 		{
-			if ( o == Custcollection && CustDataLoaded == null )
-				CustDataLoaded += SqlDbViewer . SqlDbViewer_DataLoaded;
+			if ( o == Custcollection && CustDataLoaded == null && Flags . CurrentSqlViewer != null)
+				CustDataLoaded += Flags . CurrentSqlViewer . SqlDbViewer_DataLoaded;
+			MultiViewer mv = new MultiViewer();
+			CustDataLoaded += mv . MultiViewer_DataLoaded;
+
 		}
 
 		public static void UnSubscribeToLoadedEvent ( object o )
 		{
 			if ( CustDataLoaded != null )
-				CustDataLoaded -= SqlDbViewer . SqlDbViewer_DataLoaded;
+				CustDataLoaded -= Flags . CurrentSqlViewer . SqlDbViewer_DataLoaded;
 		}
 
 		#endregion Event Subscription handlers

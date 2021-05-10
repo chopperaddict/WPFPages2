@@ -565,7 +565,6 @@
 			</ListView>
 		</Grid>
 
-
 		<!--Control 2 >Left-->
 		<Grid
 			Grid.Row="2"

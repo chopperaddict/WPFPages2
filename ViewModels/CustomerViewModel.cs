@@ -42,17 +42,12 @@ namespace WPFPages . Views
 		/// <param name="sender"></param>
 		public void DbHasChangedHandler ( SqlDbViewer sender , DataGrid Grid , DataChangeArgs args )
 		{
-			if ( Grid . Name == "CustomerGrid" )
-				return;         // Nothing to do, it was us that sent the broadcast
-						    // Sent by a different DataGrid - so we need to update our Collection
-						    // FIRST check to see what sort of Grid we are displaying so we can refresh it correctly
-
+			if ( Flags . SqlBankViewer != null )
+				Flags . SqlBankViewer . ReloadBankOnUpdateNotification ( sender , Grid , args );
 			if ( Flags . SqlCustViewer != null )
-				Flags . SqlCustViewer . RefreshCustomerOnUpdateNotification ( sender , Grid , args );
-
-			// See if we need to update EditDb window as well
-			if ( Flags . CurrentEditDbViewer != null )
-				Flags . CurrentEditDbViewer . DbChangedHandler ( sender , Grid , args );
+				Flags . SqlCustViewer . ReloadCustomerOnUpdateNotification ( sender , Grid , args );
+			if ( Flags . SqlDetViewer != null )
+				Flags . SqlDetViewer . ReloadDetailsOnUpdateNotification ( sender , Grid , args );
 			return;
 		}
 
@@ -86,18 +81,18 @@ namespace WPFPages . Views
 		private static bool loaded = false;
 
 		//		private string columnToFilterOn = "";
-		private string filtervalue1 = "";
+//		private string filtervalue1 = "";
 
-		private string filtervalue2 = "";
-		private string operand = "";
+//		private string filtervalue2 = "";
+//		private string operand = "";
 		public bool FilterResult = false;
-		private string IsFiltered = "";
-		private string FilterCommand = "";
+//		private string IsFiltered = "";
+//		private string FilterCommand = "";
 
 		//		private string PrettyDetails = "";
 		public bool isMultiMode = false;
 
-		private static bool IsSubscribedToObsNotifications = false;
+//		private static bool IsSubscribedToObsNotifications = false;
 
 		// one and only dtCust instance
 		public static DataTable dtCust = new DataTable ( );

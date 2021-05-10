@@ -21,7 +21,7 @@ namespace WPFPages
 		protected override void OnSelectionChanged ( SelectionChangedEventArgs e )
 		{
 
-			int y = 1;
+//			int y = 1;
 			base . OnSelectionChanged (e );
 		}
 

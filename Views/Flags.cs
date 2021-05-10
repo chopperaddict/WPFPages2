@@ -31,39 +31,39 @@ namespace WPFPages
 		{
 
 			DataGrid  SqlBankGrid;
-			SqlDbViewer SqlBankViewer;
+			//			SqlDbViewer SqlBankViewer;
 			DataGrid CurrentEditDbViewerBankGrid;
 			DataGrid SqlCustGrid;
-			SqlDbViewer SqlCustViewer;
+			//			SqlDbViewer SqlCustViewer;
 			DataGrid CurrentEditDbViewerCustomerGrid;
 			DataGrid SqlDetGrid;
-			SqlDbViewer SqlDetViewer;
-			DataGrid CurrentEditDbViewerDetailsGrid;
-			List< DataGrid > CurrentEditDbViewerBankGridLis2;
-			List< DataGrid > CurrentEditDbViewerCustomerGridList;
-			List< DataGrid > CurrentEditDbViewerDetailsGridList;
-			EditDb ActiveEditGrid;
+			//			SqlDbViewer SqlDetViewer;
+			//			DataGrid CurrentEditDbViewerDetailsGrid;
+			//			List< DataGrid > CurrentEditDbViewerBankGridLis2;
+			//			List< DataGrid > CurrentEditDbViewerCustomerGridList;
+			//			List< DataGrid > CurrentEditDbViewerDetailsGridList;
+			//			EditDb ActiveEditGrid;
 			bool isMultiMode;
 			string MultiAccountCommandString;
-			bool isEditDbCaller;
-			bool SqlDataChanged;
-			bool EditDbDataChanged;
+			//			bool isEditDbCaller;
+			//			bool SqlDataChanged;
+			//			bool EditDbDataChanged;
 			EditDb BankEditDb;
 			EditDb CustEditDb;
 			EditDb DetEditDb;
-			DbSelector DbSelectorOpen;
+			//			DbSelector DbSelectorOpen;
 			EditDb CurrentEditDbViewer;
-			SqlDbViewer CurrentSqlViewer;
-//			SqlDbViewer SqlUpdateOriginatorViewer;
-			bool EditDbChangeHandled;
-			bool IsFiltered;
-			string FilterCommand;
-			bool EventHandlerDebug;
+			//			SqlDbViewer CurrentSqlViewer;
+			//			SqlDbViewer SqlUpdateOriginatorViewer;
+			//			bool EditDbChangeHandled;
+			//			bool IsFiltered;
+			//			string FilterCommand;
+			//			bool EventHandlerDebug;
 			bool IsMultiMode;
-			SqlDbViewer ActiveSqlViewer;
+			//			SqlDbViewer ActiveSqlViewer;
 			bool SqlViewerIsLoading;
 			bool  SqlViewerIndexIsChanging;
-			DataGrid ActiveSqlGrid;
+			//			DataGrid ActiveSqlGrid;
 			int SqlBankCurrentIndex;
 			int SqlCustCurrentIndex;
 			int SqlDetCurrentIndex;
@@ -116,7 +116,7 @@ namespace WPFPages
 		public static DbSelector DbSelectorOpen = null;
 		public static EditDb CurrentEditDbViewer = null;
 		public static SqlDbViewer CurrentSqlViewer = null;
-//		public static SqlDbViewer SqlUpdateOriginatorViewer = null;
+		//		public static SqlDbViewer SqlUpdateOriginatorViewer = null;
 
 		// pointers  to any open Viewers
 		public static SqlDbViewer CurrentBankViewer;
@@ -157,6 +157,15 @@ namespace WPFPages
 			Flags . SortOrderRequested = 6;
 
 		*/
+
+		public static double TopVisibleBankGridRow = 0;
+		public static double BottomVisibleBankGridRow = 0;
+		public static double TopVisibleCustGridRow = 0;
+		public static double BottomVisibleCustGridRow = 0;
+		public static double TopVisibleDetGridRow = 0;
+		public static double BottomVisibleDetGridRow = 0;
+		public static double ViewPortHeight = 0;
+
 		// Set default sort to Custno + Bankno
 		public static int SortOrderRequested = 0;
 		public enum SortOrderEnum
@@ -177,7 +186,7 @@ namespace WPFPages
 		/// </summary>
 		/// <param name="instance"></param>
 		/// <param name="CurrentDb"></param>
-		public static void SetGridviewControlFlags ( SqlDbViewer instance, DataGrid Grid )
+		public static void SetGridviewControlFlags ( SqlDbViewer instance , DataGrid Grid )
 		{
 			//Setup global flags -
 			Flags . CurrentSqlViewer = instance;
@@ -209,13 +218,13 @@ namespace WPFPages
 			else
 			{
 				// we need to clear the  details in Gridviewer flag system
-				ClearGridviewControlStructure ( instance, Grid );
+				ClearGridviewControlStructure ( instance , Grid );
 			}
 #if SHOWFLAGS
 			ListGridviewControlFlags();
 #endif
 		}
-		public static void ClearGridviewControlStructure ( SqlDbViewer instance, DataGrid Grid )
+		public static void ClearGridviewControlStructure ( SqlDbViewer instance , DataGrid Grid )
 		{
 			//No more viewers open, so clear entire gv[] control structure
 			if ( instance == null || Flags . DbSelectorOpen . ViewersList . Items . Count == 1 )
@@ -241,7 +250,7 @@ namespace WPFPages
 			}
 		}
 		//Remove a SINGLE Viewer Windows data from Flags & gv[]
-		public static bool DeleteViewerAndFlags ( int index = -1, string currentDb = "" )
+		public static bool DeleteViewerAndFlags ( int index = -1 , string currentDb = "" )
 		{
 			int x = index;
 			SqlDbViewer sqlv;                        // x = GridView[] index if received
@@ -254,7 +263,7 @@ namespace WPFPages
 			{ // Delete all
 				for ( int z = 0 ; z < MainWindow . gv . MaxViewers ; z++ )
 				{
-					DbSelector . UpdateControlFlags ( null, null, MainWindow . gv . PrettyDetails );
+					DbSelector . UpdateControlFlags ( null , null , MainWindow . gv . PrettyDetails );
 					MainWindow . gv . CurrentDb [ z ] = "";
 					MainWindow . gv . ListBoxId [ z ] = Guid . Empty;
 					MainWindow . gv . Datagrid [ z ] = null;
@@ -284,7 +293,7 @@ namespace WPFPages
 			else
 			{
 				int GridViewerArrayIndex = 0;
-				// we have NOT received the index of the viewer in the list
+				// we may have NOT received the index of the viewer in the list
 				// so  get the index for the correct Entry
 				if ( x == 99 )
 				{
@@ -324,7 +333,6 @@ namespace WPFPages
 							break;
 						}
 					}
-
 				}
 				sqlv = Flags . CurrentSqlViewer as SqlDbViewer;
 				sqlv . Close ( );
@@ -460,113 +468,133 @@ namespace WPFPages
 			"=================================================================\n"
 			);
 		}
-		public static void PrintSundryVariables ( )
-		{
-			Console . WriteLine ( "" );
-			if ( Flags . SqlBankGrid != null )
-				Console . WriteLine ( $"Viewer : BankGrid : ItemsSource : { Flags . SqlBankGrid . ItemsSource}" );
-			if ( Flags . SqlCustGrid != null )
-				Console . WriteLine ( $"Viewer : CustomerGrid : ItemsSource : { Flags . SqlCustGrid . ItemsSource}" );
-			if ( Flags . SqlDetGrid != null )
-				Console . WriteLine ( $"Viewer : Details Grid : ItemsSource : { Flags . SqlDetGrid . ItemsSource}" );
-		}
 
 		public static void ShowAllFlags ( )
 		{
-			ActiveEditGrid = Flags . ActiveEditGrid;
-			ActiveSqlViewer = Flags . ActiveSqlViewer;
-			ActiveSqlGrid = Flags . ActiveSqlGrid;
+			//			ActiveEditGrid = Flags . ActiveEditGrid;
+			//			ActiveSqlViewer = Flags . ActiveSqlViewer;
+			//			ActiveSqlGrid = Flags . ActiveSqlGrid;
 
-			CurrentEditDbViewer = Flags . CurrentEditDbViewer;
-			CurrentEditDbViewerBankGridList = Flags . CurrentEditDbViewerBankGridList;
-			CurrentEditDbViewerCustomerGridList = Flags . CurrentEditDbViewerCustomerGridList;
-			CurrentEditDbViewerDetailsGridList = Flags . CurrentEditDbViewerDetailsGridList;
-			CurrentSqlViewer = Flags . CurrentSqlViewer;
+			//			CurrentEditDbViewer = Flags . CurrentEditDbViewer;
+			//			CurrentEditDbViewerBankGridList = Flags . CurrentEditDbViewerBankGridList;
+			//			CurrentEditDbViewerCustomerGridList = Flags . CurrentEditDbViewerCustomerGridList;
+			//			CurrentEditDbViewerDetailsGridList = Flags . CurrentEditDbViewerDetailsGridList;
+			//			CurrentSqlViewer = Flags . CurrentSqlViewer;
 
-			CurrentEditDbViewerBankGrid = Flags . CurrentEditDbViewerBankGrid;
-			CurrentEditDbViewerCustomerGrid = Flags . CurrentEditDbViewerCustomerGrid;
-			CurrentEditDbViewerDetailsGrid = Flags . CurrentEditDbViewerDetailsGrid;
+			//			CurrentEditDbViewerBankGrid = Flags . CurrentEditDbViewerBankGrid;
+			//			CurrentEditDbViewerCustomerGrid = Flags . CurrentEditDbViewerCustomerGrid;
+			//			CurrentEditDbViewerDetailsGrid = Flags . CurrentEditDbViewerDetailsGrid;
 
-			BankEditDb = Flags . BankEditDb;
-			CustEditDb = Flags . CustEditDb;
-			DetEditDb = Flags . DetEditDb;
+			//			BankEditDb = Flags . BankEditDb;
+			//			CustEditDb = Flags . CustEditDb;
+			//			DetEditDb = Flags . DetEditDb;
 
-			SqlBankGrid = Flags. SqlBankGrid;
-			SqlCustGrid = Flags . SqlCustGrid;
-			SqlDetGrid = Flags . SqlDetGrid;
+			//			SqlBankGrid = Flags. SqlBankGrid;
+			//			SqlCustGrid = Flags . SqlCustGrid;
+			//			SqlDetGrid = Flags . SqlDetGrid;
 
-			SqlBankViewer = Flags.SqlBankViewer ;
-			SqlCustViewer = Flags .SqlCustViewer ;
-			SqlDetViewer = Flags .SqlDetViewer ;
+			//			SqlBankViewer = Flags.SqlBankViewer ;
+			//			SqlCustViewer = Flags .SqlCustViewer ;
+			//			SqlDetViewer = Flags .SqlDetViewer ;
 
-			SqlBankCurrentIndex = Flags . SqlBankCurrentIndex;
-			SqlCustCurrentIndex = Flags . SqlCustCurrentIndex;
-			SqlDetCurrentIndex = Flags . SqlDetCurrentIndex;
+			//			SqlBankCurrentIndex = Flags . SqlBankCurrentIndex;
+			//			SqlCustCurrentIndex = Flags . SqlCustCurrentIndex;
+			//			SqlDetCurrentIndex = Flags . SqlDetCurrentIndex;
 
-//			SqlUpdateOriginatorViewer = Flags . SqlUpdateOriginatorViewer;
-			SqlViewerIsLoading = Flags . SqlViewerIsLoading;
-			 SqlViewerIndexIsChanging = Flags .  SqlViewerIndexIsChanging;
+			////			SqlUpdateOriginatorViewer = Flags . SqlUpdateOriginatorViewer;
+			//			SqlViewerIsLoading = Flags . SqlViewerIsLoading;
+			//			 SqlViewerIndexIsChanging = Flags .  SqlViewerIndexIsChanging;
 
-			DbSelectorOpen = Flags . DbSelectorOpen;
-			EditDbChangeHandled = Flags . EditDbChangeHandled;
-			EditDbDataChanged = Flags . EditDbDataChanged;
-			EventHandlerDebug = Flags . EventHandlerDebug;
-			FilterCommand = Flags . FilterCommand;
-			isEditDbCaller = Flags .isEditDbCaller ;
-			IsFiltered = Flags . IsFiltered;
-			IsMultiMode = Flags . IsMultiMode;
-			MultiAccountCommandString = Flags . MultiAccountCommandString;
-			SqlDataChanged = Flags .SqlDataChanged ;
+			//			DbSelectorOpen = Flags . DbSelectorOpen;
+			//			EditDbChangeHandled = Flags . EditDbChangeHandled;
+			//			EditDbDataChanged = Flags . EditDbDataChanged;
+			//			EventHandlerDebug = Flags . EventHandlerDebug;
+			//			FilterCommand = Flags . FilterCommand;
+			//			isEditDbCaller = Flags .isEditDbCaller ;
+			//			IsFiltered = Flags . IsFiltered;
+			//			IsMultiMode = Flags . IsMultiMode;
+			//			MultiAccountCommandString = Flags . MultiAccountCommandString;
+			//			SqlDataChanged = Flags .SqlDataChanged ;
 
 			Console . WriteLine (
-			$"\nbool EditDbDataChanged									: {EditDbDataChanged}" +
-			$"\nbool EditDbChangeHandled								: {EditDbChangeHandled}" +
-			$"\nbool EventHandlerDebug									: {EventHandlerDebug}" +
-			$"\nbool isEditDbCaller										: {isEditDbCaller}" +
-			$"\nbool isMultiMode										: {isMultiMode}" +
-			$"\nbool IsFiltered											: {IsFiltered}" +
-			$"\nbool IsMultiMode										: {IsMultiMode}" +
-			$"\nbool SqlViewerIsLoading									: {SqlViewerIsLoading}" +
-			$"\nbool  SqlViewerIndexIsChanging							: { SqlViewerIndexIsChanging}" +
+			$"\nbool EditDbDataChanged									: { Flags . EditDbDataChanged}" +
+			$"\nbool EditDbChangeHandled								: { Flags . EditDbChangeHandled}" +
+			$"\nbool EventHandlerDebug									: { Flags . EventHandlerDebug}" +
+			$"\nbool isEditDbCaller										: { Flags . isEditDbCaller}" +
+			$"\nbool isMultiMode										: { Flags . isMultiMode}" +
+			$"\nbool IsFiltered											: { Flags . IsFiltered}" +
+			$"\nbool IsMultiMode										: { Flags . IsMultiMode}" +
+			$"\nbool SqlViewerIsLoading									: { Flags . SqlViewerIsLoading}" +
+			$"\nbool  SqlViewerIndexIsChanging							: { Flags . SqlViewerIndexIsChanging}" +
 			"\n" +
-			$"\nDataGrid ActiveSqlGrid									: {ActiveSqlGrid?.Name}" +
-			$"\nDataGrid CurrentEditDbViewerBankGrid					: {CurrentEditDbViewerBankGrid?.Name}" +
-			$"\nDataGrid CurrentEditDbViewerCustomerGrid				: {CurrentEditDbViewerCustomerGrid?.Name}" +
-			$"\nDataGrid CurrentEditDbViewerDetailsGrid					: {CurrentEditDbViewerDetailsGrid?.Name}" +
-			$"\nDataGrid SqlBankGrid									: {SqlBankGrid?.Name}" +
-			$"\nDataGrid SqlCustGrid									: {SqlCustGrid?.Name}" +
-			$"\nDataGrid SqlDetGrid										: {SqlDetGrid?.Name}" +
+			$"\nDataGrid ActiveSqlGrid									: { Flags . ActiveSqlGrid?.Name}" +
+			$"\nDataGrid CurrentEditDbViewerBankGrid					: { Flags . CurrentEditDbViewerBankGrid?.Name}" +
+			$"\nDataGrid CurrentEditDbViewerCustomerGrid				: { Flags . CurrentEditDbViewerCustomerGrid?.Name}" +
+			$"\nDataGrid CurrentEditDbViewerDetailsGrid					: { Flags . CurrentEditDbViewerDetailsGrid?.Name}" +
+			$"\nDataGrid SqlBankGrid									: { Flags . SqlBankGrid?.Name}" +
+			$"\nDataGrid SqlCustGrid									: { Flags . SqlCustGrid?.Name}" +
+			$"\nDataGrid SqlDetGrid										: { Flags . SqlDetGrid?.Name}" +
 			"\n" +
-			$"\nDbSelector DbSelectorOpen								: {DbSelectorOpen}" +
+			$"\nDbSelector DbSelectorOpen								: { Flags . DbSelectorOpen}" +
 			"\n" +
-			$"\nEditDb ActiveEditGrid									: {ActiveEditGrid?.Name}" +
-			$"\nEditDb BankEditDb										: {BankEditDb?.Name}" +
-			$"\nEditDb CustEditDb										: {CustEditDb?.Name}" +
-			$"\nEditDb DetEditDb										: {DetEditDb?.Name}" +
-			$"\nEditDb CurrentEditDbViewer								: {CurrentEditDbViewer?.Name}" +
+			$"\nEditDb ActiveEditGrid									: { Flags . ActiveEditGrid?.Name}" +
+			$"\nEditDb BankEditDb										: { Flags . BankEditDb?.Name}" +
+			$"\nEditDb CustEditDb										: { Flags . CustEditDb?.Name}" +
+			$"\nEditDb DetEditDb										: { Flags . DetEditDb?.Name}" +
+			$"\nEditDb CurrentEditDbViewer								: { Flags . CurrentEditDbViewer?.Name}" +
 			"\n" +
-			$"\nint SqlBankCurrentIndex									: {SqlBankCurrentIndex}" +
-			$"\nint SqlCustCurrentIndex									: {SqlCustCurrentIndex}" +
-			$"\nint SqlDetCurrentIndex									: {SqlDetCurrentIndex}" +
+			$"\nint SqlBankCurrentIndex									: { Flags . SqlBankCurrentIndex}" +
+			$"\nint SqlCustCurrentIndex									: { Flags . SqlCustCurrentIndex}" +
+			$"\nint SqlDetCurrentIndex									: { Flags . SqlDetCurrentIndex}" +
 			"\n" +
-						//$"\nList< DataGrid > CurrentEditDbViewerBankGridList		: {CurrentEditDbViewerBankGridList}" +
-						//$"\nList< DataGrid > CurrentEditDbViewerCustomerGridList	: {CurrentEditDbViewerCustomerGridList}" +
-						//$"\nList< DataGrid > CurrentEditDbViewerDetailsGridList		: {CurrentEditDbViewerDetailsGridList}" +
-						//"\n" +
-			$"\nSqlDbViewer ActiveSqlViewer								: {ActiveSqlViewer?.CurrentDb}" +
-			$"\nSqlDbViewer CurrentSqlViewer							: {CurrentSqlViewer?.CurrentDb}" +
-			$"\nSqlDbViewer SqlBankViewer								: {SqlBankViewer} + {Flags.SqlBankViewer?.BankGrid?.Name}" +
-			$"\nSqlDbViewer SqlCustViewer								: {SqlCustViewer} + {Flags . SqlCustViewer?.CustomerGrid?.Name}" +
-			$"\nSqlDbViewer SqlDetViewer								: {SqlDetViewer} + {Flags . SqlDetViewer?.DetailsGrid?.Name}" +
-//			$"\nSqlDbViewer SqlUpdateOriginatorViewer					: {SqlUpdateOriginatorViewer?.Name}" +
+			//$"\nList< DataGrid > CurrentEditDbViewerBankGridList		: { Flags .CurrentEditDbViewerBankGridList}" +
+			//$"\nList< DataGrid > CurrentEditDbViewerCustomerGridList	: { Flags .CurrentEditDbViewerCustomerGridList}" +
+			//$"\nList< DataGrid > CurrentEditDbViewerDetailsGridList		: { Flags .CurrentEditDbViewerDetailsGridList}" +
+			//"\n" +
+			$"\nSqlDbViewer ActiveSqlViewer								: { Flags . ActiveSqlViewer?.CurrentDb}" +
+			$"\nSqlDbViewer CurrentSqlViewer							: { Flags . CurrentSqlViewer?.CurrentDb}" +
+			$"\nSqlDbViewer SqlBankViewer								: { Flags . SqlBankViewer} + {Flags . SqlBankViewer?.BankGrid?.Name}" +
+			$"\nSqlDbViewer SqlCustViewer								: { Flags . SqlCustViewer} + {Flags . SqlCustViewer?.CustomerGrid?.Name}" +
+			$"\nSqlDbViewer SqlDetViewer								: { Flags . SqlDetViewer} + {Flags . SqlDetViewer?.DetailsGrid?.Name}" +
+			//			$"\nSqlDbViewer SqlUpdateOriginatorViewer					: { Flags .SqlUpdateOriginatorViewer?.Name}" +
 			"\n" +
-			$"\nstring FilterCommand									: {FilterCommand}" +
-			$"\nstring MultiAccountCommandString						: {MultiAccountCommandString}\n" +
-			$"dtBank = {BankCollection . dtBank? . Rows?. Count}, Collection = {BankCollection . Bankcollection? . Count}\n" +
-			$"dtCust = {CustCollection . dtCust?. Rows?.Count}, Collection = {CustCollection . Custcollection? . Count}\n" +
-			$"dtDet = {DetCollection . dtDetails?. Rows? . Count}, Collection = {DetCollection . Detcollection? . Count}\n"	+
-			$"CurrentThread											: {Thread.CurrentThread.ManagedThreadId}"
+			$"\nstring FilterCommand									: { Flags . FilterCommand}" +
+			$"\nstring MultiAccountCommandString						: { Flags . MultiAccountCommandString}\n" +
+			$"dtBank = {BankCollection . dtBank?.Rows?.Count}, Collection = {BankCollection . Bankcollection?.Count}\n" +
+			$"dtCust = {CustCollection . dtCust?.Rows?.Count}, Collection = {CustCollection . Custcollection?.Count}\n" +
+			$"dtDet = {DetCollection . dtDetails?.Rows?.Count}, Collection = {DetCollection . Detcollection?.Count}\n" +
+			$"CurrentThread											: {Thread . CurrentThread . ManagedThreadId}"
 					);
+		}
+		public static void PrintSundryVariables (string comment ="")
+		{
+			if(comment.Length > 0)
+				Console . WriteLine ($"\nCOMMENT : {comment}");
+				else
+				Console . WriteLine ( "" );
+			if ( Flags . SqlBankGrid != null )
+				Console . WriteLine ( $" Current Viewer : ItemsSource :	{ Flags . SqlBankGrid . ItemsSource}" );
+			if ( Flags . SqlCustGrid != null )
+				Console . WriteLine ( $" Current Viewer : ItemsSource : { Flags . SqlCustGrid . ItemsSource}" );
+			if ( Flags . SqlDetGrid != null )
+				Console . WriteLine ( $" Current Viewer : ItemsSource :		 { Flags . SqlDetGrid . Name}" );
+			Console . WriteLine ( $" Flags . TopVisibleBankGridRow		= { Flags . TopVisibleBankGridRow }" );
+			Console . WriteLine ( $" Flags . BottomVisibleBankGridRow	= {Flags . BottomVisibleBankGridRow}" );
+			Console . WriteLine ( $" Flags . TopVisibleCustGridRow		= { Flags . TopVisibleCustGridRow }" );
+			Console . WriteLine ( $" Flags . BottomVisibleCustGridRow	= { Flags . BottomVisibleCustGridRow}" );
+			Console . WriteLine ( $" Flags . TopVisibleDetGridRow		= { Flags . TopVisibleDetGridRow}" );
+			Console . WriteLine ( $" Flags . BottomVisibleDetGridRow	= { Flags . BottomVisibleDetGridRow}" );
+			Console . WriteLine ( $" Flags . ViewPortHeight				= { Flags . ViewPortHeight } rows visible" );
+			if ( Flags . ActiveSqlViewer . CurrentDb == "BANKACCOUNT" )
+				Console . WriteLine ( $" BANK record's offset (from top)	= { ( Flags . SqlBankCurrentIndex - Flags . TopVisibleDetGridRow ) + 1}" );
+			else if ( Flags . ActiveSqlViewer . CurrentDb == "CUSTOMER" )
+				Console . WriteLine ( $" CUST record's offset (from top)	= { ( Flags . SqlCustCurrentIndex - Flags . TopVisibleDetGridRow ) + 1}" );
+			else if ( Flags . ActiveSqlViewer . CurrentDb == "DETAILS" )
+				Console . WriteLine ( $" DETAILS record offset (from top)	= { ( Flags . SqlDetCurrentIndex - Flags . TopVisibleDetGridRow ) + 1}" );
+			Console . WriteLine ( $"\n Flags . SqlBankCurrentIndex		= { Flags . SqlBankCurrentIndex}" );
+			Console . WriteLine ( $" Flags . SqlCustCurrentIndex		= { Flags . SqlCustCurrentIndex}" );
+			Console . WriteLine ( $" Flags . SqlDetCurrentIndex			= { Flags . SqlDetCurrentIndex}" );
+			Console . WriteLine ("\n");
 		}
 	}
 }

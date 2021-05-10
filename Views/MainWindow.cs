@@ -22,9 +22,9 @@ namespace WPFPages
 	public partial class MainWindow : INotifyPropertyChanged
 	{
 		// Global pointers to Viewmodel classes
-		public static BankAccountViewModel bvm = MainWindow . bvm;
-		public static CustomerViewModel cvm = MainWindow . cvm;
-		public static DetailsViewModel dvm = MainWindow . dvm;
+		public static BankAccountViewModel bvm = null;
+		public static CustomerViewModel cvm = null;
+		public static DetailsViewModel dvm = null;
 
 		//		public static NewFlags flags;
 		//		public  static AllFlags Flags;
@@ -61,6 +61,8 @@ namespace WPFPages
 			BaseDataText = "Starting text";
 			RandomText1 = "button1";
 			RandomText2 = "button2";
+			this . Topmost = false;
+
 			gv = GridViewer . Viewer_instance;
 			//			NewFlags flags = new NewFlags ( );
 			//*Flags = NewFlags;
@@ -428,6 +430,12 @@ namespace WPFPages
 			else if ( e . Key == Key . Escape )
 				Application . Current . Shutdown ( );
 
+		}
+
+		private void OntopChkbox_Click ( object sender , RoutedEventArgs e )
+		{
+			OntopChkbox . IsChecked = !OntopChkbox . IsChecked;
+			Topmost = (bool)OntopChkbox . IsChecked;
 		}
 	}
 }

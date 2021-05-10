@@ -27,15 +27,12 @@ namespace WPFPages . ViewModels
 		/// <param name="sender"></param>
 		public void DbHasChangedHandler ( SqlDbViewer sender , DataGrid Grid , DataChangeArgs args )
 		{
-			if ( Grid . Name == "DetailsGrid" )
-				return;         // Nothing to do, it was us that sent the broadcast
-
+			if ( Flags . SqlBankViewer != null )
+				Flags . SqlBankViewer . ReloadBankOnUpdateNotification ( sender , Grid , args );
+			if ( Flags . SqlCustViewer != null )
+				Flags . SqlCustViewer . ReloadCustomerOnUpdateNotification ( sender , Grid , args );
 			if ( Flags . SqlDetViewer != null )
-				Flags . CurrentSqlViewer . RefreshDetailsOnUpdateNotification ( sender , Grid , args );
-
-			// See if we need to update EditDb window as well
-			if ( Flags . CurrentEditDbViewer != null )
-				Flags . CurrentEditDbViewer . DbChangedHandler ( sender , Grid , args );
+				Flags . SqlDetViewer . ReloadDetailsOnUpdateNotification ( sender , Grid , args );
 			return;
 		}
 
@@ -186,8 +183,8 @@ namespace WPFPages . ViewModels
 		/// // Only called by LoadDetailsTaskInSortOrderAsync()
 		/// </summary>
 		/// <param> </param>
-		public async Task<bool> LoadDetailsTask ( bool isOriginator , int mode = -1 )
-		{
+//		public async Task<bool> LoadDetailsTask ( bool isOriginator , int mode = -1 )
+//		{
 			//Mouse . OverrideCursor = Cursors . Wait;
 			//// load SQL data in DataTable
 			//if ( dtDetails == null ) DetailsViewModel . dtDetails = new DataTable ( );
@@ -212,8 +209,8 @@ namespace WPFPages . ViewModels
 			//{ Console . WriteLine ( $"Task error {ex . Data},\n{ex . Message}" ); }
 			//Mouse . OverrideCursor = Cursors . Arrow;
 			//// WE NOW HAVE OUR DATA HERE - fully loaded into O
-			return true;
-		}
+			//return true;
+//		}
 
 		/// Handles the actual conneciton ot SQL to load the Details Db data required
 		/// </summary>
@@ -266,8 +263,8 @@ namespace WPFPages . ViewModels
 		//		}
 		//		//**************************************************************************************************************************************************************//
 		// Loads data from DataTable into Observable Collection
-		public async Task<bool> LoadDetailsObsCollection ( )
-		{
+		//public async Task<bool> LoadDetailsObsCollection ( )
+		//{
 			//			try
 			//			{
 			//				//Load the data into our ObservableCollection BankAccounts
@@ -288,14 +285,14 @@ namespace WPFPages . ViewModels
 			//					} );
 			//				// WE NOW HAVE OUR DATA HERE - fully loaded into Obs
 			////				Console . WriteLine ( $"Sql data loaded into Details Collection [{DetailsObs . Count}] ...." );
-			return true;
+			//return true;
 			//			}
 			//catch ( Exception ex )
 			//{
 			//	Console . WriteLine ( $"Error loading Details Data {ex . Message}" );
 			//	return false;
 			//}
-		}
+//		}
 
 		//**************************************************************************************************************************************************************//
 	}

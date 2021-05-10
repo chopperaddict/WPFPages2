@@ -349,7 +349,7 @@ namespace WPFPages . Views
 			}
 			else if ( Command == "DELETE" )
 			{
-				Window win = null;
+//				Window win = null;
 				//Close selected viewer window
 #pragma TODO  - DOES NOT WORK
 				DeleteCurrentViewer ( );
@@ -813,10 +813,10 @@ namespace WPFPages . Views
 			// select the 1st entry in the lower (New Viewer) list
 			sqlSelector . SelectedIndex = 2;
 			this . BringIntoView ( );
-			this . Topmost = true;
-			OntopChkbox . IsChecked = true;
+			OntopChkbox . IsChecked = false;
+			this . Topmost = false;
 			//Send commands to SqlDbViewer !!!!!
-//			EventHandlers . SendViewerCommand ( 103 , ">>> Ended OnWindowLoaded()" , Flags . CurrentSqlViewer );
+			//			EventHandlers . SendViewerCommand ( 103 , ">>> Ended OnWindowLoaded()" , Flags . CurrentSqlViewer );
 		}
 
 		//*****************************************************************************************//
@@ -1328,7 +1328,7 @@ namespace WPFPages . Views
 			try
 			{
 				DetCollection dc = new DetCollection();
-				await dc. LoadDetailsTaskInSortOrderAsync ( true );
+				await dc. LoadDetailsTaskInSortOrderAsync ( 0, true );
 				//				await dvm . LoadDetailsTaskInSortOrderAsync ( true, 0 );
 				//List<Task<bool>> tasks = new List<Task<bool>> ( );
 				//tasks . Add ( dvm . LoadDetailsTaskInSortOrderAsync ( true, 0 ) );

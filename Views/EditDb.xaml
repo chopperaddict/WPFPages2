@@ -24,6 +24,31 @@
 		<data:BankCollection x:Key="BankData" />
 		<data:CustCollection x:Key="CustData" />
 		<data:DetCollection x:Key="DetData" />
+
+		<Style x:Key="ToggleButtonOnmouseover" TargetType="Button">
+			<Setter Property="Background">
+				<Setter.Value>
+					<LinearGradientBrush StartPoint="1,0" EndPoint="0,1">
+						<GradientStop Color="Blue" Offset="0" />
+						<GradientStop Color="White" Offset="1" />
+					</LinearGradientBrush>
+				</Setter.Value>
+			</Setter>
+			<Style.Triggers>
+				<Trigger Property="IsMouseOver" Value="True">
+					<Setter Property="Background">
+						<Setter.Value>
+							<LinearGradientBrush StartPoint="1,0" EndPoint="0,1">
+								<GradientStop Color="Green" Offset="0" />
+								<GradientStop Color="DarkOrange" Offset="1" />
+							</LinearGradientBrush>
+						</Setter.Value>
+					</Setter>
+				</Trigger>
+			</Style.Triggers>
+		</Style>
+
+
 	</Window.Resources>
 
 	<!--Outer grid-->
@@ -155,6 +180,7 @@
 								 Background="{StaticResource Gray3}"
 								HorizontalAlignment="Left"
 								 HorizontalContentAlignment="Center"
+								TextChanged="Data_TextChanged"
 								 VerticalContentAlignment="Center"
 								 Text="{Binding BankNo, UpdateSourceTrigger=LostFocus, Mode=TwoWay}" LostFocus="BanknoEdit_LostFocus" />
 
@@ -169,6 +195,7 @@
 								 Foreground="{StaticResource Black0}"
 								HorizontalAlignment="Left"
 								 HorizontalContentAlignment="Center"
+								TextChanged="Data_TextChanged"
 								 VerticalContentAlignment="Center"
 								Text="{Binding CustNo, UpdateSourceTrigger=LostFocus, Mode=TwoWay}" LostFocus="CustNoEdit_LostFocus" />
 
@@ -185,6 +212,7 @@
 								 HorizontalContentAlignment="Center"
 								 VerticalContentAlignment="Center"
 								Text="{Binding AcType, UpdateSourceTrigger=LostFocus, Mode=TwoWay}"
+								TextChanged="Data_TextChanged"
 								LostFocus="ActypeEdit_LostFocus"
 								Width="35" />
 
@@ -198,6 +226,7 @@
 								 Background="{StaticResource Gray3}"
 								 HorizontalAlignment="Left"
 								 HorizontalContentAlignment="Center"
+								TextChanged="Data_TextChanged"
 								 VerticalContentAlignment="Center"
 								 IsTabStop="True"
 								 Text="{Binding Balance, UpdateSourceTrigger=LostFocus, Mode=TwoWay}" LostFocus="BalanceEdit_LostFocus" />
@@ -212,7 +241,8 @@
 								 HorizontalAlignment="Left"
 								 HorizontalContentAlignment="Center"
 								 IsReadOnly="false"
-								 VerticalContentAlignment="Center"
+								TextChanged="Data_TextChanged"
+								VerticalContentAlignment="Center"
 								Text="{Binding IntRate, UpdateSourceTrigger=LostFocus, Mode=TwoWay}" LostFocus="IntRateEdit_LostFocus" />
 
 			<Grid Grid.Row="6" Grid.Column="2">
@@ -229,11 +259,12 @@
 								 VerticalContentAlignment="Center"
 								 Text="{Binding ODate, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay, StringFormat='dd/MM/yyyy'}"  LostFocus="OpenDateEdit_LostFocus" />-->
 				<DatePicker
+									x:Name="OpenDateEdit"
 									Margin="6"
 									HorizontalAlignment="Left"
 									SelectedDate="{Binding ODate,
 									Mode=TwoWay,
-									UpdateSourceTrigger=PropertyChanged}"
+									UpdateSourceTrigger=LostFocus}"
 									LostFocus="OpenDateEdit_LostFocus">
 				</DatePicker>
 			</Grid>
@@ -243,7 +274,7 @@
 									HorizontalAlignment="Left"
 									SelectedDate="{Binding CDate,
 									Mode=TwoWay,
-									UpdateSourceTrigger=PropertyChanged}"
+									UpdateSourceTrigger=LostFocus}"
 									LostFocus="CloseDateEdit_LostFocus">
 				</DatePicker>
 				<!--<TextBox Name="CloseDateEdit"
@@ -283,6 +314,7 @@
 				SelectionChanged="DataGrid1_SelectionChanged"
 				RowEditEnding="DataGrid1_RowEditEnding"
 				Visibility="Visible"
+				VirtualizingPanel.ScrollUnit="Pixel"
 				CellEditEnding="DataGrid1_CellEditEnding">
 			<!--ItemsSource="{Binding Source={StaticResource BankData}}"-->
 			<!--SelectedItem="{Binding myData:BankAccountViewModel, Mode=TwoWay}"-->
@@ -577,7 +609,7 @@
 				 Margin="3,3,3,3"
 				 VerticalContentAlignment="Center"
 				 Text="{Binding BankNo, UpdateSourceTrigger=LostFocus, Mode=TwoWay}"
-				TextChanged="BanknoEdit2_TextChanged" />
+			TextChanged="Data_TextChanged"/>
 
 			<TextBox x:Name="CustnoEdit2"
 				 Grid.Row="2"
@@ -590,23 +622,22 @@
 				 HorizontalContentAlignment="Center"
 				 VerticalContentAlignment="Center"
 			Text="{Binding CustNo, UpdateSourceTrigger=LostFocus, Mode=TwoWay}"
+				TextChanged="Data_TextChanged"
 				   LostFocus="CustnoEdit2_LostFocus" />
 
 			<TextBox x:Name="AcType2"
-
-				 Grid.Row="3"
-				 Margin="1"
-				 Height="25"
-				 Width="25"
-				 IsEnabled="True"
-				 IsReadOnly="False"
-				 Background="{StaticResource Gray3}"
-				 Foreground="{StaticResource Black0}"
-				 HorizontalAlignment="Left"
-				 HorizontalContentAlignment="Center"
-				 VerticalContentAlignment="Center"
+				Grid.Row="3"
+				Margin="1"
+				Height="25"
+				Width="25"
+				IsEnabled="True"
+				IsReadOnly="False"
+				Background="{StaticResource Gray3}"
+				Foreground="{StaticResource Black0}"
+				HorizontalAlignment="Left"
+				HorizontalContentAlignment="Center"
+				VerticalContentAlignment="Center"
 				Text="{Binding AcType, UpdateSourceTrigger=LostFocus, Mode=TwoWay}"
-				   TextChanged="AcType2_TextChanged"
 				LostFocus="AcTypeEdit2_LostFocus" />
 
 			<TextBox x:Name="Firstname2"
@@ -619,6 +650,7 @@
 				 Foreground="{StaticResource Black0}"
 				 HorizontalContentAlignment="Center"
 				 VerticalContentAlignment="Center"
+				TextChanged="Data_TextChanged"
 				Text="{Binding FName, UpdateSourceTrigger=LostFocus, Mode=TwoWay}"  LostFocus="FirstnameEdit2_LostFocus" />
 
 			<TextBox x:Name="Lastname2"
@@ -631,6 +663,7 @@
 				 Foreground="{StaticResource Black0}"
 				 HorizontalContentAlignment="Center"
 				 VerticalContentAlignment="Center"
+				TextChanged="Data_TextChanged"
 				Text="{Binding LName, UpdateSourceTrigger=LostFocus, Mode=TwoWay}"  LostFocus="LastnameEdit2_LostFocus" />
 
 			<TextBox x:Name="addr1"
@@ -643,6 +676,7 @@
 				 Foreground="{StaticResource Black0}"
 				 HorizontalContentAlignment="Center"
 				 VerticalContentAlignment="Center"
+				TextChanged="Data_TextChanged"
 				Text="{Binding Addr1, UpdateSourceTrigger=LostFocus, Mode=TwoWay}"  LostFocus="Addr1Edit2_LostFocus" />
 
 			<TextBox x:Name="addr2"
@@ -655,6 +689,7 @@
 				 Foreground="{StaticResource Black0}"
 				 HorizontalContentAlignment="Center"
 				 VerticalContentAlignment="Center"
+				TextChanged="Data_TextChanged"
 				Text="{Binding Addr2, UpdateSourceTrigger=LostFocus, Mode=TwoWay}"  LostFocus="Addr2Edit2_LostFocus" />
 
 			<TextBox x:Name="town"
@@ -667,6 +702,7 @@
 				 Foreground="{StaticResource Black0}"
 				 HorizontalContentAlignment="Center"
 				 VerticalContentAlignment="Center"
+				TextChanged="Data_TextChanged"
 				Text="{Binding Town, UpdateSourceTrigger=LostFocus, Mode=TwoWay}"  LostFocus="TownEdit2_LostFocus" />
 
 			<TextBox x:Name="County2"
@@ -679,6 +715,7 @@
 				 Foreground="{StaticResource Black0}"
 				 HorizontalContentAlignment="Center"
 				 VerticalContentAlignment="Center"
+				TextChanged="Data_TextChanged"
 				Text="{Binding County, UpdateSourceTrigger=LostFocus, Mode=TwoWay}"  LostFocus="CountyEdit2_LostFocus" />
 
 			<TextBox x:Name="pcode2"
@@ -691,6 +728,7 @@
 				 Foreground="{StaticResource Black0}"
 				 HorizontalContentAlignment="Center"
 				 VerticalContentAlignment="Center"
+				TextChanged="Data_TextChanged"
 				Text="{Binding PCode, UpdateSourceTrigger=LostFocus, Mode=TwoWay}"   LostFocus="PcodeEdit2_LostFocus" />
 
 			<TextBox x:Name="phone2"
@@ -703,6 +741,7 @@
 				 Foreground="{StaticResource Black0}"
 				 HorizontalContentAlignment="Center"
 				 VerticalContentAlignment="Center"
+				TextChanged="Data_TextChanged"
 				Text="{Binding Phone, UpdateSourceTrigger=LostFocus, Mode=TwoWay}"  LostFocus="PhoneEdit2_LostFocus" />
 
 			<TextBox Name="mobile2"
@@ -715,6 +754,7 @@
 				 HorizontalAlignment="Left"
 				 HorizontalContentAlignment="Center"
 				 VerticalContentAlignment="Center"
+				TextChanged="Data_TextChanged"
 				 Text="{Binding Mobile, UpdateSourceTrigger=LostFocus, Mode=TwoWay, StringFormat='dd/MM/yyyy'}"  LostFocus="MobileEdit2_LostFocus" />
 
 			<DatePicker   Name="Dob2"
@@ -769,6 +809,7 @@
 				SelectionMode="Single"
 				SelectionUnit="FullRow"
 				Visibility="Collapsed"
+				VirtualizingPanel.ScrollUnit="Pixel"
 				VerticalAlignment="Stretch">
 			<!--ItemsSource="{Binding Source={StaticResource CustData}}"-->
 			<!--SelectedItem="{Binding CustModel, Mode=TwoWay}"-->
@@ -922,6 +963,7 @@
 			SelectionMode="Single"
 			SelectionUnit="FullRow"
 			VerticalAlignment="Stretch"
+			VirtualizingPanel.ScrollUnit="Pixel"
 			Visibility="Visible">
 			<!--ItemsSource="{Binding Source={StaticResource DetData}}"-->
 			<!--ItemTemplate=""-->
@@ -1064,6 +1106,7 @@
 								HorizontalAlignment="Left"
 								 HorizontalContentAlignment="Center"
 								 VerticalContentAlignment="Center"
+				TextChanged="Data_TextChanged"
 								 Text="{Binding BankNo, UpdateSourceTrigger=LostFocus, Mode=TwoWay}" />
 			<!--Text="{Binding BankNo, UpdateSourceTrigger=LostFocus, Mode=TwoWay}" LostFocus="BanknoEdit3_LostFocus" />-->
 
@@ -1078,6 +1121,7 @@
 								HorizontalAlignment="Left"
 								 HorizontalContentAlignment="Center"
 								 VerticalContentAlignment="Center"
+				TextChanged="Data_TextChanged"
 								 Text="{Binding CustNo, UpdateSourceTrigger=LostFocus, Mode=TwoWay}" />
 			<!--Text="{Binding Path=CustNo, UpdateSourceTrigger=LostFocus, Mode=TwoWay}" LostFocus="CustnoEdit3_LostFocus" />-->
 
@@ -1093,6 +1137,7 @@
 								 HorizontalContentAlignment="Center"
 								LostFocus="ActypeEdit3LostFocus"
 								 VerticalContentAlignment="Center"
+				TextChanged="Data_TextChanged"
 								 Text="{Binding AcType, UpdateSourceTrigger=LostFocus, Mode=TwoWay}"
 								Width="35" />
 			<!--Text="{Binding AcType, UpdateSourceTrigger=LostFocus, Mode=TwoWay}" LostFocus="ActypeEdit3LostFocus"-->
@@ -1108,6 +1153,7 @@
 								 HorizontalContentAlignment="Center"
 								 VerticalContentAlignment="Center"
 								 IsTabStop="True"
+				TextChanged="Data_TextChanged"
 								 Text="{Binding Balance, UpdateSourceTrigger=LostFocus, Mode=TwoWay}" />
 			<!--Text="{Binding Balance, UpdateSourceTrigger=LostFocus, Mode=TwoWay}" LostFocus="BalanceEdit3_LostFocus" />-->
 			<TextBox Name="IntRateEdit3"
@@ -1121,6 +1167,7 @@
 						         HorizontalContentAlignment="Center"
 						         IsReadOnly="false"
 						         VerticalContentAlignment="Center"
+				TextChanged="Data_TextChanged"
 						         Text="{Binding IntRate, UpdateSourceTrigger=LostFocus, Mode=TwoWay}" />
 			<!--Text="{Binding IntRate, UpdateSourceTrigger=LostFocus, Mode=TwoWay}" LostFocus="IntRateEdit3_LostFocus" />-->
 
@@ -1142,7 +1189,7 @@
 									SelectedDate="{Binding ODate,
 									Mode=TwoWay,
 									UpdateSourceTrigger=LostFocus}"
-									LostFocus="OpenDateEdit_LostFocus"
+									LostFocus="OpenDateEdit3_LostFocus"
 									HorizontalAlignment="Left">
 				</DatePicker>
 			</Grid>
@@ -1151,7 +1198,8 @@
 									Margin="5"
 									SelectedDate="{Binding CDate,
 									Mode=TwoWay,
-									UpdateSourceTrigger=PropertyChanged}"
+									UpdateSourceTrigger=LostFocus}"
+									LostFocus="OpenDateEdit3_LostFocus"
 									HorizontalAlignment="Left">
 				</DatePicker>
 			</Grid>
@@ -1168,37 +1216,54 @@
 				  Orientation="Horizontal"
 				  HorizontalAlignment="Center"
 				VerticalAlignment="Center">
+			
 			<Button  x:Name="ViewerButton"
 			         Click="Viewer_Click"
-			         Content ="Viewer"
 			         FontWeight="Bold"
 			         Height="45"
 			         HorizontalContentAlignment="Center"
-				   Margin="5"
-			         Width="100">
+				   IsEnabled="False"
+				   Margin="3"
+				   Template="{StaticResource ButtonGradientGreen}"
+			         Width="120">
+				
+				<Border Name="_Border"
+							Padding="3"
+							HorizontalAlignment="Center">
+					<ContentPresenter  Content="Save Changes"/>
+				</Border>
+
 				<Button.Foreground>
 					<LinearGradientBrush StartPoint="1,0" EndPoint=".5,1">
-						<GradientStop Color="White" Offset=".6" />
-						<GradientStop Color="Black" Offset="1" />
+						<GradientStop Color="Green" Offset=".6" />
+						<GradientStop Color="White" Offset="1" />
 					</LinearGradientBrush>
 				</Button.Foreground>
 				<Button.Background>
 					<!--create an elegant left to right light-> Dark gradient as a background-->
 					<LinearGradientBrush StartPoint=".8,0" EndPoint="0,.5">
-						<GradientStop Color="AliceBlue" Offset="1" />
-						<GradientStop Color="#222222" Offset="0" />
+						<GradientStop Color="Green" Offset="1" />
+						<GradientStop Color="#ffffff" Offset="0" />
 					</LinearGradientBrush>
 				</Button.Background>
 			</Button>
 
+			<!--Content ="Close Document"-->
 			<Button  x:Name="CloseButton"
 			         Click="Button_Click"
-			         Content ="Close Document"
 			         FontWeight="Bold"
 			         Height="45"
 			         HorizontalContentAlignment="Center"
 			         Margin="5"
+				   Template="{StaticResource ButtonGradientRed}"
 			         Width="130">
+				<Border Name="_Border2"
+							Padding="3"
+							HorizontalAlignment="Center">
+					<ContentPresenter  Content="Discard/Exit"/>
+				</Border>
+				<!--Style="{StaticResource ToggleButtonOnmouseover}"-->
+
 				<Button.Foreground>
 					<LinearGradientBrush StartPoint="1,0" EndPoint=".5,1">
 						<GradientStop Color="White" Offset=".6" />
@@ -1208,47 +1273,25 @@
 				<Button.Background>
 					<!--create an elegant left to right light-> Dark gradient as a background-->
 					<LinearGradientBrush StartPoint=".8,0" EndPoint="0,.5">
-						<GradientStop Color="AliceBlue" Offset="1" />
-						<GradientStop Color="#222222" Offset="0" />
+						<GradientStop Color="White" Offset="1" />
+						<GradientStop Color="#ff0000" Offset="0" />
 					</LinearGradientBrush>
 				</Button.Background>
-				<!--<VisualStateManager.VisualStateGroups>
-					-->
-				<!--Define the states and transitions for the common states.
-	      The states in the VisualStateGroup are mutually exclusive to each other.-->
-				<!--
-					<VisualStateGroup x:Name="CommonStates">
 
-						-->
-				<!--The Normal state is the state the button is in when it is not in another state from this VisualStateGroup.-->
-				<!--
-						<VisualState x:Name="Normal" />
 
-						-->
-				<!--Change the SolidColorBrush, BorderBrush, to red when the mouse is over the button.-->
-				<!--
-						<VisualState x:Name="MouseOver">
-							<Storyboard>
-								<ColorAnimation Storyboard.TargetName="BorderBrush"
-									Storyboard.TargetProperty="Color" To="Red" />
-							</Storyboard>
-						</VisualState>
+					<!--<MultiTrigger>
+						<MultiTrigger.Conditions>
+							<Condition Property="IsMouseOver" Value="true" />
+							<Condition Property="IsSelected" Value="true" />
+						</MultiTrigger.Conditions>
+						<MultiTrigger.Setters>
+							<Setter TargetName="_Border" Property="Control.Foreground" Value="{StaticResource Red0}" />
+							<Setter TargetName="_Border" Property="Background" Value="{StaticResource White2}" />
+							<Setter Property="FontSize" Value="14" />
+							<Setter Property="FontWeight" Value="DemiBold" />
+						</MultiTrigger.Setters>
+					</MultiTrigger>-->
 
-						-->
-				<!--Change the SolidColorBrush, BorderBrush, to Transparent when the button is pressed.-->
-				<!--
-						<VisualState x:Name="Pressed">
-							<Storyboard>
-								<ColorAnimation Storyboard.TargetName="BorderBrush"
-										Storyboard.TargetProperty="Color" To="Green" />
-							</Storyboard>
-						</VisualState>
-
-						-->
-				<!--The Disabled state is omitted for brevity.-->
-				<!--
-					</VisualStateGroup>
-				</VisualStateManager.VisualStateGroups>-->
 			</Button>
 		</StackPanel>
 		<StackPanel Grid.Row="2"

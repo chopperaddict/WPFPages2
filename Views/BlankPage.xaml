@@ -50,6 +50,9 @@
 				The TxtBlock1 Trigger watches for Mouseover of a specified control and when triggered by that control 
 				(of whatever type) it implements all the Setters defined therein.
 				-->
+				<!--System.Windows.Data Error: 4 : Cannot find source for binding with reference 'RelativeSource FindAncestor, AncestorType='System.Windows.Controls.DataGrid', AncestorLevel='1''. BindingExpression:Path=HeadersVisibility; DataItem=null; target element is 'DataGridRowHeader' (Name=''); target property is 'Visibility' (type 'Visibility')-->
+
+				<!--TEMP COMMENTED OUT-->
 
 				<TextBlock Name="TxtBlock1" 
 					HorizontalAlignment="Center" 
@@ -62,7 +65,7 @@
 							<Style.Triggers>
 								<!--So, we are listening for the Btn1(Below) Mouseover, & then these (TextBlock) Setters 
 								are implemented but the Button's Color changes relies on the Buttons 
-								code listener, so in this case Btn2 -->
+								code listener, so in this case Btn2--> 
 								<DataTrigger Binding="{Binding ElementName=Btn1, Path=IsMouseOver}" Value="True">
 									<Setter Property="Background" Value="Blue" />
 									<Setter Property="Foreground" Value="Black" />
@@ -126,7 +129,7 @@
 								as this is what we are listening out for below :-
 								
 								When this occurs, these (Button) Setters are implemented on THIS control and this 
-								Button's BackGround is changed to Green (in this case) -->
+								Button's BackGround is changed to Green (in this case)--> 
 								<DataTrigger Binding="{Binding ElementName=Btn2, Path=IsMouseOver}" Value="True">
 									<Setter Property="Background" Value="Green" />
 								</DataTrigger>

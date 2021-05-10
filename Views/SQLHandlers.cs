@@ -2,7 +2,11 @@
 using System . Data . SqlClient;
 using System . Threading . Tasks;
 using System . Windows;
+using System . Windows . Controls;
+using System . Windows . Input;
 
+
+using WPFPages . Properties;
 using WPFPages . ViewModels;
 
 namespace WPFPages . Views
@@ -21,7 +25,7 @@ namespace WPFPages . Views
 
 		// THIS IS  HOW  TO HANDLE EVENTS RIGHT NOW //
 		//Event CallBack for when Asynchronous data loading has been completed in the Various ViewModel classes
-//		public static  event EventHandler<DataUpdatedEventArgs> DataUpdated;
+		//		public static  event EventHandler<DataUpdatedEventArgs> DataUpdated;
 		//		public static  event  DetaiIsUpdated          DataUpdated;
 		//-------------------------------------------------------------------------------------------------------------------------------------------------//
 		//protected virtual void OnDataUpdated ( object o , DataUpdatedEventArgs e )
@@ -335,7 +339,7 @@ namespace WPFPages . Views
 			return true;
 		}
 		//*****************************************************************************************//
-		public async Task<bool> UpdateDbRow ( string CurrentDb, object RowData )
+		public async Task<bool> UpdateDbRow ( string CurrentDb , object RowData )
 		{
 			///TRIGGERED when a Cell is EDITED
 			/// After a fight, this is now working and updates the relevant RECORD correctly
@@ -622,5 +626,332 @@ namespace WPFPages . Views
 			}
 			return true;
 		}
+		public void UpdateAllDb ( string CurrentDb , DataGridRowEditEndingEventArgs e , int caller )
+		{
+			//			BankCollection ss = Bankcollection;
+			//			CustCollection cs = Custcollection;
+			//			DetCollection sa = Detcollection;
+
+			//			if ( CurrentDb == "BANKACCOUNT" || CurrentDb == "DETAILS" )
+			//			{
+			//				// Editdb is NOT OPEN
+			//				SqlCommand cmd = null;
+			//				try
+			//				{
+			//					//Sanity check - are values actualy valid ???
+			//					//They should be as Grid vlaidate entries itself !!
+			//					int x;
+			//					decimal Y;
+			//					if ( CurrentDb == "BANKACCOUNT" )
+			//					{
+			//						//						ss = e.Row.Item as BankAccount;
+			//						x = Convert . ToInt32 ( ss . Id );
+			//						x = Convert . ToInt32 ( ss . AcType );
+			//						//Check for invalid A/C Type
+			//						if ( x < 1 || x > 4 )
+			//						{
+			//							Console . WriteLine ( $"SQL Invalid A/c type of {ss . AcType} in grid Data" );
+			//							Mouse . OverrideCursor = Cursors . Arrow;
+			//							MessageBox . Show ( $"Invalid A/C Type ({ss . AcType}) in the Grid !!!!\r\nPlease correct this entry!" );
+			//							return;
+			//						}
+			//						Y = Convert . ToDecimal ( ss . Balance );
+			//						Y = Convert . ToDecimal ( ss . IntRate );
+			//						//Check for invalid Interest rate
+			//						if ( Y > 100 )
+			//						{
+			//							Console . WriteLine ( $"SQL Invalid Interest Rate of {ss . IntRate} > 100% in grid Data" );
+			//							Mouse . OverrideCursor = Cursors . Arrow;
+			//							MessageBox . Show ( $"Invalid Interest rate ({ss . IntRate}) > 100 entered in the Grid !!!!\r\nPlease correct this entry!" );
+			//							return;
+			//						}
+			//						DateTime dtm = Convert . ToDateTime ( ss . ODate );
+			//						dtm = Convert . ToDateTime ( ss . CDate );
+			//					}
+			//					else if ( CurrentDb == "DETAILS" )
+			//					{
+			//						//						sa = sacc;
+			//						//						sa = e.Row.Item as DetailsViewModel;
+			//						x = Convert . ToInt32 ( sa . Id );
+			//						x = Convert . ToInt32 ( sa . AcType );
+			//						//Check for invalid A/C Type
+			//						if ( x < 1 || x > 4 )
+			//						{
+			//							Console . WriteLine ( $"SQL Invalid A/c type of {sa . AcType} in grid Data" );
+			//							Mouse . OverrideCursor = Cursors . Arrow;
+			//							MessageBox . Show ( $"Invalid A/C Type ({sa . AcType}) in the Grid !!!!\r\nPlease correct this entry!" );
+			//							return;
+			//						}
+			//						Y = Convert . ToDecimal ( sa . Balance );
+			//						Y = Convert . ToDecimal ( sa . IntRate );
+			//						//Check for invalid Interest rate
+			//						if ( Y > 100 )
+			//						{
+			//							Console . WriteLine ( $"SQL Invalid Interest Rate of {sa . IntRate} > 100% in grid Data" );
+			//							Mouse . OverrideCursor = Cursors . Arrow;
+			//							MessageBox . Show ( $"Invalid Interest rate ({sa . IntRate}) > 100 entered in the Grid !!!!\r\nPlease correct this entry!" );
+			//							return;
+			//						}
+			//						DateTime dtm = Convert . ToDateTime ( sa . ODate );
+			//						dtm = Convert . ToDateTime ( sa . CDate );
+			//					}
+			//					//					string sndr = sender.ToString();
+			//				}
+			//				catch ( Exception ex )
+			//				{
+			//					Console . WriteLine ( $"SQL Invalid grid Data - {ex . Message} Data = {ex . Data}" );
+			//					Mouse . OverrideCursor = Cursors . Arrow;
+			//					MessageBox . Show ( "Invalid data entered in the Grid !!!! - See Output for details" );
+			//					return;
+			//				}
+			//				SqlConnection con;
+			//				string ConString = "";
+			//				ConString = ( string ) Settings . Default [ "BankSysConnectionString" ];
+			//				//			@"Data Source = (localdb)\MSSQLLocalDB; Initial Catalog = 'C:\USERS\IANCH\APPDATA\LOCAL\MICROSOFT\MICROSOFT SQL SERVER LOCAL DB\INSTANCES\MSSQLLOCALDB\IAN1.MDF'; Integrated Security = True; Connect Timeout = 30; Encrypt = False; TrustServerCertificate = False; ApplicationIntent = ReadWrite; MultiSubnetFailover = False";
+			//				con = new SqlConnection ( ConString );
+			//				try
+			//				{
+			//					//We need to update BOTH BankAccount AND DetailsViewModel to keep them in parallel
+			//					using ( con )
+			//					{
+			//						con . Open ( );
+
+			//						if ( CurrentDb == "BANKACCOUNT" )
+			//						{
+			//							cmd = new SqlCommand ( "UPDATE BankAccount SET BANKNO=@bankno, CUSTNO=@custno, ACTYPE=@actype, BALANCE=@balance, INTRATE=@intrate, ODATE=@odate, CDATE=@cdate WHERE BankNo=@BankNo" , con );
+			//							cmd . Parameters . AddWithValue ( "@id" , Convert . ToInt32 ( ss . Id ) );
+			//							cmd . Parameters . AddWithValue ( "@bankno" , ss . BankNo . ToString ( ) );
+			//							cmd . Parameters . AddWithValue ( "@custno" , ss . CustNo . ToString ( ) );
+			//							cmd . Parameters . AddWithValue ( "@actype" , Convert . ToInt32 ( ss . AcType ) );
+			//							cmd . Parameters . AddWithValue ( "@balance" , Convert . ToDecimal ( ss . Balance ) );
+			//							cmd . Parameters . AddWithValue ( "@intrate" , Convert . ToDecimal ( ss . IntRate ) );
+			//							cmd . Parameters . AddWithValue ( "@odate" , Convert . ToDateTime ( ss . ODate ) );
+			//							cmd . Parameters . AddWithValue ( "@cdate" , Convert . ToDateTime ( ss . CDate ) );
+			//							cmd . ExecuteNonQuery ( );
+			//							Console . WriteLine ( "SQL Update of BankAccounts successful..." );
+
+			//							cmd = new SqlCommand ( "UPDATE SecAccounts SET BANKNO=@bankno, CUSTNO=@custno, ACTYPE=@actype, BALANCE=@balance, INTRATE=@intrate, ODATE=@odate, CDATE=@cdate WHERE BankNo=@BankNo" , con );
+			//							cmd . Parameters . AddWithValue ( "@id" , Convert . ToInt32 ( sa . Id ) );
+			//							cmd . Parameters . AddWithValue ( "@bankno" , sa . BankNo . ToString ( ) );
+			//							cmd . Parameters . AddWithValue ( "@custno" , sa . CustNo . ToString ( ) );
+			//							cmd . Parameters . AddWithValue ( "@actype" , Convert . ToInt32 ( sa . AcType ) );
+			//							cmd . Parameters . AddWithValue ( "@balance" , Convert . ToDecimal ( sa . Balance ) );
+			//							cmd . Parameters . AddWithValue ( "@intrate" , Convert . ToDecimal ( sa . IntRate ) );
+			//							cmd . Parameters . AddWithValue ( "@odate" , Convert . ToDateTime ( sa . ODate ) );
+			//							cmd . Parameters . AddWithValue ( "@cdate" , Convert . ToDateTime ( sa . CDate ) );
+			//							cmd . ExecuteNonQuery ( );
+			//							Console . WriteLine ( "SQL Update of SecAccounts successful..." );
+
+			//							cmd = new SqlCommand ( "UPDATE Customer SET BANKNO=@bankno, CUSTNO=@custno, ACTYPE=@actype, ODATE=@odate, CDATE=@cdate WHERE BankNo=@BankNo" , con );
+			//							cmd . Parameters . AddWithValue ( "@id" , Convert . ToInt32 ( sa . Id ) );
+			//							cmd . Parameters . AddWithValue ( "@bankno" , sa . BankNo . ToString ( ) );
+			//							cmd . Parameters . AddWithValue ( "@custno" , sa . CustNo . ToString ( ) );
+			//							cmd . Parameters . AddWithValue ( "@actype" , Convert . ToInt32 ( sa . AcType ) );
+			//							cmd . Parameters . AddWithValue ( "@odate" , Convert . ToDateTime ( sa . ODate ) );
+			//							cmd . Parameters . AddWithValue ( "@cdate" , Convert . ToDateTime ( sa . CDate ) );
+			//							cmd . ExecuteNonQuery ( );
+			//							Console . WriteLine ( "SQL Update of Customers successful..." );
+			//						}
+			//						else if ( CurrentDb == "DETAILS" )
+			//						{
+			//							cmd = new SqlCommand ( "UPDATE BankAccount SET BANKNO=@bankno, CUSTNO=@custno, ACTYPE=@actype, BALANCE=@balance, INTRATE=@intrate, ODATE=@odate, CDATE=@cdate WHERE BankNo=@BankNo" , con );
+			//							cmd . Parameters . AddWithValue ( "@id" , Convert . ToInt32 ( sa . Id ) );
+			//							cmd . Parameters . AddWithValue ( "@bankno" , sa . BankNo . ToString ( ) );
+			//							cmd . Parameters . AddWithValue ( "@custno" , sa . CustNo . ToString ( ) );
+			//							cmd . Parameters . AddWithValue ( "@actype" , Convert . ToInt32 ( sa . AcType ) );
+			//							cmd . Parameters . AddWithValue ( "@balance" , Convert . ToDecimal ( sa . Balance ) );
+			//							cmd . Parameters . AddWithValue ( "@intrate" , Convert . ToDecimal ( sa . IntRate ) );
+			//							cmd . Parameters . AddWithValue ( "@odate" , Convert . ToDateTime ( sa . ODate ) );
+			//							cmd . Parameters . AddWithValue ( "@cdate" , Convert . ToDateTime ( sa . CDate ) );
+			//							cmd . ExecuteNonQuery ( );
+			//							Console . WriteLine ( "SQL Update of BankAccounts successful..." );
+
+			//							cmd = new SqlCommand ( "UPDATE SecAccounts SET BANKNO=@bankno, CUSTNO=@custno, ACTYPE=@actype, BALANCE=@balance, INTRATE=@intrate, ODATE=@odate, CDATE=@cdate WHERE BankNo=@BankNo" , con );
+			//							cmd . Parameters . AddWithValue ( "@id" , Convert . ToInt32 ( sa . Id ) );
+			//							cmd . Parameters . AddWithValue ( "@bankno" , sa . BankNo . ToString ( ) );
+			//							cmd . Parameters . AddWithValue ( "@custno" , sa . CustNo . ToString ( ) );
+			//							cmd . Parameters . AddWithValue ( "@actype" , Convert . ToInt32 ( sa . AcType ) );
+			//							cmd . Parameters . AddWithValue ( "@balance" , Convert . ToDecimal ( sa . Balance ) );
+			//							cmd . Parameters . AddWithValue ( "@intrate" , Convert . ToDecimal ( sa . IntRate ) );
+			//							cmd . Parameters . AddWithValue ( "@odate" , Convert . ToDateTime ( sa . ODate ) );
+			//							cmd . Parameters . AddWithValue ( "@cdate" , Convert . ToDateTime ( sa . CDate ) );
+			//							cmd . ExecuteNonQuery ( );
+			//							Console . WriteLine ( "SQL Update of SecAccounts successful..." );
+
+			//							cmd = new SqlCommand ( "UPDATE Customer SET BANKNO=@bankno, CUSTNO=@custno, ACTYPE=@actype, ODATE=@odate, CDATE=@cdate WHERE BankNo=@BankNo" , con );
+			//							cmd . Parameters . AddWithValue ( "@id" , Convert . ToInt32 ( sa . Id ) );
+			//							cmd . Parameters . AddWithValue ( "@bankno" , sa . BankNo . ToString ( ) );
+			//							cmd . Parameters . AddWithValue ( "@custno" , sa . CustNo . ToString ( ) );
+			//							cmd . Parameters . AddWithValue ( "@actype" , Convert . ToInt32 ( sa . AcType ) );
+			//							cmd . Parameters . AddWithValue ( "@odate" , Convert . ToDateTime ( sa . ODate ) );
+			//							cmd . Parameters . AddWithValue ( "@cdate" , Convert . ToDateTime ( sa . CDate ) );
+			//							cmd . ExecuteNonQuery ( );
+			//							Console . WriteLine ( "SQL Update of customers successful..." );
+			//						}
+			//						if ( CurrentDb == "SECACCOUNTS" )
+			//						{
+			//							cmd = new SqlCommand ( "UPDATE BankAccount SET BANKNO=@bankno, CUSTNO=@custno, ACTYPE=@actype, BALANCE=@balance, INTRATE=@intrate, ODATE=@odate, CDATE=@cdate WHERE BankNo=@BankNo" , con );
+			//							cmd . Parameters . AddWithValue ( "@id" , Convert . ToInt32 ( ss . Id ) );
+			//							cmd . Parameters . AddWithValue ( "@bankno" , ss . BankNo . ToString ( ) );
+			//							cmd . Parameters . AddWithValue ( "@custno" , ss . CustNo . ToString ( ) );
+			//							cmd . Parameters . AddWithValue ( "@actype" , Convert . ToInt32 ( ss . AcType ) );
+			//							cmd . Parameters . AddWithValue ( "@balance" , Convert . ToDecimal ( ss . Balance ) );
+			//							cmd . Parameters . AddWithValue ( "@intrate" , Convert . ToDecimal ( ss . IntRate ) );
+			//							cmd . Parameters . AddWithValue ( "@odate" , Convert . ToDateTime ( ss . ODate ) );
+			//							cmd . Parameters . AddWithValue ( "@cdate" , Convert . ToDateTime ( ss . CDate ) );
+			//							cmd . ExecuteNonQuery ( );
+			//							Console . WriteLine ( "SQL Update of BankAccounts successful..." );
+
+			//							cmd = new SqlCommand ( "UPDATE SecAccounts SET BANKNO=@bankno, CUSTNO=@custno, ACTYPE=@actype, BALANCE=@balance, INTRATE=@intrate, ODATE=@odate, CDATE=@cdate WHERE BankNo=@BankNo" , con );
+			//							cmd . Parameters . AddWithValue ( "@id" , Convert . ToInt32 ( sa . Id ) );
+			//							cmd . Parameters . AddWithValue ( "@bankno" , sa . BankNo . ToString ( ) );
+			//							cmd . Parameters . AddWithValue ( "@custno" , sa . CustNo . ToString ( ) );
+			//							cmd . Parameters . AddWithValue ( "@actype" , Convert . ToInt32 ( sa . AcType ) );
+			//							cmd . Parameters . AddWithValue ( "@balance" , Convert . ToDecimal ( sa . Balance ) );
+			//							cmd . Parameters . AddWithValue ( "@intrate" , Convert . ToDecimal ( sa . IntRate ) );
+			//							cmd . Parameters . AddWithValue ( "@odate" , Convert . ToDateTime ( sa . ODate ) );
+			//							cmd . Parameters . AddWithValue ( "@cdate" , Convert . ToDateTime ( sa . CDate ) );
+			//							cmd . ExecuteNonQuery ( );
+			//							Console . WriteLine ( "SQL Update of SecAccounts successful..." );
+
+			//							cmd = new SqlCommand ( "UPDATE Customer SET BANKNO=@bankno, CUSTNO=@custno, ACTYPE=@actype, ODATE=@odate, CDATE=@cdate WHERE BankNo=@BankNo" , con );
+			//							cmd . Parameters . AddWithValue ( "@id" , Convert . ToInt32 ( sa . Id ) );
+			//							cmd . Parameters . AddWithValue ( "@bankno" , sa . BankNo . ToString ( ) );
+			//							cmd . Parameters . AddWithValue ( "@custno" , sa . CustNo . ToString ( ) );
+			//							cmd . Parameters . AddWithValue ( "@actype" , Convert . ToInt32 ( sa . AcType ) );
+			//							cmd . Parameters . AddWithValue ( "@odate" , Convert . ToDateTime ( sa . ODate ) );
+			//							cmd . Parameters . AddWithValue ( "@cdate" , Convert . ToDateTime ( sa . CDate ) );
+			//							cmd . ExecuteNonQuery ( );
+			//							Console . WriteLine ( "SQL Update of Customers successful..." );
+			//						}
+			//						//						StatusBar . Text = "ALL THREE Databases updated successfully....";
+			//						Console . WriteLine ( "ALL THREE Databases updated successfully...." );
+			//					}
+			//				}
+			//				catch ( Exception ex )
+			//				{
+			//					Console . WriteLine ( $"SQL Error - {ex . Message} Data = {ex . Data}" );
+
+			//#if SHOWSQLERRORMESSAGEBOX
+			//						Mouse . OverrideCursor = Cursors . Arrow;
+			//						MessageBox . Show ( "SQL error occurred - See Output for details" );
+			//#endif
+			//				}
+			//				finally
+			//				{
+			//					Mouse . OverrideCursor = Cursors . Arrow;
+			//					con . Close ( );
+			//				}
+			//			}
+			//			else if ( CurrentDb == "CUSTOMER" )
+			//			{
+			//				if ( e == null && CurrentDb == "CUSTOMER" )
+			//					//	cs = CustomerGrid . SelectedItem as CustomerViewModel;
+			//					//else if ( e == null && CurrentDb == "CUSTOMER" )
+			//					cs = e . Row . Item as CustCollection;
+
+			//				try
+			//				{
+			//					//Sanity check - are values actualy valid ???
+			//					//They should be as Grid vlaidate entries itself !!
+			//					int x;
+			//					x = Convert . ToInt32 ( cs . Id );
+			//					//					string sndr = sender.ToString();
+			//					x = Convert . ToInt32 ( cs . AcType );
+			//					//Check for invalid A/C Type
+			//					if ( x < 1 || x > 4 )
+			//					{
+			//						Console . WriteLine ( $"SQL Invalid A/c type of {cs . AcType} in grid Data" );
+			//						Mouse . OverrideCursor = Cursors . Arrow;
+			//						MessageBox . Show ( $"Invalid A/C Type ({cs . AcType}) in the Grid !!!!\r\nPlease correct this entry!" );
+			//						return;
+			//					}
+			//					DateTime dtm = Convert . ToDateTime ( cs . ODate );
+			//					dtm = Convert . ToDateTime ( cs . CDate );
+			//					dtm = Convert . ToDateTime ( cs . Dob );
+			//				}
+			//				catch ( Exception ex )
+			//				{
+			//					Console . WriteLine ( $"SQL Invalid grid Data - {ex . Message} Data = {ex . Data}" );
+			//					MessageBox . Show ( "Invalid data entered in the Grid !!!! - See Output for details" );
+			//					Mouse . OverrideCursor = Cursors . Arrow;
+			//					return;
+			//				}
+			//				SqlConnection con;
+			//				string ConString = "";
+			//				ConString = ( string ) Settings . Default [ "BankSysConnectionString" ];
+			//				//			@"Data Source = (localdb)\MSSQLLocalDB; Initial Catalog = 'C:\USERS\IANCH\APPDATA\LOCAL\MICROSOFT\MICROSOFT SQL SERVER LOCAL DB\INSTANCES\MSSQLLOCALDB\IAN1.MDF'; Integrated Security = True; Connect Timeout = 30; Encrypt = False; TrustServerCertificate = False; ApplicationIntent = ReadWrite; MultiSubnetFailover = False";
+			//				con = new SqlConnection ( ConString );
+			//				try
+			//				{
+			//					//We need to update BOTH BankAccount AND DetailsViewModel to keep them in parallel
+			//					using ( con )
+			//					{
+			//						con . Open ( );
+			//						SqlCommand cmd = new SqlCommand ( "UPDATE Customer SET CUSTNO=@custno, BANKNO=@bankno, ACTYPE=@actype, " +
+			//							"FNAME=@fname, LNAME=@lname, ADDR1=@addr1, ADDR2=@addr2, TOWN=@town, COUNTY=@county, PCODE=@pcode," +
+			//							"PHONE=@phone, MOBILE=@mobile, DOB=@dob,ODATE=@odate, CDATE=@cdate WHERE Id=@id", con );
+
+			//						cmd . Parameters . AddWithValue ( "@id" , Convert . ToInt32 ( cs . Id ) );
+			//						cmd . Parameters . AddWithValue ( "@custno" , cs . CustNo . ToString ( ) );
+			//						cmd . Parameters . AddWithValue ( "@bankno" , cs . BankNo . ToString ( ) );
+			//						cmd . Parameters . AddWithValue ( "@actype" , Convert . ToInt32 ( cs . AcType ) );
+			//						cmd . Parameters . AddWithValue ( "@fname" , cs . FName . ToString ( ) );
+			//						cmd . Parameters . AddWithValue ( "@lname" , cs . LName . ToString ( ) );
+			//						cmd . Parameters . AddWithValue ( "@addr1" , cs . Addr1 . ToString ( ) );
+			//						cmd . Parameters . AddWithValue ( "@addr2" , cs . Addr2 . ToString ( ) );
+			//						cmd . Parameters . AddWithValue ( "@town" , cs . Town . ToString ( ) );
+			//						cmd . Parameters . AddWithValue ( "@county" , cs . County . ToString ( ) );
+			//						cmd . Parameters . AddWithValue ( "@pcode" , cs . PCode . ToString ( ) );
+			//						cmd . Parameters . AddWithValue ( "@phone" , cs . Phone . ToString ( ) );
+			//						cmd . Parameters . AddWithValue ( "@mobile" , cs . Mobile . ToString ( ) );
+			//						cmd . Parameters . AddWithValue ( "@dob" , Convert . ToDateTime ( cs . Dob ) );
+			//						cmd . Parameters . AddWithValue ( "@odate" , Convert . ToDateTime ( cs . ODate ) );
+			//						cmd . Parameters . AddWithValue ( "@cdate" , Convert . ToDateTime ( cs . CDate ) );
+			//						cmd . ExecuteNonQuery ( );
+			//						Console . WriteLine ( "SQL Update of Customers successful..." );
+
+			//						cmd = new SqlCommand ( "UPDATE BankAccount SET BANKNO=@bankno, CUSTNO=@custno, ACTYPE=@actype,  ODATE=@odate, CDATE=@cdate WHERE BankNo=@BankNo" , con );
+			//						cmd . Parameters . AddWithValue ( "@id" , Convert . ToInt32 ( cs . Id ) );
+			//						cmd . Parameters . AddWithValue ( "@bankno" , cs . BankNo . ToString ( ) );
+			//						cmd . Parameters . AddWithValue ( "@custno" , cs . CustNo . ToString ( ) );
+			//						cmd . Parameters . AddWithValue ( "@actype" , Convert . ToInt32 ( cs . AcType ) );
+			//						cmd . Parameters . AddWithValue ( "@odate" , Convert . ToDateTime ( cs . ODate ) );
+			//						cmd . Parameters . AddWithValue ( "@cdate" , Convert . ToDateTime ( cs . CDate ) );
+			//						cmd . ExecuteNonQuery ( );
+			//						Console . WriteLine ( "SQL Update of BankAccounts successful..." );
+
+			//						cmd = new SqlCommand ( "UPDATE SecAccounts SET BANKNO=@bankno, CUSTNO=@custno, ACTYPE=@actype, ODATE=@odate, CDATE=@cdate WHERE BankNo=@BankNo" , con );
+			//						cmd . Parameters . AddWithValue ( "@id" , Convert . ToInt32 ( cs . Id ) );
+			//						cmd . Parameters . AddWithValue ( "@bankno" , cs . BankNo . ToString ( ) );
+			//						cmd . Parameters . AddWithValue ( "@custno" , cs . CustNo . ToString ( ) );
+			//						cmd . Parameters . AddWithValue ( "@actype" , Convert . ToInt32 ( cs . AcType ) );
+			//						cmd . Parameters . AddWithValue ( "@odate" , Convert . ToDateTime ( cs . ODate ) );
+			//						cmd . Parameters . AddWithValue ( "@cdate" , Convert . ToDateTime ( cs . CDate ) );
+			//						cmd . ExecuteNonQuery ( );
+			//						Console . WriteLine ( "SQL Update of SecAccounts successful..." );
+			//					}
+			//					//				StatusBar . Text = "ALL THREE Databases updated successfully....";
+			//					Console . WriteLine ( "ALL THREE Databases updated successfully...." );
+			//				}
+			//				catch ( Exception ex )
+			//				{
+			//					Console . WriteLine ( $"SQL Error - {ex . Message} Data = {ex . Data}" );
+			//#if SHOWSQLERRORMESSAGEBOX
+			//						Mouse . OverrideCursor = Cursors . Arrow;
+			//						MessageBox . Show ( "SQL error occurred - See Output for details" );
+			//#endif
+			//				}
+			//				finally
+			//				{
+			//					Mouse . OverrideCursor = Cursors . Arrow;
+			//					con . Close ( );
+			//				}
+			//				Mouse . OverrideCursor = Cursors . Arrow;
+			//				return;
+			//			}
+
+		}
+
 	}
 }

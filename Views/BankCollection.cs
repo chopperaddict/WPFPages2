@@ -33,6 +33,10 @@ namespace WPFPages . Views
 
 		#endregion CONSTRUCTOR
 
+		//		private Timer timer = new Timer ();
+		//		public static DataTable dtBank = null;
+
+
 		#region DATA LOADED EVENT
 
 		// THIS IS  HOW  TO HANDLE EVENTS RIGHT NOW //
@@ -44,7 +48,7 @@ namespace WPFPages . Views
 		{
 			if ( BankDataLoaded != null )
 			{
-				Console . WriteLine ( $"Broadcasting from OnBankDataLoaded with {bnkdata.Count} records loaded " );				  
+				Console . WriteLine ( $"BANKACCOUNT : Broadcasting DATA LOADED NOTIFICATION from OnBankDataLoaded" );
 				BankDataLoaded?.Invoke ( bnkdata , new LoadedEventArgs ( ) { DataSource = bnkdata , CallerDb = "BANKACCOUNT" } );
 			}
 		}
@@ -92,9 +96,9 @@ namespace WPFPages . Views
 			// Now handle "post processing of errors etc"
 			//This will ONLY run if there were No Exceptions  and it ALL ran successfully!!
 			t1. ContinueWith (
-				(Bankcollection  ) =>
+			(Bankcollection ) =>
 				{
-					Console . WriteLine ( $"BankCollection : Task.Run() processes all succeeded. \nBankcollection Status was [ {Bankcollection . Status}." );
+					Console . WriteLine ( $"BankCollection : Task.Run() Completed : Status was [ {Bankcollection . Status}" );
 				} , CancellationToken . None , TaskContinuationOptions . OnlyOnRanToCompletion , TaskScheduler . FromCurrentSynchronizationContext ( )
 			);
 			//This will iterate through ALL of the Exceptions that may have occured in the previous Tasks
@@ -135,6 +139,7 @@ namespace WPFPages . Views
 				} , CancellationToken . None , TaskContinuationOptions . OnlyOnFaulted , TaskScheduler . FromCurrentSynchronizationContext ( )
 			);
 			//t1 . Wait ( );
+			Console . WriteLine ( $"BANKACCOUNT : END OF PROCESSING & Error checking functionality\nBANKACCOUNT : *** Bankcollection total = {Bankcollection . Count} ***\n\n" );
 
 			#endregion Success//Error reporting/handling
 
@@ -181,7 +186,6 @@ namespace WPFPages . Views
 					sda . Fill ( dtBank );
 					Console . WriteLine ( $"Exiting LoadBankData {dtBank . Rows . Count} records in DataTable" );
 					//					Console . WriteLine ( $"Exiting LoadBankData in Bankcollection ...." );
-					return true;
 				}
 			}
 			catch ( Exception ex )
@@ -235,14 +239,16 @@ namespace WPFPages . Views
 
 		public static void SubscribeToLoadedEvent ( object o )
 		{
-			//			if ( o == Bankcollection && BankDataLoaded == null )
-			BankDataLoaded += SqlDbViewer . SqlDbViewer_DataLoaded;
+			if(BankDataLoaded == null && Flags . CurrentSqlViewer != null)
+				BankDataLoaded += Flags.CurrentSqlViewer. SqlDbViewer_DataLoaded;
+			MultiViewer mv = new MultiViewer();
+			BankDataLoaded += mv . MultiViewer_DataLoaded;
 		}
 
 		public static void UnSubscribeToLoadedEvent ( object o )
 		{
 			if ( BankDataLoaded != null )
-				BankDataLoaded -= SqlDbViewer . SqlDbViewer_DataLoaded;
+				BankDataLoaded -= Flags . CurrentSqlViewer . SqlDbViewer_DataLoaded;
 		}
 
 		#endregion EVENT Subscription methods

@@ -91,8 +91,8 @@ namespace WPFPages . Views
 			thisWin = this;
 			if ( !BankAccountViewModel . ShowSubscribeData )
 				return;
-			int count = 0;
-			int count2 = 0;
+//			int count = 0;
+//			int count2 = 0;
 			//if ( Flags . EventHandlerDebug )
 			//{
 			Console . WriteLine ( $"EventHandler.EventHandlers(51) : In Constructor - CallerName = {CallerName}." );
@@ -129,9 +129,15 @@ namespace WPFPages . Views
 			// SqlViewerIndexChanged
 			dg = EditDb . GetEventCount5 ( );
 			if ( dg != null ) count5 = dg . Length;
-			// DetCollection. DetDataLoaded
+			// DetCollection. BankDataLoaded
 			dg = BankCollection . GetEventCount6 ( );
 			if ( dg != null ) count6 = dg . Length;
+			// CustCollection. CustDataLoaded 
+			dg = CustCollection . GetEventCount7 ( );
+			if ( dg != null ) count7 = dg . Length;
+			// CustCollection. DetDataLoaded 
+			dg = DetCollection . GetEventCount8 ( );
+			if ( dg != null ) count8 = dg . Length;
 			//SQLHandlers. DataUpdated
 			dg = EditDb . GetEventCount9 ( );
 			if ( dg != null ) count9 = dg . Length;

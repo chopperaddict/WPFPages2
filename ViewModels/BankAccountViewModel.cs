@@ -18,7 +18,7 @@ namespace WPFPages . ViewModels
 	{
 		//Declare a global pointer to Observable Details Collection
 
-		private static bool IsSubscribedToObsNotifications = false;
+//		private static bool IsSubscribedToObsNotifications = false;
 
 		/// </summary>
 		/// Also declared in SqlDbViewer
@@ -158,11 +158,11 @@ namespace WPFPages . ViewModels
 
 			// Send it to the correct open viewer window
 			if ( Flags . SqlBankViewer != null )
-				Flags . SqlBankViewer . RefreshBankOnUpdateNotification ( sender , Grid , args );
-			//if ( Flags . SqlCustViewer != null )
-			//	Flags . SqlCustViewer . RefreshCustomerOnUpdateNotification ( sender , Grid , args );
-			//if ( Flags . SqlDetViewer != null )
-			//	Flags . SqlDetViewer . RefreshDetailsOnUpdateNotification ( sender , Grid , args );
+				Flags . SqlBankViewer . ReloadBankOnUpdateNotification ( sender , Grid , args );
+			if ( Flags . SqlCustViewer != null )
+				Flags . SqlCustViewer . ReloadCustomerOnUpdateNotification ( sender , Grid , args );
+			if ( Flags . SqlDetViewer != null )
+				Flags . SqlDetViewer . ReloadDetailsOnUpdateNotification ( sender , Grid , args );
 
 			// See if we need to update EditDb window as well
 			if ( Flags . CurrentEditDbViewer != null )
