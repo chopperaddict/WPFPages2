@@ -13,7 +13,7 @@ namespace WPFPages . Views
 	/// <summary>
 	/// Class to hold the Customers data for the system as an Observabke collection
 	/// </summary>
-	public class CustCollection : ObservableCollection<CustomerViewModel>
+	public class CustCollection : ObservableCollection<CustomerViewModel>		
 	{
 		//Declare a global pointer to Observable Customers Collection
 		public static CustCollection Custcollection = new CustCollection();
@@ -53,7 +53,7 @@ namespace WPFPages . Views
 		//**************************************************************************************************************************************************************//
 		// Entry point for all data load/Reload
 		//**************************************************************************************************************************************************************//
-		public async Task<CustCollection> LoadCustomerTaskInSortOrderAsync ( bool isOriginator = false , int mode = -1 )
+		public async Task<CustCollection> LoadCustomerTaskInSortOrderAsync ( bool isOriginator = false , int mode = -1)
 		{
 			if ( dtCust . Rows . Count > 0 )
 				dtCust . Clear ( );
@@ -63,27 +63,27 @@ namespace WPFPages . Views
 
 			// This all woks just fine, and DOES switch back to UI thread that is MANDATORY before doing the Collection load processing
 			// thanks to the use of TaskScheduler.FromCurrentSynchronizationContext() that oerforms the magic switch back to the UI thread
-			Console . WriteLine ( $"CUSTOMERS : Entering Method to call Task.Run in CustCollection  : Thread = { Thread . CurrentThread . ManagedThreadId}" );
+//			Console . WriteLine ( $"CUSTOMERS : Entering Method to call Task.Run in CustCollection  : Thread = { Thread . CurrentThread . ManagedThreadId}" );
 
 			#region process code to load data
 
 			Task t1 = Task . Run(
 					async ( ) =>
 					{
-						Console . WriteLine ( $"Before starting initial Task.Run() : Thread = { Thread . CurrentThread . ManagedThreadId}" );
-						await LoadCustDataSql ( );
-						Console . WriteLine ( $"After initial Task.Run() : Thread = { Thread . CurrentThread . ManagedThreadId}" );
+//						Console . WriteLine ( $"Before starting initial Task.Run() : Thread = { Thread . CurrentThread . ManagedThreadId}" );
+						await LoadCustDataSql ();
+//						Console . WriteLine ( $"After initial Task.Run() : Thread = { Thread . CurrentThread . ManagedThreadId}" );
 					}
 				);
 			t1 . ContinueWith
 			(
 				async ( Custcollection ) =>
 				{
-					Console . WriteLine ( $"Before starting second Task.Run() : Thread = { Thread . CurrentThread . ManagedThreadId}" );
+//					Console . WriteLine ( $"Before starting second Task.Run() : Thread = { Thread . CurrentThread . ManagedThreadId}" );
 					await LoadCustomerCollection ( );
 				} , TaskScheduler . FromCurrentSynchronizationContext ( )
 			 );
-			Console . WriteLine ( $"After second Task.Run() : Thread = { Thread . CurrentThread . ManagedThreadId}" );
+//			Console . WriteLine ( $"After second Task.Run() : Thread = { Thread . CurrentThread . ManagedThreadId}" );
 
 			#endregion process code to load data
 
@@ -94,7 +94,7 @@ namespace WPFPages . Views
 			t1 . ContinueWith (
 				( Custcollection ) =>
 				{
-					Console . WriteLine ( $"custCollection : Task.Run() Completed : Status was [ {Custcollection . Status} ]." );
+					Console . WriteLine ( $"CUSTOMERS : Task.Run() Completed : Status was [ {Custcollection . Status} ]." );
 				} , CancellationToken . None , TaskContinuationOptions . OnlyOnRanToCompletion , TaskScheduler . FromCurrentSynchronizationContext ( )
 			);
 			//This will iterate through ALL of the Exceptions that may have occured in the previous Tasks
@@ -111,7 +111,7 @@ namespace WPFPages . Views
 					}
 				} , CancellationToken . None , TaskContinuationOptions . OnlyOnFaulted , TaskScheduler . FromCurrentSynchronizationContext ( )
 			);
-			Console . WriteLine ( $"CUSTOMER : END OF PROCESSING & Erro checking functionality\nCUSTOMER : *** Detcollection total = {Custcollection . Count} ***\n\n" );
+			Console . WriteLine ( $"CUSTOMER : END OF PROCESSING & Error checking functionality\nCUSTOMER : *** Detcollection total = {Custcollection . Count} ***\n\n" );
 
 			#endregion Success//Error reporting/handling
 
@@ -155,7 +155,7 @@ namespace WPFPages . Views
 					SqlCommand cmd = new SqlCommand ( commandline, con );
 					SqlDataAdapter sda = new SqlDataAdapter ( cmd );
 					sda . Fill ( dtCust );
-					Console . WriteLine ( $"CUSTOMERS : Sql data loaded into Customers DataTable [{dtCust . Rows . Count}] ...." );
+//					Console . WriteLine ( $"CUSTOMERS : Sql data loaded into Customers DataTable [{dtCust . Rows . Count}] ...." );
 				}
 			}
 			catch ( Exception ex )
@@ -200,7 +200,7 @@ namespace WPFPages . Views
 			catch ( Exception ex )
 			{
 				Console . WriteLine ($"CUSTOMERS : ERROR {ex . Message} + {ex . Data} ...." );
-				MessageBox . Show ( $"CUSTOMERS : ERROR {ex.Message} + {ex.Data} ...." );
+				MessageBox . Show ( $"CUSTOMERS : ERROR :\n		Error was  : [{ex.Message}] ...." );
 			}
 			if ( Notify )
 				OnCustDataLoaded ( Custcollection );
@@ -215,15 +215,22 @@ namespace WPFPages . Views
 		{
 			if ( o == Custcollection && CustDataLoaded == null && Flags . CurrentSqlViewer != null)
 				CustDataLoaded += Flags . CurrentSqlViewer . SqlDbViewer_DataLoaded;
-			MultiViewer mv = new MultiViewer();
-			CustDataLoaded += mv . MultiViewer_DataLoaded;
-
+			if ( Flags . MultiViewer != null )
+			{
+				MultiViewer mv = new MultiViewer();
+				CustDataLoaded += mv . MultiViewer_DataLoaded;
+			}
 		}
 
 		public static void UnSubscribeToLoadedEvent ( object o )
 		{
-			if ( CustDataLoaded != null )
+			if ( o == Custcollection && CustDataLoaded == null && Flags . CurrentSqlViewer != null )
 				CustDataLoaded -= Flags . CurrentSqlViewer . SqlDbViewer_DataLoaded;
+			if ( Flags . MultiViewer != null )
+			{
+				MultiViewer mv = new MultiViewer();
+				CustDataLoaded -= mv . MultiViewer_DataLoaded;
+			}
 		}
 
 		#endregion Event Subscription handlers

@@ -46,6 +46,7 @@ namespace WPFPages . Views
 				result = 8;
 			else if ( checkBox9 . IsChecked == true )
 				result = 9;
+			// Store resuolt in local variable in Viewer itself
 			SqlDbViewer.DelegateSelection = result;
 			this . DialogResult = true;
 			Close ( );
@@ -55,6 +56,20 @@ namespace WPFPages . Views
 		{
 			DialogResult = false;
 			Close ( );
+		}
+
+		private void SelectDelegate_PreviewKeyUp ( object sender , KeyEventArgs e )
+		{
+			if ( e . Key == Key . Enter )
+			{
+				DialogResult = true;
+				Close ( );
+			}
+			if ( e . Key == Key . Escape )
+			{
+				DialogResult = false;
+				Close ( );
+			}
 		}
 	}
 }

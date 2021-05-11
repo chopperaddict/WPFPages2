@@ -6,11 +6,17 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:WPFPages.Views"
         mc:Ignorable="d"
+	Closing="Window_Closing"
 	  Loaded="Window_Loaded"
-	  PreviewKeyDown="Window_PreviewKeyDown"
+	MinHeight="400"
+	MinWidth="700"  
+	PreviewKeyDown="Window_PreviewKeyDown"
         Title="MultiViewer" Height="850" Width="1000">
+	
 	<Window.Resources>
-	<!--<local:DateOnlyConverter x:Key="dateOnlyConverter"/>-->
+		
+	
+		<!--<local:DateOnlyConverter x:Key="dateOnlyConverter"/>-->
 		<Style x:Key="HeaderStyleBlue" TargetType="DataGridColumnHeader">
 			<Setter Property="Background" Value="{StaticResource HeaderBrushBlue}" />
 			<Setter Property="Foreground" Value="White" />
@@ -60,19 +66,22 @@
 				</Trigger>
 			</Style.Triggers>
 		</Style>
+
+
 	</Window.Resources>
 	<Grid>
 		<Grid.RowDefinitions>
 			<RowDefinition Height=" 15"/>
+			<RowDefinition Height=" 45"/>
 			<RowDefinition Height=" *"/>
 			<RowDefinition Height=" *"/>
 			<RowDefinition Height=" *"/>
 			<RowDefinition Height=" 15"/>
 		</Grid.RowDefinitions>
 		<Grid.ColumnDefinitions>
-			<ColumnDefinition Width="10"/>
+			<ColumnDefinition Width="20"/>
 			<ColumnDefinition Width="*"/>
-			<ColumnDefinition Width="10"/>
+			<ColumnDefinition Width="20"/>
 		</Grid.ColumnDefinitions>
 		<Grid.Background>
 			<!--create an elegant left to right light-> Dark gradient as a background-->
@@ -81,166 +90,498 @@
 				<GradientStop Color="LightGray" Offset="0.97" />
 			</LinearGradientBrush>
 		</Grid.Background>
+		<!--<StackPanel
+			Orientation="Vertical"
+			Grid.Column="1"
+			Grid.Row="1"
+			HorizontalAlignment="Stretch"
+			VerticalAlignment="Stretch"
+			>-->
+		<StackPanel
+			Grid.Row="1"
+			Grid.Column="1"
+			Orientation="Horizontal"
+			HorizontalAlignment="Right"
+			>
+			<Button  
+					x:Name="DetailsBtn"
+					Height="40"
+					Width="150"
+					Margin="10,0"
+					Style="{StaticResource RedToBlackButton}"				
+				Click="Details_Click"				
+					>
+				<StackPanel Orientation="Horizontal" 
+							HorizontalAlignment="Center"
+							VerticalAlignment="Center">
+					<TextBlock FontFamily="Wingdings" 
+								Text="ü"
+									Style="{StaticResource WingDingStyle}" />
+					<TextBlock Text="Multi Accounts" 
+								HorizontalAlignment="Center"
+								VerticalAlignment="Center" 
+									Style="{StaticResource WingDingStyle}"
+								FontSize="12"/>
+				</StackPanel>
+			</Button>
+
+			<Button  
+					x:Name="FilterBtn"
+					Height="40"
+					Width="120"
+					Margin="10,0"
+					Style="{StaticResource RedToBlackButton}"				
+					Click="Filter_Click"				
+					>
+				<StackPanel Orientation="Horizontal" 
+							HorizontalAlignment="Center"
+							VerticalAlignment="Center">
+					<TextBlock FontFamily="Wingdings" 
+								Text="ü"
+									Style="{StaticResource WingDingStyle}" />
+					<TextBlock Text="Filter" 
+								HorizontalAlignment="Center"
+								VerticalAlignment="Center" 
+									Style="{StaticResource WingDingStyle}"
+								FontSize="12"/>
+				</StackPanel>
+			</Button>
+
+			<Button  
+					x:Name="CloseBtn"
+					Height="40"
+					Width="120"
+					Margin="10,0"
+					Style="{StaticResource RedToBlackButton}"				
+				Click="Close_Click"				
+					>
+				<StackPanel Orientation="Horizontal" 
+							HorizontalAlignment="Center"
+							VerticalAlignment="Center">
+					<TextBlock FontFamily="Wingdings" 
+								Text="ü"
+									Style="{StaticResource WingDingStyle}" />
+					<TextBlock Text="Close" 
+								HorizontalAlignment="Center"
+								VerticalAlignment="Center" 
+									Style="{StaticResource WingDingStyle}"
+								FontSize="12"/>
+				</StackPanel>
+			</Button>
+
+		</StackPanel>
 
 		<DataGrid x:Name="BankGrid"
 				AlternatingRowBackground="{StaticResource Blue4}"
 				AutoGenerateColumns="False"
 				ColumnHeaderStyle ="{StaticResource HeaderStyleBlue}"
 				GotFocus="BankGrid_GotFocus"
+				Grid.Row="2"
 				Grid.Column="1"
-			     Grid.Row="1" 
-				Height="230" 
-				HorizontalAlignment="Left" Margin="0,17,0,16" Width="839" 
+				HorizontalAlignment="Stretch" 
+				IsSynchronizedWithCurrentItem="True"
+				Margin="0,10,0,0"
+				Padding="10"
 				RowEditEnding="ViewerGrid_RowEditEnding"
+				ScrollViewer.ScrollChanged="BankGrid_ScrollChanged"
 			      SelectionChanged="BankGrid_SelectionChanged"
+				SelectionMode="Single"
 				SelectionUnit="FullRow"
 				VerticalAlignment="Stretch"
-			    >
-		<!--#region bankfields-->
-			<DataGrid.Columns >
-				<DataGridTemplateColumn Header="Id" Width="40"
+				VerticalGridLinesBrush="{StaticResource Blue2}"	   
+				Visibility="Visible"
+				    >
+				<DataGrid.Resources>
+				<SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightBrushKey}" Color="#CCFAFB"/>
+					<Style TargetType="DataGridCell">
+						<Style.Triggers>
+							<Trigger Property="DataGridCell.IsSelected" Value="True">
+							<Setter Property="FontWeight" Value="SemiBold" />
+							<Setter Property="Foreground" Value="Black" />
+							<Setter Property="Background" Value="#6578FD" />
+							</Trigger>
+						</Style.Triggers>
+					</Style>
+				</DataGrid.Resources>
+
+				<!--#region bankfields-->
+				<DataGrid.Columns >
+					<DataGridTemplateColumn Header="Id" Width="40"
 									x:Name="ID"
 									    SortMemberPath="Id" >
-					<DataGridTemplateColumn.CellTemplate >
-						<DataTemplate >
-							<TextBlock 
+						<DataGridTemplateColumn.CellTemplate >
+							<DataTemplate >
+								<TextBlock 
 									Text="{Binding Id}"
 									HorizontalAlignment="Center"
 									VerticalAlignment="Top"/>
-						</DataTemplate >
-					</DataGridTemplateColumn.CellTemplate>
-				</DataGridTemplateColumn >
+							</DataTemplate >
+						</DataGridTemplateColumn.CellTemplate>
+					</DataGridTemplateColumn >
 
-				<DataGridTextColumn Header="Bank #" Width="80" 
+					<DataGridTextColumn Header="Bank #" Width="80" 
 								    SortMemberPath="BankNo"
 									Binding ="{Binding BankNo, 
 									Mode=TwoWay, 
 									UpdateSourceTrigger=LostFocus}"
 									>
-				</DataGridTextColumn>
+					</DataGridTextColumn>
 
-				<DataGridTextColumn Header="Customer #" Binding="{Binding CustNo, 
+					<DataGridTextColumn Header="Customer #" Binding="{Binding CustNo, 
 									Mode=TwoWay, 
 									UpdateSourceTrigger=PropertyChanged}">
-				</DataGridTextColumn>
+					</DataGridTextColumn>
 
 
-				<DataGridTextColumn Header="Type" Width="40" 
+					<DataGridTextColumn Header="Type" Width="40" 
 								    SortMemberPath="AcType"
 									Binding="{Binding AcType, 
 									Mode=TwoWay, 
 									UpdateSourceTrigger=LostFocus}"/>
 
-				<DataGridTextColumn Header="Balance" Width="90" 
+					<DataGridTextColumn Header="Balance" Width="90" 
 									SortMemberPath="Balance"									
 									Binding="{Binding Balance, 
 									Mode=TwoWay, 
 									UpdateSourceTrigger=LostFocus,
 									StringFormat='£ ##,###,###.00'}"/>
 
-				<!--<DataGridTemplateColumn Header="IntRate" Width="50">
-						<DataGridTemplateColumn.CellTemplate>
-							<DataTemplate>
-								<TextBlock Text="{Binding IntRate, StringFormat='#.##', Mode=TwoWay, 
-									UpdateSourceTrigger=LostFocus}" 										   
-								   HorizontalAlignment="Center"
-										   VerticalAlignment="Top"/>
-							</DataTemplate>
-						</DataGridTemplateColumn.CellTemplate>
-						<DataGridTemplateColumn.CellEditingTemplate>
-							<DataTemplate>
-								<TextBox Text="{Binding IntRate}"/>
-							</DataTemplate>
-						</DataGridTemplateColumn.CellEditingTemplate>
-					</DataGridTemplateColumn>-->
-
-				<DataGridTextColumn Header="Interest" Width="60" 
+					<DataGridTextColumn Header="Interest" Width="60" 
 									SortMemberPath="IntRate"
 									Binding="{Binding IntRate, Mode=TwoWay, 
 									UpdateSourceTrigger=LostFocus,
 									StringFormat='0.00'}"/>
-				<!--CellStyle="{StaticResource CenterText}"-->
+					<!--CellStyle="{StaticResource CenterText}"-->
 
-				<!--the next 2 show 2 ways to format a date - 1 a Converter the other a direct Format string-->
-				<DataGridTemplateColumn Header="Open Date" Width="80" SortMemberPath="ODate">
-					<DataGridTemplateColumn.CellTemplate>
-						<DataTemplate>
-							<TextBlock Text="{Binding Path=ODate}"
+					<!--the next 2 show 2 ways to format a date - 1 a Converter the other a direct Format string-->
+					<DataGridTemplateColumn Header="Open Date" Width="80" SortMemberPath="ODate">
+						<DataGridTemplateColumn.CellTemplate>
+							<DataTemplate>
+								<TextBlock Text="{Binding Path=ODate,
+								StringFormat='dd/MM/yyyy'}"  	 									
 								     HorizontalAlignment="Center"
 									VerticalAlignment="Top"/>
-						</DataTemplate>
-					</DataGridTemplateColumn.CellTemplate>
-					<DataGridTemplateColumn.CellEditingTemplate>
-						<DataTemplate>
-							<DatePicker SelectedDate="{Binding Path=ODate, 
+							</DataTemplate>
+						</DataGridTemplateColumn.CellTemplate>
+						<DataGridTemplateColumn.CellEditingTemplate>
+							<DataTemplate>
+								<DatePicker SelectedDate="{Binding Path=ODate, 
+								StringFormat='dd/MM/yyyy',
 									Mode=TwoWay, 
 									UpdateSourceTrigger=PropertyChanged}">
-							</DatePicker>
-						</DataTemplate>
-					</DataGridTemplateColumn.CellEditingTemplate>
-				</DataGridTemplateColumn>
+								</DatePicker>
+							</DataTemplate>
+						</DataGridTemplateColumn.CellEditingTemplate>
+					</DataGridTemplateColumn>
 
-				<DataGridTemplateColumn Header="Close Date" Width="80" SortMemberPath="CDate">
-					<DataGridTemplateColumn.CellTemplate>
-						<DataTemplate>
-							<TextBlock Text="{Binding Path=CDate, 
+					<DataGridTemplateColumn Header="Close Date" Width="80" SortMemberPath="CDate">
+						<DataGridTemplateColumn.CellTemplate>
+							<DataTemplate>
+								<TextBlock Text="{Binding Path=CDate, 
 									StringFormat='dd/MM/yyyy'}"
 									HorizontalAlignment="Center"
 									VerticalAlignment="Top"/>
-						</DataTemplate>
-					</DataGridTemplateColumn.CellTemplate>
-					<DataGridTemplateColumn.CellEditingTemplate>
-						<DataTemplate>
-							<DatePicker SelectedDate="{Binding Path=CDate, 
+							</DataTemplate>
+						</DataGridTemplateColumn.CellTemplate>
+						<DataGridTemplateColumn.CellEditingTemplate>
+							<DataTemplate>
+								<DatePicker SelectedDate="{Binding Path=CDate, 
+								StringFormat='dd/MM/yyyy',
 									Mode=TwoWay, 
 									UpdateSourceTrigger=PropertyChanged}"/>
-						</DataTemplate>
-					</DataGridTemplateColumn.CellEditingTemplate>
-				</DataGridTemplateColumn>
+							</DataTemplate>
+						</DataGridTemplateColumn.CellEditingTemplate>
+					</DataGridTemplateColumn>
 
-			</DataGrid.Columns>
-			<!--#endregion bankfields-->
-		</DataGrid>
+				</DataGrid.Columns>
+				<!--#endregion bankfields-->
 
-		<Button
-			Click="Button_Click"
-			Content="Details"
-			Grid.Row="1"
-			Grid.Column="1"
-			HorizontalAlignment="Right"			
-			Height="65"
-			Width="120"
-			/>
+			</DataGrid>
 
-
-
-		<DataGrid x:Name="CustomerGrid"
-				AlternatingRowBackground="{StaticResource Yellow4}"
-				AutoGenerateColumns="True"
+			<DataGrid x:Name="CustomerGrid"
+				AlternatingRowBackground="{StaticResource Yellow2}"
+				AutoGenerateColumns="False"
 				ColumnHeaderStyle ="{StaticResource HeaderStyleYellow}"
 				GotFocus="CustomerGrid_GotFocus"
-			    Grid.Column="1"
-				Grid.Row="2" 
-				Height="230" 
+				Grid.Row="3"
+				Grid.Column="1"
+				IsSynchronizedWithCurrentItem="True"
+				Margin="0,10,0,0"
+				Padding="10"
 				RowEditEnding="ViewerGrid_RowEditEnding"
+				ScrollViewer.ScrollChanged="BankGrid_ScrollChanged"
+			      SelectionChanged="BankGrid_SelectionChanged"
+				SelectionMode="Single"
 				SelectionUnit="FullRow"
 				VerticalAlignment="Stretch"
+				VerticalContentAlignment="Stretch"
 				HorizontalAlignment="Stretch"
-			    />
+				VerticalGridLinesBrush="{StaticResource Yellow0}"
+				Visibility="Visible"
+				    >
+			<DataGrid.Resources>
+				<SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightBrushKey}" Color="#FACF8A"/>
+				<Style TargetType="DataGridRow">					
+					<Style.Triggers>
+						<Trigger Property="DataGridCell.IsSelected" Value="True">
+							<Setter Property="FontWeight" Value="SemiBold" />
+							<Setter Property="Foreground" Value="Black" />
+							<Setter Property="Background" Value="Yellow" />
+						</Trigger>
+					</Style.Triggers>
+						</Style>
+			</DataGrid.Resources>
 
-		<DataGrid  x:Name="DetailsGrid"
+					<!--#region Customer fields-->
+				<DataGrid.Columns >
+					<DataGridTemplateColumn Header="Id" Width="40"
+									    SortMemberPath="Id" >
+						<DataGridTemplateColumn.CellTemplate >
+							<DataTemplate >
+								<TextBlock 
+									Text="{Binding Id}"
+									HorizontalAlignment="Center"
+									VerticalAlignment="Top"/>
+							</DataTemplate >
+						</DataGridTemplateColumn.CellTemplate>
+					</DataGridTemplateColumn >
+
+					<DataGridTextColumn Header="Bank #" Width="80" 
+								    SortMemberPath="BankNo"
+									Binding ="{Binding BankNo, 
+									Mode=TwoWay, 
+									UpdateSourceTrigger=LostFocus}"
+									>
+					</DataGridTextColumn>
+
+					<DataGridTextColumn Header="Customer #" Binding="{Binding CustNo, 
+									Mode=TwoWay, 
+									UpdateSourceTrigger=PropertyChanged}">
+					</DataGridTextColumn>
+
+					<DataGridTextColumn Header="Forename" Binding="{Binding FName, 
+									Mode=TwoWay, 
+									UpdateSourceTrigger=PropertyChanged}">
+					</DataGridTextColumn>
+
+					<DataGridTextColumn Header="Surname" Binding="{Binding LName, 
+									Mode=TwoWay, 
+									UpdateSourceTrigger=PropertyChanged}">
+					</DataGridTextColumn>
+
+					<DataGridTextColumn Header="Address 1" Binding="{Binding Addr1, 
+									Mode=TwoWay, 
+									UpdateSourceTrigger=PropertyChanged}">
+					</DataGridTextColumn>
+
+					<DataGridTextColumn Header="Address 2" Binding="{Binding Addr2, 
+									Mode=TwoWay, 
+									UpdateSourceTrigger=PropertyChanged}">
+					</DataGridTextColumn>
+
+
+					<DataGridTextColumn Header="Town" Binding="{Binding Town, 
+									Mode=TwoWay, 
+									UpdateSourceTrigger=PropertyChanged}">
+					</DataGridTextColumn>
+
+					<DataGridTextColumn Header="County" Binding="{Binding County, 
+									Mode=TwoWay, 
+									UpdateSourceTrigger=PropertyChanged}">
+					</DataGridTextColumn>
+
+					<DataGridTextColumn Header="Post Code" Binding="{Binding PCode, 
+									Mode=TwoWay, 
+									UpdateSourceTrigger=PropertyChanged}">
+					</DataGridTextColumn>
+
+
+					<DataGridTextColumn Header="Type" Width="40" 
+								    SortMemberPath="AcType"
+									Binding="{Binding AcType, 
+									Mode=TwoWay, 
+									UpdateSourceTrigger=LostFocus}"/>
+
+
+					<!--the next 2 show 2 ways to format a date - 1 a Converter the other a direct Format string-->
+					<DataGridTemplateColumn Header="Open Date" Width="80" SortMemberPath="ODate">
+						<DataGridTemplateColumn.CellTemplate>
+							<DataTemplate>
+								<TextBlock Text="{Binding Path=ODate,
+								StringFormat='dd/MM/yyyy'}"  	 									
+								     HorizontalAlignment="Center"
+									VerticalAlignment="Top"/>
+							</DataTemplate>
+						</DataGridTemplateColumn.CellTemplate>
+						<DataGridTemplateColumn.CellEditingTemplate>
+							<DataTemplate>
+								<DatePicker SelectedDate="{Binding Path=ODate, 
+								StringFormat='dd/MM/yyyy',
+									Mode=TwoWay, 
+									UpdateSourceTrigger=PropertyChanged}">
+								</DatePicker>
+							</DataTemplate>
+						</DataGridTemplateColumn.CellEditingTemplate>
+					</DataGridTemplateColumn>
+
+					<DataGridTemplateColumn Header="Close Date" Width="80" SortMemberPath="CDate">
+						<DataGridTemplateColumn.CellTemplate>
+							<DataTemplate>
+								<TextBlock Text="{Binding Path=CDate, 
+									StringFormat='dd/MM/yyyy'}"
+									HorizontalAlignment="Center"
+									VerticalAlignment="Top"/>
+							</DataTemplate>
+						</DataGridTemplateColumn.CellTemplate>
+						<DataGridTemplateColumn.CellEditingTemplate>
+							<DataTemplate>
+								<DatePicker SelectedDate="{Binding Path=CDate, 
+								StringFormat='dd/MM/yyyy',
+									Mode=TwoWay, 
+									UpdateSourceTrigger=PropertyChanged}"/>
+							</DataTemplate>
+						</DataGridTemplateColumn.CellEditingTemplate>
+					</DataGridTemplateColumn>
+
+				</DataGrid.Columns>
+				<!--#endregion Customer fields-->
+
+			</DataGrid>
+
+			<DataGrid  x:Name="DetailsGrid"
 				AlternatingRowBackground="{StaticResource Green4}"
-				AutoGenerateColumns="True"
+				AutoGenerateColumns="False"
 				ColumnHeaderStyle ="{StaticResource HeaderStyleGreen}"
 				GotFocus="DetailsGrid_GotFocus"
+				Grid.Row="4"
 				Grid.Column="1"
-				Grid.Row="3" 
-				Height="230" 
 				HorizontalAlignment="Stretch" 
+				IsSynchronizedWithCurrentItem="True"
+				Margin="0,10,0,0"
+				Padding="10"
 				RowEditEnding="ViewerGrid_RowEditEnding"
+				ScrollViewer.ScrollChanged="BankGrid_ScrollChanged"
+			      SelectionChanged="BankGrid_SelectionChanged"
+				SelectionMode="Single"
 				SelectionUnit="FullRow"
 				VerticalAlignment="Stretch"
-			     />
+				VerticalGridLinesBrush="{StaticResource Green2}"
+				Visibility="Visible"
+			     >
+				<DataGrid.Resources>
+					<SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightBrushKey}" Color="#79FF59"/>
+				<Style TargetType="DataGridCell">
+					<Setter Property="Foreground" Value="Black" />
+					<Setter Property="Background" Value="{StaticResource Green4}" />
+					<Style.Triggers>
+						<!--<Trigger Property="DataGridCell.Focusable" Value="True">-->
+							<Trigger Property="DataGridCell.IsSelected" Value="True">
+							<Setter Property="Foreground" Value="Black" />
+							<Setter Property="FontWeight" Value="SemiBold" />
+							<Setter Property="Background" Value="limeGreen" />
+						</Trigger>
+						<!--<Trigger Property="DataGridCell.IsSelected" Value="False">
+							<Setter Property="Foreground" Value="Black" />
+							<Setter Property="Background" Value="{StaticResource Green4}" />
+						</Trigger>-->
+					</Style.Triggers>
+				</Style>
+			</DataGrid.Resources>
 
+				<!--#region Details fields-->
+				<DataGrid.Columns >
+					<DataGridTemplateColumn Header="Id" Width="40"
+									    SortMemberPath="Id" >
+						<DataGridTemplateColumn.CellTemplate >
+							<DataTemplate >
+								<TextBlock 
+									Text="{Binding Id}"
+									HorizontalAlignment="Center"
+									VerticalAlignment="Top"/>
+							</DataTemplate >
+						</DataGridTemplateColumn.CellTemplate>
+					</DataGridTemplateColumn >
+
+					<DataGridTextColumn Header="Bank #" Width="80" 
+								    SortMemberPath="BankNo"
+									Binding ="{Binding BankNo, 
+									Mode=TwoWay, 
+									UpdateSourceTrigger=LostFocus}"
+									>
+					</DataGridTextColumn>
+
+					<DataGridTextColumn Header="Customer #" Binding="{Binding CustNo, 
+									Mode=TwoWay, 
+									UpdateSourceTrigger=PropertyChanged}">
+					</DataGridTextColumn>
+
+
+					<DataGridTextColumn Header="Type" Width="40" 
+								    SortMemberPath="AcType"
+									Binding="{Binding AcType, 
+									Mode=TwoWay, 
+									UpdateSourceTrigger=LostFocus}"/>
+
+					<DataGridTextColumn Header="Balance" Width="90" 
+									SortMemberPath="Balance"									
+									Binding="{Binding Balance, 
+									Mode=TwoWay, 
+									UpdateSourceTrigger=LostFocus,
+									StringFormat='£ ##,###,###.00'}"/>
+
+					<DataGridTextColumn Header="Interest" Width="60" 
+									SortMemberPath="IntRate"
+									Binding="{Binding IntRate, Mode=TwoWay, 
+									UpdateSourceTrigger=LostFocus,
+									StringFormat='0.00'}"/>
+					<!--CellStyle="{StaticResource CenterText}"-->
+
+					<!--the next 2 show 2 ways to format a date - 1 a Converter the other a direct Format string-->
+					<DataGridTemplateColumn Header="Open Date" Width="80" SortMemberPath="ODate">
+						<DataGridTemplateColumn.CellTemplate>
+							<DataTemplate>
+								<TextBlock Text="{Binding Path=ODate,
+								StringFormat='dd/MM/yyyy'}"  	 									
+								     HorizontalAlignment="Center"
+									VerticalAlignment="Top"/>
+							</DataTemplate>
+						</DataGridTemplateColumn.CellTemplate>
+						<DataGridTemplateColumn.CellEditingTemplate>
+							<DataTemplate>
+								<DatePicker SelectedDate="{Binding Path=ODate, 
+								StringFormat='dd/MM/yyyy',
+									Mode=TwoWay, 
+									UpdateSourceTrigger=PropertyChanged}">
+								</DatePicker>
+							</DataTemplate>
+						</DataGridTemplateColumn.CellEditingTemplate>
+					</DataGridTemplateColumn>
+
+					<DataGridTemplateColumn Header="Close Date" Width="80" SortMemberPath="CDate">
+						<DataGridTemplateColumn.CellTemplate>
+							<DataTemplate>
+								<TextBlock Text="{Binding Path=CDate, 
+									StringFormat='dd/MM/yyyy'}"
+									HorizontalAlignment="Center"
+									VerticalAlignment="Top"/>
+							</DataTemplate>
+						</DataGridTemplateColumn.CellTemplate>
+						<DataGridTemplateColumn.CellEditingTemplate>
+							<DataTemplate>
+								<DatePicker SelectedDate="{Binding Path=CDate, 
+								StringFormat='dd/MM/yyyy',
+									Mode=TwoWay, 
+									UpdateSourceTrigger=PropertyChanged}"/>
+							</DataTemplate>
+						</DataGridTemplateColumn.CellEditingTemplate>
+					</DataGridTemplateColumn>
+
+				</DataGrid.Columns>
+				<!--#endregion Details fields-->
+
+			</DataGrid>
+
+	
+		<!--</StackPanel>-->
 	</Grid>
 </Window>

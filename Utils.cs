@@ -24,10 +24,12 @@ namespace WPFPages
 	public class Utils
 	{
 
-		public static void ScrollRecordIntoView ( DataGrid Dgrid )
+		public static void ScrollRecordIntoView ( DataGrid Dgrid , int caller)
 		{
 			double currentTop = 0;
 			double currentBottom= 0;
+			double currsel = 0;
+			double offset = 0;
 			if ( Dgrid . Name == "CustomerGrid" )
 			{
 				currentTop = Flags . TopVisibleDetGridRow;
@@ -43,15 +45,22 @@ namespace WPFPages
 				currentTop = Flags . TopVisibleDetGridRow;
 				currentBottom = Flags . BottomVisibleDetGridRow;
 			}     // Believe it or not, it takes all this to force a scrollinto view correctly
+
+			currsel = Dgrid . SelectedIndex;
+
 			if ( Dgrid == null || Dgrid . Items . Count == 0 || Dgrid . SelectedItem == null ) return;
+
+			if ( Dgrid . SelectedItem == null ) return;
+			Dgrid . SelectedIndex = Dgrid.SelectedIndex + (int)offset;
+			//update and scroll to bottom first
 			Dgrid . UpdateLayout ( );
 			Dgrid . ScrollIntoView ( Dgrid . Items . Count - 1 );
 			Dgrid . UpdateLayout ( );
-			if ( Dgrid . SelectedItem != null )
-				Dgrid . ScrollIntoView ( Dgrid . SelectedItem );
+			Dgrid . ScrollIntoView ( Dgrid . SelectedItem);
 			Dgrid . UpdateLayout ( );
-			
-			Flags.CurrentSqlViewer.SetScrollVariables ( Dgrid);
+			Dgrid . SelectedIndex = (int)currsel;
+			if ( caller == 0)
+				Flags.CurrentSqlViewer.SetScrollVariables ( Dgrid);
 
 //			Flags . TopVisibleDetGridRow = currentTop;
 //			Flags . BottomVisibleDetGridRow = currentBottom;

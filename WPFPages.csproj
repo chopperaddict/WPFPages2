@@ -84,6 +84,7 @@
     <Compile Include="Views\DetCollection.cs" />
     <Compile Include="DateOnlyConverter.cs" />
     <Compile Include="SalaryConvertor.cs" />
+    <Compile Include="Views\Filtering.cs" />
     <Compile Include="Views\GridViewer.cs" />
     <Compile Include="Views\DataGridSupport.cs" />
     <Compile Include="SQLDbSupport.cs" />

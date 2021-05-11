@@ -1029,9 +1029,15 @@ namespace WPFPages . Views
 
 		private void MultiViewer_Click ( object sender , RoutedEventArgs e )
 		{
-			MultiViewer mv = new MultiViewer ( );
-
-			mv . Show ( );
+			if ( Flags . CurrentSqlViewer == null )
+			{
+				MultiViewer mv = new MultiViewer ( );
+				mv . Show ( );
+			}
+			else
+			{
+				MessageBox.Show($"Please close ALL open Db Viewers before openking the MultiViewer", "Data Conflict Warning");
+			}
 		}
 
 		private void Window_KeyDown ( object sender , KeyEventArgs e )
@@ -1328,7 +1334,7 @@ namespace WPFPages . Views
 			try
 			{
 				DetCollection dc = new DetCollection();
-				await dc. LoadDetailsTaskInSortOrderAsync ( 0, true );
+				await dc. LoadDetailsTaskInSortOrderAsync ( true , 0);
 				//				await dvm . LoadDetailsTaskInSortOrderAsync ( true, 0 );
 				//List<Task<bool>> tasks = new List<Task<bool>> ( );
 				//tasks . Add ( dvm . LoadDetailsTaskInSortOrderAsync ( true, 0 ) );

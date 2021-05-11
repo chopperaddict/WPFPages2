@@ -37,7 +37,7 @@
 
 	<SolidColorBrush x:Key="Yellow0" Color="Gold" />
 	<SolidColorBrush x:Key="Yellow1" Color="#F3F932" />
-	<SolidColorBrush x:Key="Yellow2" Color="#FCFEC8" />
+	<SolidColorBrush x:Key="Yellow2" Color="#dCFEC8" />
 	<SolidColorBrush x:Key="Yellow3" Color="#FAFBD8" />
 	<SolidColorBrush x:Key="Yellow4" Color="#FBFBF6" />
 

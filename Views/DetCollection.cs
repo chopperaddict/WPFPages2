@@ -31,12 +31,12 @@ namespace WPFPages . Views
 		public   static event EventHandler<LoadedEventArgs> DetDataLoaded;
 
 		//-------------------------------------------------------------------------------------------------------------------------------------------------//
-		private static void OnDetDataLoaded ( DetCollection dtdata , int row)
+		private static void OnDetDataLoaded ( DetCollection dtdata , int row )
 		{
 			if ( DetDataLoaded != null )
 			{
 				Console . WriteLine ( $"DETAILS : Broadcasting DATA LOADED NOTIFICATION from OnDetDataLoaded" );
-				DetDataLoaded?.Invoke ( dtdata , new LoadedEventArgs ( ) { DataSource = dtdata , CallerDb = "DETAILS", CurrSelection = row } );
+				DetDataLoaded?.Invoke ( dtdata , new LoadedEventArgs ( ) { DataSource = dtdata , CallerDb = "DETAILS" , CurrSelection = row } );
 			}
 		}
 
@@ -60,7 +60,7 @@ namespace WPFPages . Views
 		CancellationTokenSource  cts = new CancellationTokenSource();
 
 		//**************************************************************************************************************************************************************//
-		public async Task<DetCollection> LoadDetailsTaskInSortOrderAsync (  int row, bool b = false )
+		public async Task<DetCollection> LoadDetailsTaskInSortOrderAsync ( bool b = false , int row = 0 )
 		{
 			if ( dtDetails . Rows . Count > 0 )
 				dtDetails . Clear ( );
@@ -70,16 +70,16 @@ namespace WPFPages . Views
 
 			// This all woks just fine, and DOES switch back to UI thread that is MANDATORY before doing the Collection load processing
 			// thanks to the use of TaskScheduler.FromCurrentSynchronizationContext() that oerforms the magic switch back to the UI thread
-			Console . WriteLine ( $"DETAILS : Entering Method to call Task.Run in DetCollection  : Thread = { Thread . CurrentThread . ManagedThreadId}" );
+			//			Console . WriteLine ( $"DETAILS : Entering Method to call Task.Run in DetCollection  : Thread = { Thread . CurrentThread . ManagedThreadId}" );
 
 			#region process code to load data
 
 			Task t1 = Task . Run(
 					async ( ) =>
 						{
-							Console . WriteLine ( $"Before starting initial Task.Run() : Thread = { Thread . CurrentThread . ManagedThreadId}" );
-							await LoadDetailsDataSql();
-							Console . WriteLine ( $"After initial Task.Run() : Thread = { Thread . CurrentThread . ManagedThreadId}" );
+//							Console . WriteLine ( $"Before starting initial Task.Run() : Thread = { Thread . CurrentThread . ManagedThreadId}" );
+							await LoadDetailsDataSql(b);
+//							Console . WriteLine ( $"After initial Task.Run() : Thread = { Thread . CurrentThread . ManagedThreadId}" );
 						}
 				);
 			t1 . ContinueWith
@@ -87,11 +87,11 @@ namespace WPFPages . Views
 				async ( Detcollection ) =>
 				{
 					Console . WriteLine ( $"Before starting second Task.Run() : Thread = { Thread . CurrentThread . ManagedThreadId}" );
-					await LoadDetCollection (row, b );
+					await LoadDetCollection ( row , b );
 				} , TaskScheduler . FromCurrentSynchronizationContext ( )
 			 );
-			Console . WriteLine ( $"After second Task.Run() : Thread = { Thread . CurrentThread . ManagedThreadId}" );
-			
+			//			Console . WriteLine ( $"After second Task.Run() : Thread = { Thread . CurrentThread . ManagedThreadId}" );
+
 			#endregion process code to load data
 
 			#region Success//Error reporting/handling
@@ -101,7 +101,7 @@ namespace WPFPages . Views
 			t1 . ContinueWith (
 				( Detcollection ) =>
 				{
-					Console . WriteLine ( $"DetCollection : Task.Run() Completed : Status was [ {Detcollection . Status} ]." );
+					Console . WriteLine ( $"DETAILS : Task.Run() Completed : Status was [ {Detcollection . Status} ]." );
 				} , CancellationToken . None , TaskContinuationOptions . OnlyOnRanToCompletion , TaskScheduler . FromCurrentSynchronizationContext ( )
 			);
 			//This will iterate through ALL of the Exceptions that may have occured in the previous Tasks
@@ -115,14 +115,14 @@ namespace WPFPages . Views
 					{
 						Console . WriteLine ( $"DetCollection : Exception : {item . Message}, : {item . Data}" );
 					}
-				} , CancellationToken . None , TaskContinuationOptions.NotOnRanToCompletion, TaskScheduler . FromCurrentSynchronizationContext ( )
+				} , CancellationToken . None , TaskContinuationOptions . NotOnRanToCompletion , TaskScheduler . FromCurrentSynchronizationContext ( )
 			);
 
-			Console . WriteLine ($"DETAILS : END OF PROCESSING & Error checking functionality\nDETAILS : *** Detcollection total = {Detcollection.Count} ***\n\n");
+			//			Console . WriteLine ($"DETAILS : END OF PROCESSING & Error checking functionality\nDETAILS : *** Detcollection total = {Detcollection.Count} ***\n\n");
 			#endregion Success//Error reporting/handling
 
 			return Detcollection;
-	}
+		}
 
 		/// Handles the actual conneciton ot SQL to load the Details Db data required
 		/// </summary>
@@ -177,7 +177,7 @@ namespace WPFPages . Views
 		}
 
 		//**************************************************************************************************************************************************************//
-		public static async Task<DetCollection> LoadDetCollection (int row, bool Notify = true )
+		public static async Task<DetCollection> LoadDetCollection ( int row , bool Notify = true )
 		{
 			int count = 0;
 			try
@@ -198,8 +198,8 @@ namespace WPFPages . Views
 					count = i;
 				}
 				Console . WriteLine ( $"DETAILS : Sql data loaded into Details ObservableCollection \"DetCollection\" [{count}] ...." );
-				if(Notify)
-					OnDetDataLoaded ( Detcollection , row);
+				if ( Notify )
+					OnDetDataLoaded ( Detcollection , row );
 				return Detcollection;
 			}
 			catch ( Exception ex )
@@ -220,19 +220,24 @@ namespace WPFPages . Views
 		{
 			if ( o == Detcollection && DetDataLoaded == null )
 			{
-				if( Flags . CurrentSqlViewer != null)
-				DetDataLoaded += Flags . CurrentSqlViewer . SqlDbViewer_DataLoaded;
-				MultiViewer mv = new MultiViewer();
-				DetDataLoaded += mv. MultiViewer_DataLoaded;
+				if ( Flags . CurrentSqlViewer != null )
+					DetDataLoaded += Flags . CurrentSqlViewer . SqlDbViewer_DataLoaded;
+				if ( Flags . MultiViewer != null )
+				{
+					MultiViewer mv = new MultiViewer();
+					DetDataLoaded += mv . MultiViewer_DataLoaded;
+				}
 			}
 		}
 
 		public static void UnSubscribeToLoadedEvent ( object o )
 		{
-			if ( DetDataLoaded != null ) { 
+			if ( o == Detcollection && DetDataLoaded == null )
 				DetDataLoaded -= Flags . CurrentSqlViewer . SqlDbViewer_DataLoaded;
-				MultiViewer mv = new MultiViewer();
-				DetDataLoaded -= mv . MultiViewer_DataLoaded;
+			if ( Flags . MultiViewer != null )
+			{
+				MultiViewer mv2 = new MultiViewer();
+				DetDataLoaded -= mv2 . MultiViewer_DataLoaded;
 			}
 		}
 

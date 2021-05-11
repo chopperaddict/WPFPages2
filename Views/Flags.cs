@@ -123,6 +123,8 @@ namespace WPFPages
 		public static SqlDbViewer CurrentCustomerViewer;
 		public static SqlDbViewer  CurrentDetailsViewer;
 
+		public static  MultiViewer MultiViewer;
+
 		public static bool EditDbChangeHandled = false;
 
 		public static bool IsFiltered = false;
@@ -585,11 +587,11 @@ namespace WPFPages
 			Console . WriteLine ( $" Flags . TopVisibleDetGridRow		= { Flags . TopVisibleDetGridRow}" );
 			Console . WriteLine ( $" Flags . BottomVisibleDetGridRow	= { Flags . BottomVisibleDetGridRow}" );
 			Console . WriteLine ( $" Flags . ViewPortHeight				= { Flags . ViewPortHeight } rows visible" );
-			if ( Flags . ActiveSqlViewer . CurrentDb == "BANKACCOUNT" )
+			if ( Flags . ActiveSqlViewer? . CurrentDb == "BANKACCOUNT" )
 				Console . WriteLine ( $" BANK record's offset (from top)	= { ( Flags . SqlBankCurrentIndex - Flags . TopVisibleDetGridRow ) + 1}" );
-			else if ( Flags . ActiveSqlViewer . CurrentDb == "CUSTOMER" )
+			else if ( Flags . ActiveSqlViewer?. CurrentDb == "CUSTOMER" )
 				Console . WriteLine ( $" CUST record's offset (from top)	= { ( Flags . SqlCustCurrentIndex - Flags . TopVisibleDetGridRow ) + 1}" );
-			else if ( Flags . ActiveSqlViewer . CurrentDb == "DETAILS" )
+			else if ( Flags . ActiveSqlViewer? . CurrentDb == "DETAILS" )
 				Console . WriteLine ( $" DETAILS record offset (from top)	= { ( Flags . SqlDetCurrentIndex - Flags . TopVisibleDetGridRow ) + 1}" );
 			Console . WriteLine ( $"\n Flags . SqlBankCurrentIndex		= { Flags . SqlBankCurrentIndex}" );
 			Console . WriteLine ( $" Flags . SqlCustCurrentIndex		= { Flags . SqlCustCurrentIndex}" );

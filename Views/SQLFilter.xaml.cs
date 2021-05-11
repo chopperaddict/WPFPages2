@@ -67,7 +67,6 @@ namespace WPFPages
 			}
 			FilterResult = true;
 			Close();
-
 		}
 
 		private void ExitFilter_Click(object sender, RoutedEventArgs e)
@@ -101,6 +100,7 @@ namespace WPFPages
 
 		private void Window_Closing (object sender, System.ComponentModel.CancelEventArgs e)
 		{
+			if ( parent == null ) return;
 			ControlTemplate tmp = GetDictionaryControlTemplate ("HorizontalGradientTemplateGray");
 			parent.Filters.Template = tmp;
 			Brush br = GetDictionaryBrush ("HeaderBrushGray");
