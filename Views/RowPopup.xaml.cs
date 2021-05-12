@@ -20,7 +20,8 @@ namespace WPFPages . Views
 		private bool IsDirty = false;
 		private DataGrid ParentGrid = null;
 
-		public BankCollection Bankcollection = BankCollection .Bankcollection;
+		BankCollection bc = new BankCollection ( );
+		public BankCollection Bankcollection;// = bc.Bankcollection;
 		public CustCollection Custcollection = CustCollection . Custcollection;
 		public DetCollection Detcollection = DetCollection.Detcollection;
 

@@ -517,6 +517,7 @@ namespace WPFPages
 			//			IsMultiMode = Flags . IsMultiMode;
 			//			MultiAccountCommandString = Flags . MultiAccountCommandString;
 			//			SqlDataChanged = Flags .SqlDataChanged ;
+			BankCollection bc = new BankCollection ( );
 
 			Console . WriteLine (
 			$"\nbool EditDbDataChanged									: { Flags . EditDbDataChanged}" +
@@ -562,24 +563,24 @@ namespace WPFPages
 			"\n" +
 			$"\nstring FilterCommand									: { Flags . FilterCommand}" +
 			$"\nstring MultiAccountCommandString						: { Flags . MultiAccountCommandString}\n" +
-			$"dtBank = {BankCollection . dtBank?.Rows?.Count}, Collection = {BankCollection . Bankcollection?.Count}\n" +
+			$"dtBank = {BankCollection . dtBank?.Rows?.Count}, Collection = {bc. Bankcollection?.Count}\n" +
 			$"dtCust = {CustCollection . dtCust?.Rows?.Count}, Collection = {CustCollection . Custcollection?.Count}\n" +
 			$"dtDet = {DetCollection . dtDetails?.Rows?.Count}, Collection = {DetCollection . Detcollection?.Count}\n" +
 			$"CurrentThread											: {Thread . CurrentThread . ManagedThreadId}"
-					);
+					); ;
 		}
 		public static void PrintSundryVariables (string comment ="")
 		{
 			if(comment.Length > 0)
-				Console . WriteLine ($"\nCOMMENT : {comment}");
+				Console . WriteLine ($"\n COMMENT : {comment}");
 				else
 				Console . WriteLine ( "" );
-			if ( Flags . SqlBankGrid != null )
-				Console . WriteLine ( $" Current Viewer : ItemsSource :	{ Flags . SqlBankGrid . ItemsSource}" );
-			if ( Flags . SqlCustGrid != null )
-				Console . WriteLine ( $" Current Viewer : ItemsSource : { Flags . SqlCustGrid . ItemsSource}" );
-			if ( Flags . SqlDetGrid != null )
-				Console . WriteLine ( $" Current Viewer : ItemsSource :		 { Flags . SqlDetGrid . Name}" );
+			if ( Flags.CurrentSqlViewer != null && Flags . SqlBankGrid != null )
+				Console . WriteLine ( $" Current Viewer : ItemsSource :		{ Flags . SqlBankGrid . Name}" );
+			if ( Flags . CurrentSqlViewer != null && Flags . SqlCustGrid != null )
+				Console . WriteLine ( $" Current Viewer : ItemsSource :		{ Flags . SqlCustGrid . Name}" );
+			if ( Flags . CurrentSqlViewer != null && Flags . SqlDetGrid != null )
+				Console . WriteLine ( $" Current Viewer : ItemsSource :		{ Flags . SqlDetGrid . Name}" );
 			Console . WriteLine ( $" Flags . TopVisibleBankGridRow		= { Flags . TopVisibleBankGridRow }" );
 			Console . WriteLine ( $" Flags . BottomVisibleBankGridRow	= {Flags . BottomVisibleBankGridRow}" );
 			Console . WriteLine ( $" Flags . TopVisibleCustGridRow		= { Flags . TopVisibleCustGridRow }" );
@@ -596,7 +597,35 @@ namespace WPFPages
 			Console . WriteLine ( $"\n Flags . SqlBankCurrentIndex		= { Flags . SqlBankCurrentIndex}" );
 			Console . WriteLine ( $" Flags . SqlCustCurrentIndex		= { Flags . SqlCustCurrentIndex}" );
 			Console . WriteLine ( $" Flags . SqlDetCurrentIndex			= { Flags . SqlDetCurrentIndex}" );
-			Console . WriteLine ("\n");
+
+			string buffer = "Multi Grid Info :-";
+			if ( Flags . SqlBankGrid != null )
+				buffer += $"\n Flags.SqlBankGrid					= { Flags . SqlBankGrid?.Items . Count} / {Flags . SqlBankGrid?.SelectedIndex}";
+			if ( Flags . SqlCustGrid != null )
+				buffer += $"\n Flags.SqlCustGrid					= { Flags . SqlCustGrid?.Items . Count} / {Flags . SqlCustGrid?.SelectedIndex}";
+			if ( Flags . SqlDetGrid != null )
+				buffer  += $"\n Flags.SqlDetGrid					= { Flags . SqlDetGrid? . Items . Count} / {Flags . SqlDetGrid? . SelectedIndex}";			
+			if ( buffer . Length > 18 )
+			{
+				Console . WriteLine ( buffer );
+				Console . WriteLine ( "\n" );
+			}
+
+			buffer = "Sql Viewer Info :-";
+			if ( Flags . CurrentBankViewer?.BankGrid != null )
+				buffer += $" \n Flags.CurrentBankViewer.BankGrid							= { Flags . CurrentBankViewer . BankGrid?.Items . Count} / {Flags . CurrentBankViewer . BankGrid?.SelectedIndex}";
+			//				Console . WriteLine ( $" Flags.CurrentBankViewer.BankGrid				= { Flags .CurrentBankViewer.BankGrid?.Items . Count} / {Flags . CurrentBankViewer . BankGrid? . SelectedIndex}" );
+			if ( Flags . CurrentCustomerViewer?.BankGrid != null )
+				buffer += $"\n Flags.CurrentCustomerViewer . CustomerGrid			= { Flags . CurrentCustomerViewer . CustomerGrid?.Items . Count} / {Flags . CurrentCustomerViewer . CustomerGrid?.SelectedIndex}";
+			//					Console . WriteLine ( $" Flags.CurrentCustomerViewer . CustomerGrid	= { Flags . CurrentCustomerViewer . CustomerGrid? . Items . Count} / {Flags . CurrentCustomerViewer . CustomerGrid? . SelectedIndex}" );
+			if ( Flags . CurrentDetailsViewer?.BankGrid != null )
+				buffer += $"\n Flags.CurrentDetailsViewer . DetailsGrid					= { Flags . CurrentDetailsViewer . DetailsGrid?.Items . Count} / {Flags . CurrentDetailsViewer . DetailsGrid?.SelectedIndex}";
+			//					Console . WriteLine ( $" Flags.CurrentDetailsViewer . DetailsGrid		= { Flags . CurrentDetailsViewer . DetailsGrid? . Items . Count} / {Flags . CurrentDetailsViewer . DetailsGrid? . SelectedIndex}" );
+			if ( buffer . Length > 18 )
+			{
+				Console . WriteLine ( buffer );
+				Console . WriteLine ( "\n" );
+			}
 		}
 	}
 }

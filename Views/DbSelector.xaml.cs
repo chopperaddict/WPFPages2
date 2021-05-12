@@ -1056,6 +1056,14 @@ namespace WPFPages . Views
 				key1 = false;
 				return;
 			}
+			else if ( key1 && e . Key == Key . F8 )  // CTRL + F8
+			{
+				// list various Flags in Console
+				Flags . PrintSundryVariables ( "Window_PreviewKeyDown()" );
+				e . Handled = true;
+				key1 = false;
+				return;
+			}
 			else if ( key1 && e . Key == Key . System )     // CTRL + F10
 			{
 				// Major  listof GV[] variables (Guids etc]

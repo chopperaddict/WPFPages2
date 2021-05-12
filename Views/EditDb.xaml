@@ -25,6 +25,42 @@
 		<data:CustCollection x:Key="CustData" />
 		<data:DetCollection x:Key="DetData" />
 
+		<Style x:Key="GreenBtn" TargetType="Button">
+			<!--<Setter Property="Background" Value="Red" />-->
+			<Style.Triggers>
+					<!--<Setter Property="Background" Value="Gray" />-->
+				<Trigger Property="IsEnabled" Value="False">
+					<Setter Property="Background">
+						<Setter.Value>
+							<LinearGradientBrush StartPoint="1,0" EndPoint="0,1">
+								<GradientStop Color="Gray" Offset="0" />
+								<GradientStop Color="White" Offset="1" />
+							</LinearGradientBrush>
+						</Setter.Value>
+					</Setter>
+				</Trigger>
+				<Trigger Property="IsEnabled" Value="False">
+						<Setter Property="Background">
+						<Setter.Value>
+							<LinearGradientBrush  StartPoint="0.5,0" EndPoint="0.5,1">
+								<GradientStop Color="#A5FB90" Offset="0.314"/>
+								<GradientStop Color="#79FB59" Offset="0.553"/>
+								<GradientStop Color="#FF00FF00" Offset="1"/>
+							</LinearGradientBrush>
+						</Setter.Value>
+					</Setter>
+				</Trigger>
+			</Style.Triggers>
+				<!--create an elegant left to right light-> Dark gradient as a background-->
+
+				<!--<LinearGradientBrush StartPoint=".8,0" EndPoint="0,.5">
+					<GradientStop Color="Green" Offset="1" />
+					<GradientStop Color="#ffffff" Offset="0" />
+				</LinearGradientBrush>
+			</Button.Background>-->
+		</Style>
+
+
 		<Style x:Key="ToggleButtonOnmouseover" TargetType="Button">
 			<Setter Property="Background">
 				<Setter.Value>
@@ -182,7 +218,8 @@
 								 HorizontalContentAlignment="Center"
 								TextChanged="Data_TextChanged"
 								 VerticalContentAlignment="Center"
-								 Text="{Binding BankNo, UpdateSourceTrigger=LostFocus, Mode=TwoWay}" LostFocus="BanknoEdit_LostFocus" />
+								 Text="{Binding BankNo, UpdateSourceTrigger=LostFocus, Mode=TwoWay}" 
+								LostFocus="BanknoEdit_LostFocus" />
 
 			<TextBox x:Name="CustnoEdit"
 								 Grid.Row="2"
@@ -197,7 +234,8 @@
 								 HorizontalContentAlignment="Center"
 								TextChanged="Data_TextChanged"
 								 VerticalContentAlignment="Center"
-								Text="{Binding CustNo, UpdateSourceTrigger=LostFocus, Mode=TwoWay}" LostFocus="CustNoEdit_LostFocus" />
+								Text="{Binding CustNo, UpdateSourceTrigger=LostFocus, Mode=TwoWay}" 
+								LostFocus="CustNoEdit_LostFocus" />
 
 			<TextBox x:Name="ActypeEdit"
 								 Grid.Row="3"
@@ -211,25 +249,27 @@
 								HorizontalAlignment="Left"
 								 HorizontalContentAlignment="Center"
 								 VerticalContentAlignment="Center"
-								Text="{Binding AcType, UpdateSourceTrigger=LostFocus, Mode=TwoWay}"
+								Text="{Binding AcType, UpdateSourceTrigger=
+								LostFocus, Mode=TwoWay}"
 								TextChanged="Data_TextChanged"
 								LostFocus="ActypeEdit_LostFocus"
 								Width="35" />
 
 			<TextBox Name="BalanceEdit"
+								 Background="{StaticResource Gray3}"
 								 Grid.Row="4"
 								 Grid.Column="2"
-								 Margin="3,3,3,3"
 								 Height="25"
-								 Width="75"
 								 IsEnabled="True"
-								 Background="{StaticResource Gray3}"
+								 IsTabStop="True"
 								 HorizontalAlignment="Left"
 								 HorizontalContentAlignment="Center"
+								LostFocus="BalanceEdit_LostFocus"
+								 Margin="3,3,3,3"
 								TextChanged="Data_TextChanged"
+								 Text="{Binding Balance, UpdateSourceTrigger=LostFocus, Mode=TwoWay}" 
 								 VerticalContentAlignment="Center"
-								 IsTabStop="True"
-								 Text="{Binding Balance, UpdateSourceTrigger=LostFocus, Mode=TwoWay}" LostFocus="BalanceEdit_LostFocus" />
+								Width="75"/>
 			<TextBox Name="IntRateEdit"
 								 Grid.Row="5"
 								 Grid.Column="2"
@@ -243,10 +283,11 @@
 								 IsReadOnly="false"
 								TextChanged="Data_TextChanged"
 								VerticalContentAlignment="Center"
-								Text="{Binding IntRate, UpdateSourceTrigger=LostFocus, Mode=TwoWay}" LostFocus="IntRateEdit_LostFocus" />
+								Text="{Binding IntRate, UpdateSourceTrigger=LostFocus, Mode=TwoWay}" 
+								LostFocus="IntRateEdit_LostFocus" />
 
 			<Grid Grid.Row="6" Grid.Column="2">
-				<!--<TextBox Name="OpenDateEdit"
+				<TextBox Name="OpenDateEdit"
 								 Grid.Row="0"
 								 Grid.Column="0"
 								 Margin="3,3,3,3"
@@ -257,9 +298,8 @@
 								 HorizontalAlignment="Left"
 								 HorizontalContentAlignment="Center"
 								 VerticalContentAlignment="Center"
-								 Text="{Binding ODate, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay, StringFormat='dd/MM/yyyy'}"  LostFocus="OpenDateEdit_LostFocus" />-->
+								 Text="{Binding ODate, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay, StringFormat='dd/MM/yyyy'}"  LostFocus="OpenDateEdit_LostFocus" />
 				<DatePicker
-									x:Name="OpenDateEdit"
 									Margin="6"
 									HorizontalAlignment="Left"
 									SelectedDate="{Binding ODate,
@@ -269,7 +309,19 @@
 				</DatePicker>
 			</Grid>
 			<Grid Grid.Row="7" Grid.Column="2">
-				<DatePicker
+				<TextBox x:Name="CloseDateEdit"
+								 Grid.Row="0"
+								 Grid.Column="0"
+								 Margin="3,3,3,3"
+								 Height="25"
+								 Width="75"
+								 IsEnabled="True"
+								 Background="{StaticResource Gray3}"
+								 HorizontalAlignment="Left"
+								 HorizontalContentAlignment="Center"
+								 VerticalContentAlignment="Center"
+								 Text="{Binding CDate, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay, StringFormat='dd/MM/yyyy'}"  LostFocus="CloseDateEdit_LostFocus" />
+				<DatePicker		 
 									Margin="5"
 									HorizontalAlignment="Left"
 									SelectedDate="{Binding CDate,
@@ -478,7 +530,7 @@
 
 			<!--#endregion Customer Grid setup-->
 
-			<!--#region Customer Text Columns-->
+		<!--#region Customer Text Columns-->
 			<TextBlock Text="Bank #"
 					   Grid.Row="1"
 					   Grid.Column="1"
@@ -570,9 +622,10 @@
 					   HorizontalAlignment="left"
 					   VerticalAlignment="Center" />
 			<!--#endregion Customer Text Columns-->
+			
 		</Grid>
 
-		<Grid  x:Name="CustomerEditFields"
+		<Grid	x:Name="CustomerEditFields"
 			  Grid.Row="1"
 			 Grid.Column="2"
 			 Grid.ColumnSpan="1"
@@ -609,7 +662,7 @@
 				 Margin="3,3,3,3"
 				 VerticalContentAlignment="Center"
 				 Text="{Binding BankNo, UpdateSourceTrigger=LostFocus, Mode=TwoWay}"
-			TextChanged="Data_TextChanged"/>
+				TextChanged="Data_TextChanged"/>
 
 			<TextBox x:Name="CustnoEdit2"
 				 Grid.Row="2"
@@ -621,7 +674,7 @@
 				 Foreground="{StaticResource Black0}"
 				 HorizontalContentAlignment="Center"
 				 VerticalContentAlignment="Center"
-			Text="{Binding CustNo, UpdateSourceTrigger=LostFocus, Mode=TwoWay}"
+				Text="{Binding CustNo, UpdateSourceTrigger=LostFocus, Mode=TwoWay}"
 				TextChanged="Data_TextChanged"
 				   LostFocus="CustnoEdit2_LostFocus" />
 
@@ -651,7 +704,8 @@
 				 HorizontalContentAlignment="Center"
 				 VerticalContentAlignment="Center"
 				TextChanged="Data_TextChanged"
-				Text="{Binding FName, UpdateSourceTrigger=LostFocus, Mode=TwoWay}"  LostFocus="FirstnameEdit2_LostFocus" />
+				Text="{Binding FName, UpdateSourceTrigger=LostFocus, Mode=TwoWay}"  
+				   LostFocus="FirstnameEdit2_LostFocus" />
 
 			<TextBox x:Name="Lastname2"
 				 Grid.Row="5"
@@ -664,7 +718,8 @@
 				 HorizontalContentAlignment="Center"
 				 VerticalContentAlignment="Center"
 				TextChanged="Data_TextChanged"
-				Text="{Binding LName, UpdateSourceTrigger=LostFocus, Mode=TwoWay}"  LostFocus="LastnameEdit2_LostFocus" />
+				Text="{Binding LName, UpdateSourceTrigger=LostFocus, Mode=TwoWay}"  
+				   LostFocus="LastnameEdit2_LostFocus" />
 
 			<TextBox x:Name="addr1"
 				 Grid.Row="6"
@@ -677,7 +732,8 @@
 				 HorizontalContentAlignment="Center"
 				 VerticalContentAlignment="Center"
 				TextChanged="Data_TextChanged"
-				Text="{Binding Addr1, UpdateSourceTrigger=LostFocus, Mode=TwoWay}"  LostFocus="Addr1Edit2_LostFocus" />
+				Text="{Binding Addr1, UpdateSourceTrigger=LostFocus, Mode=TwoWay}"  
+				   LostFocus="Addr1Edit2_LostFocus" />
 
 			<TextBox x:Name="addr2"
 				 Grid.Row="7"
@@ -690,7 +746,8 @@
 				 HorizontalContentAlignment="Center"
 				 VerticalContentAlignment="Center"
 				TextChanged="Data_TextChanged"
-				Text="{Binding Addr2, UpdateSourceTrigger=LostFocus, Mode=TwoWay}"  LostFocus="Addr2Edit2_LostFocus" />
+				Text="{Binding Addr2, UpdateSourceTrigger=LostFocus, Mode=TwoWay}"  
+				   LostFocus="Addr2Edit2_LostFocus" />
 
 			<TextBox x:Name="town"
 				 Grid.Row="8"
@@ -703,7 +760,8 @@
 				 HorizontalContentAlignment="Center"
 				 VerticalContentAlignment="Center"
 				TextChanged="Data_TextChanged"
-				Text="{Binding Town, UpdateSourceTrigger=LostFocus, Mode=TwoWay}"  LostFocus="TownEdit2_LostFocus" />
+				Text="{Binding Town, UpdateSourceTrigger=LostFocus, Mode=TwoWay}"  
+				   LostFocus="TownEdit2_LostFocus" />
 
 			<TextBox x:Name="County2"
 				 Grid.Row="9"
@@ -716,7 +774,8 @@
 				 HorizontalContentAlignment="Center"
 				 VerticalContentAlignment="Center"
 				TextChanged="Data_TextChanged"
-				Text="{Binding County, UpdateSourceTrigger=LostFocus, Mode=TwoWay}"  LostFocus="CountyEdit2_LostFocus" />
+				Text="{Binding County, UpdateSourceTrigger=LostFocus, Mode=TwoWay}"  
+				   LostFocus="CountyEdit2_LostFocus" />
 
 			<TextBox x:Name="pcode2"
 				 Grid.Row="10"
@@ -729,7 +788,8 @@
 				 HorizontalContentAlignment="Center"
 				 VerticalContentAlignment="Center"
 				TextChanged="Data_TextChanged"
-				Text="{Binding PCode, UpdateSourceTrigger=LostFocus, Mode=TwoWay}"   LostFocus="PcodeEdit2_LostFocus" />
+				Text="{Binding PCode, UpdateSourceTrigger=LostFocus, Mode=TwoWay}"   
+				   LostFocus="PcodeEdit2_LostFocus" />
 
 			<TextBox x:Name="phone2"
 				 Grid.Row="11"
@@ -742,7 +802,8 @@
 				 HorizontalContentAlignment="Center"
 				 VerticalContentAlignment="Center"
 				TextChanged="Data_TextChanged"
-				Text="{Binding Phone, UpdateSourceTrigger=LostFocus, Mode=TwoWay}"  LostFocus="PhoneEdit2_LostFocus" />
+				Text="{Binding Phone, UpdateSourceTrigger=LostFocus, Mode=TwoWay}"  
+				   LostFocus="PhoneEdit2_LostFocus" />
 
 			<TextBox Name="mobile2"
 				 Grid.Row="12"
@@ -755,9 +816,22 @@
 				 HorizontalContentAlignment="Center"
 				 VerticalContentAlignment="Center"
 				TextChanged="Data_TextChanged"
-				 Text="{Binding Mobile, UpdateSourceTrigger=LostFocus, Mode=TwoWay, StringFormat='dd/MM/yyyy'}"  LostFocus="MobileEdit2_LostFocus" />
+				 Text="{Binding Mobile, UpdateSourceTrigger=LostFocus, Mode=TwoWay, StringFormat='dd/MM/yyyy'}" 
+				  LostFocus="MobileEdit2_LostFocus" />
 
-			<DatePicker   Name="Dob2"
+			<TextBox Name="Dob2"
+								 Grid.Row="0"
+								 Grid.Column="0"
+								 Margin="3,3,3,3"
+								 Height="25"
+								 Width="75"
+								 IsEnabled="True"
+								 Background="{StaticResource Gray3}"
+								 HorizontalAlignment="Left"
+								 HorizontalContentAlignment="Center"
+								 VerticalContentAlignment="Center"
+								 Text="{Binding Dob, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay, StringFormat='dd/MM/yyyy'}"  LostFocus="OpenDateEdit_LostFocus" />
+			<DatePicker   
 				Grid.Row="13"
 				Height="30"
 				Width="105"
@@ -769,7 +843,20 @@
 				UpdateSourceTrigger=PropertyChanged}">
 			</DatePicker>
 
-			<DatePicker   Name="ODate2"
+			<TextBox Name="ODate2"
+								 Grid.Row="0"
+								 Grid.Column="0"
+								 Margin="3,3,3,3"
+								 Height="25"
+								 Width="75"
+								 IsEnabled="True"
+								 Background="{StaticResource Gray3}"
+								 HorizontalAlignment="Left"
+								 HorizontalContentAlignment="Center"
+				   				TextChanged="Data_TextChanged"
+								 VerticalContentAlignment="Center"
+								 Text="{Binding ODate, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay, StringFormat='dd/MM/yyyy'}"  LostFocus="OpenDateEdit_LostFocus" />
+			<DatePicker   
 				Grid.Row="14"
 				Height="30"
 				Width="105"
@@ -780,7 +867,22 @@
 				Mode=TwoWay,
 				UpdateSourceTrigger=PropertyChanged}">
 			</DatePicker>
-			<DatePicker  Grid.Row="15"
+
+			<TextBox Name="Cdate2"
+								 Grid.Row="0"
+								 Grid.Column="0"
+								 Margin="3,3,3,3"
+								 Height="25"
+								 Width="75"
+								 IsEnabled="True"
+								 Background="{StaticResource Gray3}"
+								 HorizontalAlignment="Left"
+								 HorizontalContentAlignment="Center"
+								TextChanged="Data_TextChanged"
+								VerticalContentAlignment="Center"
+								 Text="{Binding CDate, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay, StringFormat='dd/MM/yyyy'}"  LostFocus="OpenDateEdit_LostFocus" />
+			<DatePicker  
+				Grid.Row="15"
 				Height="30"
 				Width="105"
 				HorizontalAlignment="Left"
@@ -791,6 +893,7 @@
 				UpdateSourceTrigger=PropertyChanged}">
 			</DatePicker>
 			<!--#endregion Customer Text column setup-->
+			
 		</Grid>
 
 		<!--#region CUSTOMER GRID-->
@@ -1080,7 +1183,8 @@
 			<!--#endregion DETAIL GRID FIELDS -->
 		</DataGrid>
 
-		<Grid x:Name="DetailsEditFields"
+		<Grid 
+			x:Name="DetailsEditFields"
 			Grid.Row="1" Grid.Column="2"
 			Grid.RowSpan="1"
 			Visibility="Collapsed">
@@ -1105,8 +1209,8 @@
 								 Background="{StaticResource Gray3}"
 								HorizontalAlignment="Left"
 								 HorizontalContentAlignment="Center"
+								TextChanged="Data_TextChanged"
 								 VerticalContentAlignment="Center"
-				TextChanged="Data_TextChanged"
 								 Text="{Binding BankNo, UpdateSourceTrigger=LostFocus, Mode=TwoWay}" />
 			<!--Text="{Binding BankNo, UpdateSourceTrigger=LostFocus, Mode=TwoWay}" LostFocus="BanknoEdit3_LostFocus" />-->
 
@@ -1121,7 +1225,7 @@
 								HorizontalAlignment="Left"
 								 HorizontalContentAlignment="Center"
 								 VerticalContentAlignment="Center"
-				TextChanged="Data_TextChanged"
+								TextChanged="Data_TextChanged"
 								 Text="{Binding CustNo, UpdateSourceTrigger=LostFocus, Mode=TwoWay}" />
 			<!--Text="{Binding Path=CustNo, UpdateSourceTrigger=LostFocus, Mode=TwoWay}" LostFocus="CustnoEdit3_LostFocus" />-->
 
@@ -1137,7 +1241,7 @@
 								 HorizontalContentAlignment="Center"
 								LostFocus="ActypeEdit3LostFocus"
 								 VerticalContentAlignment="Center"
-				TextChanged="Data_TextChanged"
+								TextChanged="Data_TextChanged"
 								 Text="{Binding AcType, UpdateSourceTrigger=LostFocus, Mode=TwoWay}"
 								Width="35" />
 			<!--Text="{Binding AcType, UpdateSourceTrigger=LostFocus, Mode=TwoWay}" LostFocus="ActypeEdit3LostFocus"-->
@@ -1151,9 +1255,10 @@
 								 Background="{StaticResource Gray3}"
 								 HorizontalAlignment="Left"
 								 HorizontalContentAlignment="Center"
+								LostFocus="BalanceEdit3_LostFocus"
 								 VerticalContentAlignment="Center"
 								 IsTabStop="True"
-				TextChanged="Data_TextChanged"
+								TextChanged="Data_TextChanged"
 								 Text="{Binding Balance, UpdateSourceTrigger=LostFocus, Mode=TwoWay}" />
 			<!--Text="{Binding Balance, UpdateSourceTrigger=LostFocus, Mode=TwoWay}" LostFocus="BalanceEdit3_LostFocus" />-->
 			<TextBox Name="IntRateEdit3"
@@ -1166,13 +1271,38 @@
 						         HorizontalAlignment="Left"
 						         HorizontalContentAlignment="Center"
 						         IsReadOnly="false"
+								LostFocus="IntRateEdit3_LostFocus"
 						         VerticalContentAlignment="Center"
-				TextChanged="Data_TextChanged"
+							TextChanged="Data_TextChanged"
 						         Text="{Binding IntRate, UpdateSourceTrigger=LostFocus, Mode=TwoWay}" />
 			<!--Text="{Binding IntRate, UpdateSourceTrigger=LostFocus, Mode=TwoWay}" LostFocus="IntRateEdit3_LostFocus" />-->
 
 			<Grid Grid.Row="6">
-				<!--<TextBox Name="OpenDateEdit3"
+				<TextBox Name="OpenDateEdit3"
+								 Grid.Row="0"
+								 Grid.Column="0"
+								 Margin="3,3,3,3"
+								 Height="25"
+								 Width="75"
+								 IsEnabled="True"
+								 Background="{StaticResource Gray3}"
+								 HorizontalAlignment="Left"
+								 HorizontalContentAlignment="Center"
+								TextChanged="Data_TextChanged"
+								 VerticalContentAlignment="Center"
+								 Text="{Binding ODate, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay, StringFormat='dd/MM/yyyy'}"  
+								LostFocus="OpenDateEdit3_LostFocus" />
+				<DatePicker 
+									Margin="5"
+									SelectedDate="{Binding ODate,
+									Mode=TwoWay,
+									UpdateSourceTrigger=LostFocus}"
+									LostFocus="OpenDateEdit3_LostFocus"
+									HorizontalAlignment="Left">
+				</DatePicker>
+			</Grid>
+			<Grid Grid.Row="7">
+				<TextBox Name="CloseDateEdit3"
 								 Grid.Row="0"
 								 Grid.Column="0"
 								 Margin="3,3,3,3"
@@ -1183,23 +1313,15 @@
 								 HorizontalAlignment="Left"
 								 HorizontalContentAlignment="Center"
 								 VerticalContentAlignment="Center"
-								 Text="{Binding ODate, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay, StringFormat='dd/MM/yyyy'}"  LostFocus="OpenDateEdit3_LostFocus" />-->
-				<DatePicker
-									Margin="5"
-									SelectedDate="{Binding ODate,
-									Mode=TwoWay,
-									UpdateSourceTrigger=LostFocus}"
-									LostFocus="OpenDateEdit3_LostFocus"
-									HorizontalAlignment="Left">
-				</DatePicker>
-			</Grid>
-			<Grid Grid.Row="7">
+								TextChanged="Data_TextChanged"
+								 Text="{Binding CDate, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay, StringFormat='dd/MM/yyyy'}"  
+								   LostFocus="CloseDateEdit3_LostFocus" />
 				<DatePicker
 									Margin="5"
 									SelectedDate="{Binding CDate,
 									Mode=TwoWay,
 									UpdateSourceTrigger=LostFocus}"
-									LostFocus="OpenDateEdit3_LostFocus"
+									LostFocus="CloseDateEdit3_LostFocus"
 									HorizontalAlignment="Left">
 				</DatePicker>
 			</Grid>
@@ -1218,34 +1340,35 @@
 				VerticalAlignment="Center">
 			
 			<Button  x:Name="ViewerButton"
-			         Click="Viewer_Click"
+			         Click="SaveChanges_Click"
 			         FontWeight="Bold"
 			         Height="45"
 			         HorizontalContentAlignment="Center"
 				   IsEnabled="False"
 				   Margin="3"
-				   Template="{StaticResource ButtonGradientGreen}"
+				   Style="{StaticResource GreenBtn}"
 			         Width="120">
-				
+				<!--Template="{StaticResource ButtonGradientGreen}"-->
+
 				<Border Name="_Border"
 							Padding="3"
 							HorizontalAlignment="Center">
 					<ContentPresenter  Content="Save Changes"/>
 				</Border>
 
-				<Button.Foreground>
+				<!--<Button.Foreground>
 					<LinearGradientBrush StartPoint="1,0" EndPoint=".5,1">
 						<GradientStop Color="Green" Offset=".6" />
 						<GradientStop Color="White" Offset="1" />
 					</LinearGradientBrush>
 				</Button.Foreground>
 				<Button.Background>
-					<!--create an elegant left to right light-> Dark gradient as a background-->
+					--><!--create an elegant left to right light-> Dark gradient as a background--><!--
 					<LinearGradientBrush StartPoint=".8,0" EndPoint="0,.5">
 						<GradientStop Color="Green" Offset="1" />
 						<GradientStop Color="#ffffff" Offset="0" />
 					</LinearGradientBrush>
-				</Button.Background>
+				</Button.Background>-->
 			</Button>
 
 			<!--Content ="Close Document"-->

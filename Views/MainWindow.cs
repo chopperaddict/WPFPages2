@@ -66,6 +66,11 @@ namespace WPFPages
 			gv = GridViewer . Viewer_instance;
 			//			NewFlags flags = new NewFlags ( );
 			//*Flags = NewFlags;
+			BankCollection bc = new BankCollection ( );
+			bc.LoadBank ( bc );
+			bc.Bankcollection = bc;
+			System . Console . WriteLine ($"bc.Count = {bc.Count}");
+
 		}
 
 		private void OnClosing ( object sender, CancelEventArgs e )
@@ -278,8 +283,6 @@ namespace WPFPages
 							gv . ViewerSelectiontype = -1;  // reset flag field for next time
 							gv . ViewerCount++;
 
-#pragma warning TODO			
-							// THIS TAKES FOR EVER ON 1ST LOAD
 							tw . Show ( );
 							tw . Focus ( );
 							//Save the Window handle in the Viewer Window itself - Now done in window loaded
@@ -319,8 +322,6 @@ namespace WPFPages
 						gv . ViewerSelectiontype = -1;  // reset flag field for next time
 						gv . ViewerCount++;
 
-#pragma warning TODO			
-						// THIS TAKES FOR EVER ON 1ST LOAD
 						tw . Show ( );
 						tw . Focus ( );
 						//Save the Window handle in the Viewer Window itself - Now done in window loaded

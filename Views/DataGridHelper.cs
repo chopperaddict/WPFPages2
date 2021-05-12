@@ -1,18 +1,13 @@
 ﻿using System . Windows;
 using System . Windows . Controls;
 using System . Windows . Input;
-using System . Windows;
-using System . Windows . Controls;
-using System . Windows . Input;
 
 namespace WPFPages
 {
 	partial class DataGridBase : DataGrid
 	{
-
 		public DataGridBase ( )
 		{
-
 		}
 
 		/// <summary>
@@ -20,9 +15,8 @@ namespace WPFPages
 		/// </summary>
 		protected override void OnSelectionChanged ( SelectionChangedEventArgs e )
 		{
-
-//			int y = 1;
-			base . OnSelectionChanged (e );
+			//			int y = 1;
+			base . OnSelectionChanged ( e );
 		}
 
 		/// <summary>
@@ -39,9 +33,9 @@ namespace WPFPages
 		/// </summary>
 		/// <param name="element">The <see cref="DataGrid"/>.</param>
 		/// <param name="value">A value indicating whether to apply the behavior.</param>
-		public static void SetNewLineOnTab ( DataGrid element, bool value )
+		public static void SetNewLineOnTab ( DataGrid element , bool value )
 		{
-			element . SetValue ( NewLineOnTabProperty, value );
+			element . SetValue ( NewLineOnTabProperty , value );
 		}
 
 		/// <summary>
@@ -59,7 +53,7 @@ namespace WPFPages
 		/// </summary>
 		/// <param name="sender">The event sender.</param>
 		/// <param name="e">The event arguments.</param>
-		private static void OnNewLineOnTabChanged ( DependencyObject sender, DependencyPropertyChangedEventArgs e )
+		private static void OnNewLineOnTabChanged ( DependencyObject sender , DependencyPropertyChangedEventArgs e )
 		{
 			DataGrid d = sender as DataGrid;
 
@@ -83,7 +77,7 @@ namespace WPFPages
 			else
 			{
 				d . PreviewKeyDown += AssociatedObjectKeyDown;
-				KeyboardNavigation . SetTabNavigation ( d, KeyboardNavigationMode . Contained );
+				KeyboardNavigation . SetTabNavigation ( d , KeyboardNavigationMode . Contained );
 			}
 		}
 
@@ -92,7 +86,7 @@ namespace WPFPages
 		/// </summary>
 		/// <param name="sender">The event sender.</param>
 		/// <param name="e">The event arguments.</param>
-		private static void AssociatedObjectKeyDown ( object sender, KeyEventArgs e )
+		private static void AssociatedObjectKeyDown ( object sender , KeyEventArgs e )
 		{
 			if ( e . Key != Key . Tab )
 			{
@@ -112,7 +106,7 @@ namespace WPFPages
 
 				if ( dg . SelectedIndex == icg . Items . Count - 2 )
 				{
-					dg . CommitEdit ( DataGridEditingUnit . Row, false );
+					dg . CommitEdit ( DataGridEditingUnit . Row , false );
 				}
 			}
 		}

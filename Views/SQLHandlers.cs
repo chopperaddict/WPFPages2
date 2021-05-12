@@ -18,7 +18,8 @@ namespace WPFPages . Views
 		public static DetailsViewModel dvm = MainWindow.dvm;
 
 		// New Observable collections
-		public BankCollection Bankcollection = BankCollection .Bankcollection;
+		BankCollection bc = new BankCollection ( );
+		public BankCollection Bankcollection;// = bc.Bankcollection;
 
 		public CustCollection Custcollection = CustCollection . Custcollection;
 		public DetCollection Detcollection = DetCollection.Detcollection;

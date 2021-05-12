@@ -16,6 +16,10 @@ namespace WPFPages . Views
 	public partial class MultiViewer : Window
 	{
 
+		int bIndex = 0;
+		int cIndex = 0;
+		int dIndex = 0;
+
 		#region DELEGATES / EVENTS Declarations
 
 		// Repeat DEclaratoin to srtop Erro messages
@@ -43,10 +47,11 @@ namespace WPFPages . Views
 				BankGrid . Visibility = Visibility . Visible;
 				BankGrid . ItemsSource = sender as BankCollection;
 				//				this . BankGrid . DataContext = sender as BankCollection; 
-				this . BankGrid . SelectedIndex = 0;
-				this . BankGrid . SelectedItem = 0;
+				this . BankGrid . SelectedIndex = bIndex;
+				this . BankGrid . SelectedItem = cIndex;
 				this . BankGrid . Refresh ( );
 				inprogress = false;
+				Console . WriteLine ($"Bank Grid Updated");
 			}
 			else if ( e . CallerDb == "CUSTOMER" )
 			{
@@ -54,10 +59,11 @@ namespace WPFPages . Views
 				CustomerGrid . Visibility = Visibility . Visible;
 				CustomerGrid . ItemsSource = sender as CustCollection;
 				//			this . CustomerGrid . DataContext = sender as CustCollection;
-				this . CustomerGrid . SelectedIndex = 0;
-				this . CustomerGrid . SelectedItem = 0;
+				this . CustomerGrid . SelectedIndex = cIndex;
+				this . CustomerGrid . SelectedItem = cIndex;
 				this . CustomerGrid . Refresh ( );
 				inprogress = false;
+				Console . WriteLine ( $"Customer Grid Updated" );
 			}
 			else if ( e . CallerDb == "DETAILS" )
 			{
@@ -65,12 +71,15 @@ namespace WPFPages . Views
 				DetailsGrid . Visibility = Visibility . Visible;
 				DetailsGrid . ItemsSource = sender as DetCollection;
 				//		this . DetailsGrid . DataContext = sender as DetCollection;
-				this . DetailsGrid . SelectedIndex = 0;
-				this . DetailsGrid . SelectedItem = 0;
+				this . DetailsGrid . SelectedIndex = dIndex;
+				this . DetailsGrid . SelectedItem = dIndex;
 				this . DetailsGrid . Refresh ( );
 				inprogress = false;
+				Console . WriteLine ( $"Details Grid Updated" );
 			}
-			BankGrid . SelectedIndex = 0;
+			ExtensionMethods . Refresh ( BankGrid );
+			ExtensionMethods . Refresh ( CustomerGrid );
+			ExtensionMethods . Refresh ( DetailsGrid );
 			BankGrid . Focus ( );
 			inprogress = false;
 		}
@@ -100,18 +109,25 @@ namespace WPFPages . Views
 		public MultiViewer ( )
 		{
 			InitializeComponent ( );
-			BankGrid . ItemsSource = BankCollection . Bankcollection;
+			BankCollection bc = new BankCollection ( );
+			BankGrid . ItemsSource = bc. Bankcollection;
 			CustomerGrid . ItemsSource = CustCollection . Custcollection;
 			DetailsGrid . ItemsSource = DetCollection . Detcollection;
 			this . MouseDown += delegate { DoDragMove ( ); };
 			BankGrid . MouseDown += delegate { DoDragMove ( ); };
 			CustomerGrid . MouseDown += delegate { DoDragMove ( ); };
 			DetailsGrid . MouseDown += delegate { DoDragMove ( ); };
+			Flags . SqlBankGrid = BankGrid;
+			Flags . SqlCustGrid = CustomerGrid;
+			Flags . SqlDetGrid = DetailsGrid;
+			Flags . MultiViewer = this;
 		}
 		private async void Window_Loaded ( object sender , RoutedEventArgs e )
 		{
 			Flags . MultiViewer = this;
-			BankCollection . SubscribeToLoadedEvent ( BankCollection . Bankcollection );
+			BankCollection bc = new BankCollection ( );
+
+			BankCollection . SubscribeToLoadedEvent ( bc. Bankcollection );
 			BankCollection b  =new BankCollection();
 			b . LoadBankTaskInSortOrderasync ( true , 0 );
 
@@ -124,16 +140,20 @@ namespace WPFPages . Views
 			d . LoadDetailsTaskInSortOrderAsync ( true , 0 );
 
 			//DataGridView dgv = new DataGridView ();
-//			DataGridViewRow  dgv = sender  as DataGridView;
-//			dgv. DefaultCellStyle . SelectionBackColor = Color . Blue;
-//			BankGrid . DefaultCellStyle . SelectionForeColor = Color . Red;
+			//			DataGridViewRow  dgv = sender  as DataGridView;
+			//			dgv. DefaultCellStyle . SelectionBackColor = Color . Blue;
+			//			BankGrid . DefaultCellStyle . SelectionForeColor = Color . Red;
 		}
 		private void Window_Closing ( object sender , System . ComponentModel . CancelEventArgs e )
 		{
-			BankCollection . UnSubscribeToLoadedEvent ( BankCollection . Bankcollection );
+			BankCollection bc = new BankCollection ( );
+			BankCollection . UnSubscribeToLoadedEvent ( bc. Bankcollection );
 			CustCollection . UnSubscribeToLoadedEvent ( CustCollection . Custcollection );
 			DetCollection . UnSubscribeToLoadedEvent ( DetCollection . Detcollection );
-
+			Flags . SqlBankGrid = null;
+			Flags . SqlCustGrid = null;
+			Flags . SqlDetGrid = null;
+			Flags . MultiViewer = null;
 		}
 
 		private async void ReLoadAllDataBases ( )
@@ -143,7 +163,7 @@ namespace WPFPages . Views
 			CustCollection c  =new CustCollection();
 			await c . LoadCustomerTaskInSortOrderAsync ( true , 0 );
 			DetCollection d  =new DetCollection();
-			await d  . LoadDetailsTaskInSortOrderAsync ( true , 0 );
+			await d . LoadDetailsTaskInSortOrderAsync ( true , 0 );
 		}
 		private void Close_Click ( object sender , RoutedEventArgs e )
 		{
@@ -162,15 +182,40 @@ namespace WPFPages . Views
 			{
 				Close ( );
 			}
+			else if ( e . Key == Key . Home )
+			{
+				BankGrid . SelectedIndex = 0;
+				CustomerGrid . SelectedIndex = 0;
+				DetailsGrid . SelectedIndex = 0;
+				ExtensionMethods . Refresh ( BankGrid );
+				ExtensionMethods . Refresh ( CustomerGrid );
+				ExtensionMethods . Refresh ( DetailsGrid );
+			}
+			else if ( e . Key == Key . End )
+			{
+				BankGrid . SelectedIndex = BankGrid . Items . Count - 1;
+				CustomerGrid . SelectedIndex = CustomerGrid . Items . Count - 1;
+				DetailsGrid . SelectedIndex = DetailsGrid . Items . Count - 1;
+				BankGrid . SelectedItem = BankGrid . Items . Count - 1;
+				CustomerGrid . SelectedItem = CustomerGrid . Items . Count - 1;
+				DetailsGrid . SelectedItem = DetailsGrid . Items . Count - 1;
+				BankGrid . ScrollIntoView ( BankGrid . Items . Count - 1 );
+				CustomerGrid . ScrollIntoView ( CustomerGrid . Items . Count - 1 );
+				DetailsGrid . ScrollIntoView ( DetailsGrid . Items . Count - 1 );
+				ExtensionMethods . Refresh ( BankGrid );
+				ExtensionMethods . Refresh ( CustomerGrid );
+				ExtensionMethods . Refresh ( DetailsGrid );
+			}
 		}
 
 		#region DATAGRID HANDLERS
-		private void BankGrid_SelectionChanged ( object sender , System . Windows . Controls . SelectionChangedEventArgs e )
+		private void DataGrids_SelectionChanged ( object sender , System . Windows . Controls . SelectionChangedEventArgs e )
 		{
 			int rec = 0;
 			ScrollViewer scroll;
 			SetScrollVariables ( sender );
 			DataGrid dg = sender as   DataGrid;
+			BankData . DataContext = CustomerGrid . SelectedItem;
 			if ( inprogress ) return;
 			//			if ( inprogress ) return;
 			if ( sender == BankGrid )
@@ -180,10 +225,11 @@ namespace WPFPages . Views
 				if ( dgr == null ) return;
 				rec = FindMatchingRecord ( dgr . CustNo , CustomerGrid , "CUSTOMER" );
 				CustomerGrid . SelectedIndex = rec;
-				Utils . ScrollRecordIntoView ( CustomerGrid , 1 );
+//				Utils . ScrollRecordIntoView ( CustomerGrid , 1 );
 
 				rec = FindMatchingRecord ( dgr . CustNo , DetailsGrid , "DETAILS" );
 				DetailsGrid . SelectedIndex = rec;
+				bIndex = currsel;
 				Utils . ScrollRecordIntoView ( DetailsGrid , 1 );
 				return;
 				{
@@ -216,11 +262,12 @@ namespace WPFPages . Views
 				if ( dgr == null ) return;
 				rec = FindMatchingRecord ( dgr . CustNo , BankGrid , "BANKACCOUNT" );
 				BankGrid . SelectedIndex = rec;
-				Utils . ScrollRecordIntoView ( BankGrid , 1 );
+//				Utils . ScrollRecordIntoView ( BankGrid , 1 );
 
 				rec = FindMatchingRecord ( dgr . CustNo , DetailsGrid , "DETAILS" );
-				this.DetailsGrid . SelectedIndex = rec;
-				Utils . ScrollRecordIntoView ( DetailsGrid , 1 );
+				this . DetailsGrid . SelectedIndex = rec;
+				cIndex = currsel;
+//				Utils . ScrollRecordIntoView ( DetailsGrid , 1 );
 				return;
 				{
 					Utils . ScrollRecordIntoView ( BankGrid , 1 );
@@ -260,6 +307,7 @@ namespace WPFPages . Views
 
 				rec = FindMatchingRecord ( dgr . CustNo , BankGrid , "BANKACCOUNT" );
 				BankGrid . SelectedIndex = rec;
+				dIndex = currsel;
 				Utils . ScrollRecordIntoView ( BankGrid , 1 );
 				return;
 				{
@@ -487,13 +535,45 @@ namespace WPFPages . Views
 		private void Filter_Click ( object sender , RoutedEventArgs e )
 		{
 			Filtering f = new Filtering();
-			if(CurrentDb == "")
+			if ( CurrentDb == "" )
 			{
-				MessageBox.Show ( "Please select an entry in one of the data grids before trying to filter the data listed.");
+				MessageBox . Show ( "Please select an entry in one of the data grids before trying to filter the data listed." );
 				return;
 			}
-			Flags.FilterCommand = f . DoFilters ( sender , CurrentDb , 1 );
+			Flags . FilterCommand = f . DoFilters ( sender , CurrentDb , 1 );
 			ReLoadAllDataBases ( );
+		}
+
+		private void BankGrid_Selected ( object sender , RoutedEventArgs e )
+		{
+			// hit when grid selection is changed by anything
+			int x = 0;
+			//Console . WriteLine("...");
+		}
+
+		private async void Refresh_Click ( object sender , RoutedEventArgs e )
+		{
+			bIndex = BankGrid.SelectedIndex;
+			cIndex = CustomerGrid.SelectedIndex;
+			dIndex = DetailsGrid.SelectedIndex;
+			// Refresh all grids
+			Mouse . OverrideCursor = Cursors . Wait;
+			BankGrid . ItemsSource = null;
+			CustomerGrid . ItemsSource = null;
+			DetailsGrid . ItemsSource = null;
+			BankCollection bc = new BankCollection();
+			await bc . LoadBankTaskInSortOrderasync ( true , 0 );
+			CustCollection cc = new CustCollection ();
+			await cc . LoadCustomerTaskInSortOrderAsync ( true , 0 );
+			DetCollection dc = new DetCollection ();
+			await dc . LoadDetailsTaskInSortOrderAsync ( true , 0 );
+			Mouse . OverrideCursor = Cursors . Arrow;
+		}
+
+		private void Db_Click ( object sender , RoutedEventArgs e )
+		{
+			CustomerDbView cdbv = new CustomerDbView();
+			cdbv . Show ( );
 		}
 	}
 }

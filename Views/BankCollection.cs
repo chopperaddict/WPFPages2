@@ -19,22 +19,40 @@ namespace WPFPages . Views
 	public class BankCollection : ObservableCollection<BankAccountViewModel>
 	{
 		//Declare a global pointer to Observable BankAccount Collection
-		public static BankCollection Bankcollection = new BankCollection();
+		public  BankCollection Bankcollection=null;// = new BankCollection();
+		//public  static BankCollection Bankcollection ;
 
-		public static DataTable dtBank = new DataTable();
+		public static DataTable dtBank = new DataTable("BankDataTable");
+		//public static DataTable dtBank;
 		// THIS IS  HOW  TO HANDLE EVENTS RIGHT NOW //
 		//Event CallBack for when Asynchronous data loading has been completed in the Various ViewModel classes
 		public static  event EventHandler<LoadedEventArgs> BankDataLoaded;
 
 		#region CONSTRUCTOR
 
-		public BankCollection ( ) : base ( )
+		public BankCollection ( )
 		{
-			//set the static pointer to this class
-			//			Bankcollection = this;
-			//			Flags .B= this;
-
+			// Usualy this has
+			// Add(new BankAccountViewModel());
+			// Add(new BankAccountViewModel());
+			// .....
+			//I will call the load insteadto load the data into the collection.
+//			LoadBank( );
 		}
+
+		public   BankCollection  LoadBank (BankCollection bc )
+		{
+//			Bankcollection = new BankCollection ( );
+			//			dtBank = new DataTable ( );
+			LoadBankData ( );
+			Bankcollection = bc;
+			 LoadBankTest ();
+			//LoadBankTaskInSortOrderasync ( false , 0 );
+			return bc;
+		}
+		//public BankCollection ( ) : base ( )
+		//{
+		//}
 
 		#endregion CONSTRUCTOR
 
@@ -185,6 +203,8 @@ namespace WPFPages . Views
 
 					SqlCommand cmd = new SqlCommand ( commandline, con );
 					SqlDataAdapter sda = new SqlDataAdapter ( cmd );
+					if ( dtBank == null )
+						dtBank = new DataTable ( );
 					sda . Fill ( dtBank );
 					//					Console . WriteLine ( $"Exiting LoadBankData {dtBank . Rows . Count} records in DataTable" );
 					//					Console . WriteLine ( $"Exiting LoadBankData in Bankcollection ...." );
@@ -205,9 +225,10 @@ namespace WPFPages . Views
 			//			Console . WriteLine ( $"BANK : Entered LoadBankCollection in Bankcollection ...." );
 			try
 			{
+				BankCollection bc = new BankCollection ( );
 				for ( int i = 0 ; i < dtBank . Rows . Count ; i++ )
 				{
-					Bankcollection . Add ( new BankAccountViewModel
+					bc.Bankcollection . Add ( new BankAccountViewModel
 					{
 						Id = Convert . ToInt32 ( dtBank . Rows [ i ] [ 0 ] ) ,
 						BankNo = dtBank . Rows [ i ] [ 1 ] . ToString ( ) ,
@@ -229,12 +250,50 @@ namespace WPFPages . Views
 			finally
 			{
 				//				Console . WriteLine ( $"BANK : Completed load into Bankcollection :  {Bankcollection . Count} records in Bankcollection ...." );
+				BankCollection bc = new BankCollection ( );
+
 				if ( Notify )
-					OnBankDataLoaded ( Bankcollection );
+					OnBankDataLoaded ( bc.Bankcollection );
 			}
 			return true;
 		}
 
+		public  BankCollection LoadBankTest( )
+		{
+			int count = 0;
+			//			Console . WriteLine ( $"BANK : Entered LoadBankCollection in Bankcollection ...." );
+			try
+			{
+				for ( int i = 0 ; i < dtBank . Rows . Count ; i++ )
+				{
+					Bankcollection . Add ( new BankAccountViewModel
+					{
+						Id = Convert . ToInt32 ( dtBank . Rows [ i ] [ 0 ] ) ,
+						BankNo = dtBank . Rows [ i ] [ 1 ] . ToString ( ) ,
+						CustNo = dtBank . Rows [ i ] [ 2 ] . ToString ( ) ,
+						AcType = Convert . ToInt32 ( dtBank . Rows [ i ] [ 3 ] ) ,
+						Balance = Convert . ToDecimal ( dtBank . Rows [ i ] [ 4 ] ) ,
+						IntRate = Convert . ToDecimal ( dtBank . Rows [ i ] [ 5 ] ) ,
+						ODate = Convert . ToDateTime ( dtBank . Rows [ i ] [ 6 ] ) ,
+						CDate = Convert . ToDateTime ( dtBank . Rows [ i ] [ 7 ] ) ,
+					} );
+					count = i;
+				}
+				return Bankcollection;
+			}
+			catch ( Exception ex )
+			{
+				Console . WriteLine ( $"BANK : SQL Error in BankCollection load function : {ex . Message}, {ex . Data}" );
+				MessageBox . Show ( $"BANK : SQL Error in BankCollection load function : {ex . Message}, {ex . Data}" );
+			}
+			finally
+			{
+				//				Console . WriteLine ( $"BANK : Completed load into Bankcollection :  {Bankcollection . Count} records in Bankcollection ...." );
+//				if ( Notify )
+	//				OnBankDataLoaded ( Bankcollection );
+			}
+			return Bankcollection;
+		}
 		#endregion LOAD THE DATA
 
 		#region EVENT Subscription methods

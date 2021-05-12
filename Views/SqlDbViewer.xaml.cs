@@ -82,7 +82,8 @@ namespace WPFPages
 		#region Data classes declarations
 
 		// New Observable collections
-		public static BankCollection Bankcollection = BankCollection .Bankcollection;
+		BankCollection bc = new BankCollection ( );
+		public static BankCollection Bankcollection;// = bc.Bankcollection;
 
 		public static CustCollection Custcollection = CustCollection . Custcollection;
 		public static DetCollection Detcollection = DetCollection.Detcollection;
@@ -397,7 +398,8 @@ namespace WPFPages
 				default:
 					break;
 			}
-			Bankcollection = BankCollection . Bankcollection;
+			BankCollection bc = new BankCollection ( );
+			Bankcollection = bc. Bankcollection;
 			Custcollection = CustCollection . Custcollection;
 			Detcollection = DetCollection . Detcollection;
 
@@ -411,7 +413,6 @@ namespace WPFPages
 				// subscribe to data loaded event (for the new Bank window)
 				BankCollection . SubscribeToLoadedEvent ( Bankcollection );
 				//				Console . WriteLine ( $"\nCalling Task to load BankAccount Data in Constructor" );
-				BankCollection bc = new BankCollection();
 				Task<BankCollection> data =  bc . LoadBankTaskInSortOrderasync ( true, 0 );
 				if ( data . IsCompleted )
 				{
@@ -469,7 +470,7 @@ namespace WPFPages
 		#region *** CRUCIAL Methods - Event CALLBACK for data loading
 
 		/// <summary>
-		/// CallBack that is triggered by the Sql Data loading classes	when the relevant Observable Collection is ready for use
+		/// This CallBack is triggered by the Sql Data loading classes when the relevant Observable Collection is ready for use
 		///  Here it just acts as a bouncing table to hold until data ACTUALLY becomes available in the return form the Task.Run method
 		/// </summary>
 		/// <param name="sender"></param>
@@ -5391,7 +5392,7 @@ namespace WPFPages
 				e . Handled = true;
 				return;
 			}
-			else if ( key1 && e . Key == Key . F8 )  // CTRL + F11
+			else if ( key1 && e . Key == Key . F8 )  // CTRL + F8
 			{
 				// list various Flags in Console
 				Flags . PrintSundryVariables ( "Window_PreviewKeyDown()" );

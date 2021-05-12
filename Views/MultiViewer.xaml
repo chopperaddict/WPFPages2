@@ -14,8 +14,15 @@
         Title="MultiViewer" Height="850" Width="1000">
 	
 	<Window.Resources>
+
+		<!--<Style x:Key="BankRows" TargetType="{x:Type DataGridCell}" >
+			<Style.Triggers>
+				<Trigger Property="IsSelected" Value="True">
+					<Setter Property="Foreground" Value="Green"/>
+				</Trigger>
+			</Style.Triggers>
+		</Style>-->
 		
-	
 		<!--<local:DateOnlyConverter x:Key="dateOnlyConverter"/>-->
 		<Style x:Key="HeaderStyleBlue" TargetType="DataGridColumnHeader">
 			<Setter Property="Background" Value="{StaticResource HeaderBrushBlue}" />
@@ -69,9 +76,13 @@
 
 
 	</Window.Resources>
+	
 	<Grid>
+	<!--#region MAIN GRID SETUP-->
+		
 		<Grid.RowDefinitions>
-			<RowDefinition Height=" 15"/>
+			<RowDefinition Height=" 10"/>
+			<RowDefinition Height="15"/>
 			<RowDefinition Height=" 45"/>
 			<RowDefinition Height=" *"/>
 			<RowDefinition Height=" *"/>
@@ -79,9 +90,10 @@
 			<RowDefinition Height=" 15"/>
 		</Grid.RowDefinitions>
 		<Grid.ColumnDefinitions>
-			<ColumnDefinition Width="20"/>
+			<ColumnDefinition Width="10"/>
 			<ColumnDefinition Width="*"/>
-			<ColumnDefinition Width="20"/>
+			<ColumnDefinition Width="auto"/>
+			<ColumnDefinition Width="10"/>
 		</Grid.ColumnDefinitions>
 		<Grid.Background>
 			<!--create an elegant left to right light-> Dark gradient as a background-->
@@ -90,23 +102,129 @@
 				<GradientStop Color="LightGray" Offset="0.97" />
 			</LinearGradientBrush>
 		</Grid.Background>
-		<!--<StackPanel
-			Orientation="Vertical"
-			Grid.Column="1"
+	
+		<!--#endregion SETUP-->
+
+	<!--#region Top bar--> 
+		
+			<Grid	 x:Name="BankData"
+				 Grid.Row="1"
+				 Grid.Column="0"
+				 Grid.ColumnSpan="3"
+				 Grid.RowSpan="2"
+				HorizontalAlignment="Left"
+				DataContext="CustomerGrid.SelectedItem"
+				>
+				<!--#region DataFields Grid setup-->
+				
+				<Grid.RowDefinitions>
+					<RowDefinition Height="23"/>
+					<RowDefinition Height="23"/>
+				</Grid.RowDefinitions>
+				<Grid.ColumnDefinitions>
+					<ColumnDefinition Width="70"/>
+					<ColumnDefinition Width="80"/>
+					<ColumnDefinition Width="75"/>
+					<ColumnDefinition Width="100"/>
+					<ColumnDefinition Width="100"/>
+				</Grid.ColumnDefinitions>
+				<!--#endregion DataFields Grid setup-->
+
+				<!--#region Data Fields--> 
+				<TextBlock Text="Customer #  "					     
+					     Grid.Column="0"
+					     Grid.Row="0"
+					     HorizontalAlignment="Left"
+					     Margin="5,5,0,0"
+					     Height="20"
+					     />
+				<TextBlock Text="{Binding CustNo, FallbackValue=Cust #}"
+   					     Grid.Column="1"
+					     Grid.Row="0"
+					     Foreground="Red"
+					     Height="18"
+					     HorizontalAlignment="Left"
+					     Margin="0,0,0,0"
+					     TextAlignment="Center"
+					     VerticalAlignment="Center"
+					     Width="70"
+					     Background="Beige"
+					/>
+	
+			<TextBlock Text="Bank A/C #  "
+					     Grid.Column="2"
+					     Grid.Row="0"					    
+					     Margin="0,0,0,0"
+					     Height="18"
+					     TextAlignment="Left"
+				     />
+			<TextBox Text="{Binding BankNo, FallbackValue=123456}"
+   					     Grid.Column="3"
+					     Grid.Row="0"
+					     Height="18"
+					     HorizontalAlignment="Left"		
+					    TextAlignment="Center"
+					     Margin="0,0,0,0"
+					     Width="70"
+					     VerticalAlignment="Center"
+					     Background="Beige"
+					/>
+			<TextBlock Text="Surname  "
+					     Grid.Column="0"
+					     Grid.Row="1"					    
+					     Margin="5,5,0,0"
+					     Height="18"
+     					     TextAlignment="Left"
+					/>
+			<TextBox Text="{Binding LName, FallbackValue=Last name}"
+   					     Grid.Column="1"
+					     Grid.Row="1"
+					     Height="20"
+					     HorizontalAlignment="Left"		
+					    TextAlignment="Left"
+					     Margin="0,0,0,0"
+						Padding="5,0"
+					     Width="180"
+					     VerticalAlignment="Center"
+					     Background="Beige"
+					/>
+			<TextBlock Text="First name  "
+					     Grid.Column="2"
+					     Grid.Row="1"					    
+					     Margin="5,5,0,0"
+					     Height="18"
+				     		TextAlignment="Left"
+						Width="130"/>
+			<TextBox Text="{Binding FName, FallbackValue=First name}"
+   					     Grid.Column="3"
+					     Grid.Row="1"
+					     Height="20"
+					     HorizontalAlignment="Left"	
+						Padding="5,0"
+					    TextAlignment="Left"
+					     Margin="0,0,0,0"
+					     Width="180"
+					     VerticalAlignment="Center"
+					     Background="Beige"
+					/>
+			<!--#endregion Data Fields-->
+				
+			</Grid>
+
+		<StackPanel							
 			Grid.Row="1"
-			HorizontalAlignment="Stretch"
-			VerticalAlignment="Stretch"
-			>-->
-		<StackPanel
-			Grid.Row="1"
 			Grid.Column="1"
+			Grid.RowSpan="2"			
 			Orientation="Horizontal"
 			HorizontalAlignment="Right"
+			
 			>
+			<!--#region BUTTON BAR -->
+
 			<Button  
-					x:Name="DetailsBtn"
+					x:Name="MultiBtn"
 					Height="40"
-					Width="150"
+					Width="100"
 					Margin="10,0"
 					Style="{StaticResource RedToBlackButton}"				
 				Click="Details_Click"				
@@ -114,10 +232,35 @@
 				<StackPanel Orientation="Horizontal" 
 							HorizontalAlignment="Center"
 							VerticalAlignment="Center">
-					<TextBlock FontFamily="Wingdings" 
+					<!--<TextBlock FontFamily="Wingdings" 
 								Text="ü"
-									Style="{StaticResource WingDingStyle}" />
+						     Height="20"
+						     Width="20"
+									Style="{StaticResource WingDingStyle}" />-->
 					<TextBlock Text="Multi Accounts" 
+								HorizontalAlignment="Center"
+								VerticalAlignment="Center" 
+									Style="{StaticResource WingDingStyle}"
+								FontSize="12"/>
+				</StackPanel>
+			</Button>
+			<Button  
+					x:Name="DbBtn"
+					Height="40"
+					Width="100"
+					Margin="10,0"
+					Style="{StaticResource RedToBlackButton}"				
+				Click="Db_Click"				
+					>
+				<StackPanel Orientation="Horizontal" 
+							HorizontalAlignment="Center"
+							VerticalAlignment="Center">
+					<!--<TextBlock FontFamily="Wingdings" 
+								Text="ü"
+						     Height="20"
+						     Width="20"
+									Style="{StaticResource WingDingStyle}" />-->
+					<TextBlock Text="Bank Db" 
 								HorizontalAlignment="Center"
 								VerticalAlignment="Center" 
 									Style="{StaticResource WingDingStyle}"
@@ -128,7 +271,7 @@
 			<Button  
 					x:Name="FilterBtn"
 					Height="40"
-					Width="120"
+					Width="80"
 					Margin="10,0"
 					Style="{StaticResource RedToBlackButton}"				
 					Click="Filter_Click"				
@@ -136,9 +279,9 @@
 				<StackPanel Orientation="Horizontal" 
 							HorizontalAlignment="Center"
 							VerticalAlignment="Center">
-					<TextBlock FontFamily="Wingdings" 
+					<!--<TextBlock FontFamily="Wingdings" 
 								Text="ü"
-									Style="{StaticResource WingDingStyle}" />
+									Style="{StaticResource WingDingStyle}" />-->
 					<TextBlock Text="Filter" 
 								HorizontalAlignment="Center"
 								VerticalAlignment="Center" 
@@ -148,9 +291,31 @@
 			</Button>
 
 			<Button  
+					x:Name="RefreshBtn"
+					Height="40"
+					Width="70"
+					Margin="10,0"
+					Style="{StaticResource RedToBlackButton}"				
+				Click="Refresh_Click"				
+					>
+				<StackPanel Orientation="Horizontal" 
+						
+							HorizontalAlignment="Center"
+							VerticalAlignment="Center">
+					<!--<TextBlock FontFamily="Wingdings" 
+								Text="ü"
+									Style="{StaticResource WingDingStyle}" />-->
+					<TextBlock Text="Refresh" 
+								HorizontalAlignment="Center"
+								VerticalAlignment="Center" 
+									Style="{StaticResource WingDingStyle}"
+								FontSize="12"/>
+				</StackPanel>
+			</Button>
+			<Button  
 					x:Name="CloseBtn"
 					Height="40"
-					Width="120"
+					Width="90"
 					Margin="10,0"
 					Style="{StaticResource RedToBlackButton}"				
 				Click="Close_Click"				
@@ -168,15 +333,19 @@
 								FontSize="12"/>
 				</StackPanel>
 			</Button>
+			<!--#endregion BUTTON BAR -->
 
-		</StackPanel>
+			</StackPanel>
+	<!--#endregion Top bar-->
 
+	<!--#region Bank Data Grid-->
 		<DataGrid x:Name="BankGrid"
 				AlternatingRowBackground="{StaticResource Blue4}"
 				AutoGenerateColumns="False"
 				ColumnHeaderStyle ="{StaticResource HeaderStyleBlue}"
+			      DataGridCell.Selected="BankGrid_Selected"
 				GotFocus="BankGrid_GotFocus"
-				Grid.Row="2"
+				Grid.Row="3"
 				Grid.Column="1"
 				HorizontalAlignment="Stretch" 
 				IsSynchronizedWithCurrentItem="True"
@@ -184,7 +353,7 @@
 				Padding="10"
 				RowEditEnding="ViewerGrid_RowEditEnding"
 				ScrollViewer.ScrollChanged="BankGrid_ScrollChanged"
-			      SelectionChanged="BankGrid_SelectionChanged"
+			      SelectionChanged="DataGrids_SelectionChanged"
 				SelectionMode="Single"
 				SelectionUnit="FullRow"
 				VerticalAlignment="Stretch"
@@ -197,7 +366,7 @@
 						<Style.Triggers>
 							<Trigger Property="DataGridCell.IsSelected" Value="True">
 							<Setter Property="FontWeight" Value="SemiBold" />
-							<Setter Property="Foreground" Value="Black" />
+							<Setter Property="Foreground" Value="White" />
 							<Setter Property="Background" Value="#6578FD" />
 							</Trigger>
 						</Style.Triggers>
@@ -297,20 +466,22 @@
 				<!--#endregion bankfields-->
 
 			</DataGrid>
+		<!--#endregion Bank Data Grid-->
 
-			<DataGrid x:Name="CustomerGrid"
+	<!--#region Customer DataGrid-->
+		<DataGrid x:Name="CustomerGrid"
 				AlternatingRowBackground="{StaticResource Yellow2}"
 				AutoGenerateColumns="False"
 				ColumnHeaderStyle ="{StaticResource HeaderStyleYellow}"
 				GotFocus="CustomerGrid_GotFocus"
-				Grid.Row="3"
+				Grid.Row="4"
 				Grid.Column="1"
 				IsSynchronizedWithCurrentItem="True"
 				Margin="0,10,0,0"
 				Padding="10"
 				RowEditEnding="ViewerGrid_RowEditEnding"
 				ScrollViewer.ScrollChanged="BankGrid_ScrollChanged"
-			      SelectionChanged="BankGrid_SelectionChanged"
+			      SelectionChanged="DataGrids_SelectionChanged"
 				SelectionMode="Single"
 				SelectionUnit="FullRow"
 				VerticalAlignment="Stretch"
@@ -447,13 +618,15 @@
 				<!--#endregion Customer fields-->
 
 			</DataGrid>
+	<!--#endregion Customer DataGrid-->
 
-			<DataGrid  x:Name="DetailsGrid"
+	<!--#region Details  DataGrid-->
+		<DataGrid  x:Name="DetailsGrid"
 				AlternatingRowBackground="{StaticResource Green4}"
 				AutoGenerateColumns="False"
 				ColumnHeaderStyle ="{StaticResource HeaderStyleGreen}"
 				GotFocus="DetailsGrid_GotFocus"
-				Grid.Row="4"
+				Grid.Row="5"
 				Grid.Column="1"
 				HorizontalAlignment="Stretch" 
 				IsSynchronizedWithCurrentItem="True"
@@ -461,7 +634,7 @@
 				Padding="10"
 				RowEditEnding="ViewerGrid_RowEditEnding"
 				ScrollViewer.ScrollChanged="BankGrid_ScrollChanged"
-			      SelectionChanged="BankGrid_SelectionChanged"
+			      SelectionChanged="DataGrids_SelectionChanged"
 				SelectionMode="Single"
 				SelectionUnit="FullRow"
 				VerticalAlignment="Stretch"
@@ -581,7 +754,7 @@
 
 			</DataGrid>
 
-	
-		<!--</StackPanel>-->
+		<!--#endregion Details  DataGrid-->
+
 	</Grid>
 </Window>

@@ -50,8 +50,8 @@ namespace WPFPages
 
 			if ( Dgrid == null || Dgrid . Items . Count == 0 || Dgrid . SelectedItem == null ) return;
 
-			if ( Dgrid . SelectedItem == null ) return;
-			Dgrid . SelectedIndex = Dgrid.SelectedIndex + (int)offset;
+//			if ( Dgrid . SelectedItem == null ) return;
+//			Dgrid . SelectedIndex = Dgrid.SelectedIndex + (int)offset;
 			//update and scroll to bottom first
 			Dgrid . UpdateLayout ( );
 			Dgrid . ScrollIntoView ( Dgrid . Items . Count - 1 );
