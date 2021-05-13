@@ -8,9 +8,12 @@ using WPFPages . ViewModels;
 
 //using WpfUI;
 using static System . Windows . Forms . VisualStyles . VisualStyleElement . Window;
+using System;
 
 namespace WPFPages
 {
+
+
 
 	delegate void DbEditOcurred ( object Sender, EditEventArgs e );
 	delegate void SQLEditOcurred ( object Sender, EditEventArgs e );
@@ -21,6 +24,10 @@ namespace WPFPages
 	/// </summary>
 	public partial class MainWindow : INotifyPropertyChanged
 	{
+
+		public  BankCollection Bankcollection= new BankCollection();
+		public  CustCollection Custcollection= new CustCollection();
+
 		// Global pointers to Viewmodel classes
 		public static BankAccountViewModel bvm = null;
 		public static CustomerViewModel cvm = null;
@@ -66,11 +73,16 @@ namespace WPFPages
 			gv = GridViewer . Viewer_instance;
 			//			NewFlags flags = new NewFlags ( );
 			//*Flags = NewFlags;
-			BankCollection bc = new BankCollection ( );
-			bc.LoadBank ( bc );
-			bc.Bankcollection = bc;
-			System . Console . WriteLine ($"bc.Count = {bc.Count}");
 
+			//----------------------------------------------------------------------------------------//
+			// Load the Bank account Observable collection (Bankcollection)
+			BankCollection.LoadBank ( Bankcollection );
+			Console . WriteLine ($"bc.Count = {Bankcollection.Count}");
+			//----------------------------------------------------------------------------------------//
+			// Load the Customer account Observable collection (Custcollection)
+			CustCollection . LoadCust ( Custcollection );
+			Console . WriteLine ( $"bc.Count = {Custcollection . Count}" );
+			//----------------------------------------------------------------------------------------//
 		}
 
 		private void OnClosing ( object sender, CancelEventArgs e )

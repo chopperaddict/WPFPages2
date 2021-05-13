@@ -5,7 +5,7 @@
 	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 	xmlns:local="clr-namespace:WPFPages"
 	mc:Ignorable="d"   
-	   Title="My Experimentation System"
+	   Title="C: Drive version - new Collections code"
 	   Width="500" Height="250" 
 	  MinWidth="500" MinHeight="250"
 	   x:Name="Main"

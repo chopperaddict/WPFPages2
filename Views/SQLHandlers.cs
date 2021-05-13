@@ -18,8 +18,8 @@ namespace WPFPages . Views
 		public static DetailsViewModel dvm = MainWindow.dvm;
 
 		// New Observable collections
-		BankCollection bc = new BankCollection ( );
-		public BankCollection Bankcollection;// = bc.Bankcollection;
+		//BankCollection bc = new BankCollection ( );
+		//public BankCollection Bankcollection;// = bc.Bankcollection;
 
 		public CustCollection Custcollection = CustCollection . Custcollection;
 		public DetCollection Detcollection = DetCollection.Detcollection;
@@ -215,7 +215,13 @@ namespace WPFPages . Views
 					Console . WriteLine ( $"SQL - Updated Row in ALL Db's after change(s) made in  {CurrentDb}" );
 					// We have now updated the Db's via SQL !!!
 					// This call should tell any other open viewers to refresh their views
+//					BankCollection.Bankcollection = null;
+//					BankCollection bc = new BankCollection();
+//					await bc.ReLoadBankData( );
+
+#pragma TODO  notify other viewers of data being reloaded  13/5/21
 				}
+
 				//if ( CurrentDb == "BANKACCOUNT" )
 				//{
 				//	SqlDbViewer sqlv = new SqlDbViewer();

@@ -909,8 +909,7 @@ namespace WPFPages . Views
 		//*******************************MAIN KEY HANDLER FOR LIST BOXES*************************************//
 		private void IsEnterKey ( object sender , KeyEventArgs e )
 		{
-			Console . WriteLine ( $"" +
-				$"Key1 = {key1}, Key : {e . Key . ToString ( )}" );
+//			Console . WriteLine ( $"Key1 = {key1}, Key : {e . Key . ToString ( )}" );
 			//PreviewKeyDown - in either list
 			if ( e . Key == Key . LeftCtrl )
 			{
@@ -1046,7 +1045,7 @@ namespace WPFPages . Views
 			{
 				key1 = true;
 			}
-			Console . WriteLine ( $"Key1 = {key1}, Key = {e . Key}" );
+//			Console . WriteLine ( $"Key1 = {key1}, Key = {e . Key}" );
 
 			if ( key1 && e . Key == Key . F9 )     // CTRL + F9
 			{

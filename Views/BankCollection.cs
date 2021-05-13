@@ -18,8 +18,8 @@ namespace WPFPages . Views
 
 	public class BankCollection : ObservableCollection<BankAccountViewModel>
 	{
-		//Declare a global pointer to Observable BankAccount Collection
-		public  BankCollection Bankcollection=null;// = new BankCollection();
+//		//Declare a global pointer to Observable BankAccount Collection
+		public  static BankCollection Bankcollection=null;// = new BankCollection();
 		//public  static BankCollection Bankcollection ;
 
 		public static DataTable dtBank = new DataTable("BankDataTable");
@@ -32,28 +32,22 @@ namespace WPFPages . Views
 
 		public BankCollection ( )
 		{
-			// Usualy this has
-			// Add(new BankAccountViewModel());
-			// Add(new BankAccountViewModel());
-			// .....
-			//I will call the load insteadto load the data into the collection.
-//			LoadBank( );
 		}
 
-		public   BankCollection  LoadBank (BankCollection bc )
+		public static BankCollection  LoadBank (BankCollection bc )
 		{
-//			Bankcollection = new BankCollection ( );
-			//			dtBank = new DataTable ( );
+			// Called to Load/reload the One & Only Bankcollection data source
+			if ( dtBank . Rows . Count > 0 )
+				dtBank . Clear ( );
 			LoadBankData ( );
 			Bankcollection = bc;
-			 LoadBankTest ();
-			//LoadBankTaskInSortOrderasync ( false , 0 );
-			return bc;
+			if ( Bankcollection . Count > 0 )
+				Bankcollection . ClearItems ( );
+			BankCollection connect = new BankCollection();
+			Bankcollection  =  connect.LoadBankTest ( );
+			// We now have the ONE AND ONLY pointer the the Bank data in variable Bankcollection
+			return Bankcollection ;
 		}
-		//public BankCollection ( ) : base ( )
-		//{
-		//}
-
 		#endregion CONSTRUCTOR
 
 		//		private Timer timer = new Timer ();
@@ -77,7 +71,7 @@ namespace WPFPages . Views
 
 		#region LOAD THE DATA
 
-		public async Task<BankCollection> LoadBankTaskInSortOrderasync ( bool Notify = false , int i = -1 )
+		public  async Task<BankCollection> LoadBankTaskInSortOrderasync ( bool Notify = false , int i = -1 )
 		{
 			if ( dtBank . Rows . Count > 0 )
 				dtBank . Clear ( );
@@ -100,7 +94,7 @@ namespace WPFPages . Views
 						// throw new AccessViolationException();
 					}
 				);
-
+	#region Continuations
 			t1 . ContinueWith
 			(
 				async ( Bankcollection ) =>
@@ -158,11 +152,22 @@ namespace WPFPages . Views
 					}
 				} , CancellationToken . None , TaskContinuationOptions . OnlyOnFaulted , TaskScheduler . FromCurrentSynchronizationContext ( )
 			);
-			//t1 . Wait ( );
+
+			#endregion Continuations
+
 			Console . WriteLine ( $"BANKACCOUNT : END OF PROCESSING & Error checking functionality\nBANKACCOUNT : *** Bankcollection total = {Bankcollection . Count} ***\n\n" );
 
 			#endregion Success//Error reporting/handling
 
+			return Bankcollection;
+		}
+		public async Task<BankCollection> ReLoadBankData (bool b=false , int mode=-1 )
+		{
+			//await LoadBankTaskInSortOrderasync ( false );
+			if ( Bankcollection . Count > 0 )
+				Bankcollection . ClearItems ( );
+			LoadBankData ( );
+			Bankcollection = LoadBankTest ( );
 			return Bankcollection;
 		}
 
@@ -228,7 +233,7 @@ namespace WPFPages . Views
 				BankCollection bc = new BankCollection ( );
 				for ( int i = 0 ; i < dtBank . Rows . Count ; i++ )
 				{
-					bc.Bankcollection . Add ( new BankAccountViewModel
+					Bankcollection . Add ( new BankAccountViewModel
 					{
 						Id = Convert . ToInt32 ( dtBank . Rows [ i ] [ 0 ] ) ,
 						BankNo = dtBank . Rows [ i ] [ 1 ] . ToString ( ) ,
@@ -253,7 +258,7 @@ namespace WPFPages . Views
 				BankCollection bc = new BankCollection ( );
 
 				if ( Notify )
-					OnBankDataLoaded ( bc.Bankcollection );
+					OnBankDataLoaded ( Bankcollection );
 			}
 			return true;
 		}
@@ -288,9 +293,7 @@ namespace WPFPages . Views
 			}
 			finally
 			{
-				//				Console . WriteLine ( $"BANK : Completed load into Bankcollection :  {Bankcollection . Count} records in Bankcollection ...." );
-//				if ( Notify )
-	//				OnBankDataLoaded ( Bankcollection );
+			Console . WriteLine ( $"BANK : Completed load into Bankcollection :  {Bankcollection . Count} records loaded successfully ...." );
 			}
 			return Bankcollection;
 		}

@@ -31,7 +31,7 @@ namespace WPFPages . Views
 		public static event EditDbGridSelectionChanged SqlHasChangedSelection;
 
 		// Event we TRIGGER to notify SqlViewer of  a selectedindex change
-		public static event EditDbDataChanged EditDbViewerSelectedIndexChanged;
+//		public static event EditDbDataChanged ViewerDataHasBeenChanged;
 
 		public BankAccountViewModel bvm = MainWindow . bvm;
 		public CustomerViewModel cvm = MainWindow . cvm;
@@ -102,11 +102,16 @@ namespace WPFPages . Views
 
 		public void EditDbHasChangedIndex ( int a , int b , string s )
 		{
-			//This gets called whenever we change data in a  grid cell ?
+			//This gets called whenever we are notified of a change to data in our grid
 			int x = 0;
 			x++;
 			Console . WriteLine ( $"EditDbHasChangedIndex in EditDb has been called after a change in data ...." );
-			SendDataChanged ( Flags . CurrentSqlViewer , null , CurrentDb );
+			//			SendDataChanged ( Flags . CurrentSqlViewer , null , CurrentDb );
+			DataGrid1 . ItemsSource = null;
+				DataGrid1 . Items . Clear ( );
+			DataGrid1 . ItemsSource = BankCollection.Bankcollection;
+			DataGrid1 . Refresh ( );
+			Console . WriteLine ( $"EditDbHasChangedIndex has Updated the Grid content to the latest Db collection...." );
 		}
 
 
@@ -284,7 +289,7 @@ namespace WPFPages . Views
 				currsel = DataGrid1 . SelectedIndex;
 				DataGrid1 . ItemsSource = null;
 				DataGrid1 . ItemsSource = Detcollection;
-				DataGrid1 . SelectedIndex = currsel;
+				DataGrid1 . SelectedIndex = Flags . SqlBankCurrentIndex;
 			}
 			if ( currentDb == "CUSTOMER" )
 			{
@@ -383,7 +388,7 @@ namespace WPFPages . Views
 			//	object Itemdata;
 			//	DataGrid dg;
 			//	// Need to update the grid on here (EditDb)
-			//	if ( EditDbViewerSelectedIndexChanged != null )
+			//	if ( ViewerDataHasBeenChanged != null )
 			//	{
 			//		if ( CurrentDb == "BANKACCOUNT" )
 			//			dg = DataGrid1;
@@ -554,8 +559,8 @@ namespace WPFPages . Views
 				try
 				{
 					// setup the Data Contexts for THIS type of grid
-					DataGrid1 . ItemsSource = CollectionViewSource . GetDefaultView ( Bankcollection );
-					BankEditFields . DataContext = CollectionViewSource . GetDefaultView ( Bankcollection );
+					DataGrid1 . ItemsSource = CollectionViewSource . GetDefaultView (BankCollection. Bankcollection );
+					BankEditFields . DataContext = CollectionViewSource . GetDefaultView ( BankCollection . Bankcollection );
 					//				DataGrid1 . ItemsSource = CollectionViewSource . GetDefaultView ( bvm . BankAccountObs );
 				}
 				catch
@@ -700,8 +705,7 @@ namespace WPFPages . Views
 							     //EditChangeType = 0;     // We have not done anything
 
 			NotifyOfDataChange += DbChangedHandler; // Callback in THIS FILE
-			EditDbViewerSelectedIndexChanged += EditDbHasChangedIndex;      // Callback in THIS FILE
-
+			SqlDbViewer.ViewerDataHasBeenChanged += EditDbHasChangedIndex;      // Callback in THIS FILE
 
 			// moved from 
 			DataUpdated += EditDb_DataUpdated;
@@ -740,17 +744,14 @@ namespace WPFPages . Views
 			if ( NotifyOfDataChange != null )
 				NotifyOfDataChange -= DbChangedHandler;
 
-			if ( EditDbViewerSelectedIndexChanged != null )
-				EditDbViewerSelectedIndexChanged -= EditDbHasChangedIndex;      // Callback in THIS FILE
+			SqlDbViewer.ViewerDataHasBeenChanged -= EditDbHasChangedIndex;
+
 
 			// Clear up pointers to this instance of an EditDb window
 			DataUpdated -= EditDb_DataUpdated;
-			// Subscribe to notifications of a DbUpdate (by a DbEdit window)
-			//			 AllViewersUpdate -= Flags . CurrentSqlViewer . SqlDbViewer_AllViewersUpdate;
 
 			MainWindow . gv . SqlCurrentEditViewer = null;
 
-			Flags . CurrentEditDbViewer = null;
 			//Clear flags
 			if ( CurrentDb == "BANKACCOUNT" )
 			{
@@ -770,8 +771,6 @@ namespace WPFPages . Views
 			Flags . ActiveEditGrid = null;
 			Flags . CurrentEditDbViewer = null;
 			Flags . CurrentSqlViewer . RefreshBtn . IsEnabled = true;
-
-			//Flags.DbSelectorOpen. DeleteCurrentViewer ( );
 		}
 
 		private void Window_GotFocus ( object sender , RoutedEventArgs e )
@@ -951,6 +950,7 @@ namespace WPFPages . Views
 		{
 			// Window is being closed
 			BankAccountViewModel . EditdbWndBank = null;
+			Flags . CurrentEditDbViewer = null;
 			Close ( );
 		}
 
@@ -1100,18 +1100,26 @@ namespace WPFPages . Views
 				Flags . CurrentSqlViewer . UpdateBankOnEditDbChange ( CurrentDb , DataGrid1 . SelectedIndex , DataGrid1 . SelectedItem );
 				dca . SenderName = CurrentDb;
 				dca . DbName = CurrentDb;
-				SendDataChanged ( Flags . CurrentSqlViewer , DataGrid1 , CurrentDb );
+				
+//				Flags.CurrentSqlViewer.ViewerDataHasBeenChanged . Invoke ( 2 , DataGrid1 . SelectedIndex , "BANKACCOUNT" );
+				//				SendDataChanged ( Flags . CurrentSqlViewer , DataGrid1 , CurrentDb );
 			}
 			else
 			{
 				// Row has been changed
 				BankAccountViewModel . SqlUpdating = true;
+				Flags . CurrentSqlViewer . BankGrid . ItemsSource = null;
 				await sqlh . UpdateDbRowAsync ( CurrentDb , DataGrid1 . SelectedItem , DataGrid1 . SelectedIndex );
 				Flags . EditDbDataChanged = true;
-				Flags . CurrentSqlViewer . UpdateBankOnEditDbChange ( CurrentDb , DataGrid1 . SelectedIndex , DataGrid1 . SelectedItem );
+				// This call returns when callee resets ItemsSource ???? & never returns there
+				//				Flags . CurrentSqlViewer . UpdateBankOnEditDbChange ( CurrentDb , DataGrid1 . SelectedIndex , DataGrid1 . SelectedItem );
 				dca . SenderName = CurrentDb;
 				dca . DbName = CurrentDb;
-				SendDataChanged ( Flags . CurrentSqlViewer , DataGrid1 , CurrentDb );
+				Console . WriteLine ($"DataGrid1_RowEditEnding() finished");
+				//				Flags . CurrentSqlViewer . BankGrid. Refresh ( );
+				//SendDataChanged ( Flags . CurrentSqlViewer , DataGrid1 , CurrentDb );
+				Flags . CurrentSqlViewer . UpdateBankOnEditDbChange ( CurrentDb , DataGrid1 . SelectedIndex , DataGrid1 . SelectedItem );
+				//				ViewerDataHasBeenChanged . Invoke ( 2 , DataGrid1 . SelectedIndex , "BANKACCOUNT" );
 			}
 			Flags . EditDbDataChanged = false;
 		}

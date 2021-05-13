@@ -112,9 +112,10 @@ namespace WPFPages . Views
 			int count8 = -1;
 			int count9 = -1;
 			int count10 =-1;
+			int count11 =-1;
 			if ( !BankAccountViewModel . ShowSubscribeData )
 				return;
-			//EditDbViewerSelectedIndexChanged
+			//ViewerDataHasBeenChanged
 			Delegate [ ] dg = SqlDbViewer . GetEventCount ( );
 			if ( dg != null ) count = dg . Length;
 			// NotifyOfDataChange
@@ -145,19 +146,55 @@ namespace WPFPages . Views
 			dg = EditDb . GetEventCount9 ( );
 			if ( dg != null ) count10 = dg . Length;
 
-			Console . WriteLine (
-			$"\n *** Currently Subscribed Events  ***" +
-			$"\nEditDbViewerSelectedIndexChanged =	{count} " +
-			$"\nNotifyOfDataChange =		 		{count2}" +
-			$"\nNotifyOfDataLoaded =		 		{count3}" +
-			$"\nSqlHasChangedSelection = 			{count4}" +
-			$"\nSqlViewerIndexChanged =				{ count5}" +
-			$"\nBankCollection. BankDataLoaded =	{count6}" +
-			$"\nCustCollection. CustDataLoaded =	{count7}" +
-			$"\nDetCollection. DetDataLoaded =		{count8}" +
-			$"\nSQLHandler.DataUpdated =			{count9}" +
-			$"\nDbEdit.AllViewersUpdate =			{count10}"
-			);
+			//RecordDeleted
+			dg = SqlDbViewer. GetEventCount11 ( );
+			if ( dg != null ) count11 = dg . Length;
+
+			Console . WriteLine ( $"\n *** Currently Subscribed Events  ***" );
+			if(count < 0)
+				Console . WriteLine ( $"ViewerDataHasBeenChanged=  " );
+			else
+				Console . WriteLine ( $"ViewerDataHasBeenChanged		= {count} " );
+			if ( count2 < 0 )
+				Console . WriteLine ( $"NotifyOfDataChange				= " );
+			else
+				Console . WriteLine ( $"NotifyOfDataChange				= {count2}" );
+			if ( count3 < 0 )
+				Console . WriteLine ( $"NotifyOfDataLoaded				= " );
+			else
+				Console . WriteLine ( $"NotifyOfDataLoaded				= {count3}" );
+			if ( count4 < 0 )
+				Console . WriteLine ( $"SqlHasChangedSelection			= " );
+			else
+				Console . WriteLine ( $"SqlHasChangedSelection			= {count4}" );
+			if ( count5 < 0 )
+				Console . WriteLine ( $"SqlViewerIndexChanged			= " );
+			else
+				Console . WriteLine ( $"SqlViewerIndexChanged			= { count5}" );
+			if ( count6 < 0 )
+				Console . WriteLine ( $"BankCollection. BankDataLoaded	= " );
+			else
+				Console . WriteLine ( $"BankCollection. BankDataLoaded	= {count6}" );
+			if ( count7 < 0 )
+				Console . WriteLine ( $"CustCollection. CustDataLoaded	= " );
+			else
+				Console . WriteLine ( $"CustCollection. CustDataLoaded	= {count7}" );
+			if ( count8 < 0 )
+				Console . WriteLine ( $"DetCollection. DetDataLoaded	= " );
+			else
+				Console . WriteLine ( $"DetCollection. DetDataLoaded	= {count8}" );
+			if ( count9 < 0 )
+				Console . WriteLine ( $"SQLHandler.DataUpdated			= " );
+			else
+				Console . WriteLine ( $"SQLHandler.DataUpdated			= {count9}" );
+			if ( count10 < 0 )
+				Console . WriteLine ( $"DbEdit.AllViewersUpdate			= " );
+			else
+				Console . WriteLine ( $"DbEdit.AllViewersUpdate			= {count10}" );
+			if ( count11 < 0 )
+				Console . WriteLine ( $"RecordDeleted					= " );
+			else
+				Console . WriteLine ( $"RecordDeleted					= {count11}" );
 
 			bool first = true;
 			Delegate [ ] dglist2 = SqlDbViewer . GetEventCount ( );
@@ -173,7 +210,8 @@ namespace WPFPages . Views
 				foreach ( var item in dglist2 )
 				{
 					if ( cnt > 0 ) Console . WriteLine ( );
-					Console . WriteLine ( $"Delegate : EditDbViewerSelectedIndexChanged :\n >>> {item . Target . ToString ( )}\nMethod = {item . Method . ToString ( )}" );
+					//item . CurrentDb;
+					Console . WriteLine ( $"Delegate : VIEWERDATAHASBEENCHANGED :\n >>> {item . Target}\nMethod = {item . Method.Name . ToString ( )}" );
 					cnt++;
 				}
 			}
@@ -190,7 +228,7 @@ namespace WPFPages . Views
 				foreach ( var item in dglist2 )
 				{
 					if ( cnt > 0 ) Console . WriteLine ( );
-					Console . WriteLine ( $"Delegate : NotifyOfDataChange : \n >>> {item . Target . ToString ( )}\nMethod = {item . Method . ToString ( )}" );
+					Console . WriteLine ( $"Delegate : NOTIFYOFDATACHANGE : \n >>> {item . Target . ToString ( )}\nMethod = {item . Method . ToString ( )}" );
 					cnt++;
 				}
 			}
@@ -207,7 +245,7 @@ namespace WPFPages . Views
 				foreach ( var item in dglist2 )
 				{
 					if ( cnt > 0 ) Console . WriteLine ( );
-					Console . WriteLine ( $"Delegate : NotifyOfDataLoaded: \n >>> {item . Target . ToString ( )}\nMethod = {item . Method . ToString ( )}" );
+					Console . WriteLine ( $"Delegate : NOTIFYOFDATALOADED: \n >>> {item . Target . ToString ( )}\nMethod = {item . Method . ToString ( )}" );
 					cnt++;
 				}
 			}
@@ -220,7 +258,7 @@ namespace WPFPages . Views
 				foreach ( var item in dglist2 )
 				{
 					if ( cnt > 0 ) Console . WriteLine ( );
-					Console . WriteLine ( $"Delegate : SqlHasChangedSelection :\n >>> {item . Target . ToString ( )}\nMethod = {item . Method . ToString ( )}" );
+					Console . WriteLine ( $"Delegate : SQLHASCHANGEDSELECTION :\n >>> {item . Target . ToString ( )}\nMethod = {item . Method . ToString ( )}" );
 					cnt++;
 				}
 			}
@@ -237,7 +275,7 @@ namespace WPFPages . Views
 				foreach ( var item in dglist2 )
 				{
 					if ( cnt > 0 ) Console . WriteLine ( );
-					Console . WriteLine ( $"Delegate : SqlViewerIndexChanged :\n >>> {item . Target . ToString ( )}\nMethod = {item . Method . ToString ( )}" );
+					Console . WriteLine ( $"Delegate : SQLVIEWERINDEXCHANGED :\n >>> {item . Target . ToString ( )}\nMethod = {item . Method . ToString ( )}" );
 					cnt++;
 				}
 			}
@@ -255,9 +293,9 @@ namespace WPFPages . Views
 				{
 					if ( cnt > 0 ) Console . WriteLine ( );
 					if ( item . Target != null )
-						Console . WriteLine ( $"Delegate : BankCollection. BankDataLoaded:\n >>> {item . Target?.ToString ( )}\nMethod = {item . Method . ToString ( )}" );
+						Console . WriteLine ( $"Delegate : BankCollection. BANKDATALOADED:\n >>> {item . Target?.ToString ( )}\nMethod = {item . Method . ToString ( )}" );
 					else
-						Console . WriteLine ( $"Delegate : BankCollection. BankDataLoaded:\n >>> \nMethod = {item . Method . ToString ( )}" );
+						Console . WriteLine ( $"Delegate : BankCollection. BANKDATALOADED:\n >>> \nMethod = {item . Method . ToString ( )}" );
 					cnt++;
 				}
 			}
@@ -275,9 +313,9 @@ namespace WPFPages . Views
 				{
 					if ( cnt > 0 ) Console . WriteLine ( );
 					if ( item . Target != null )
-						Console . WriteLine ( $"Delegate : CustCollection. CustDataLoaded:\n >>> {item . Target?.ToString ( )}\nMethod = {item . Method . ToString ( )}" );
+						Console . WriteLine ( $"Delegate : CustCollection. CUSTDATALOADED:\n >>> {item . Target?.ToString ( )}\nMethod = {item . Method . ToString ( )}" );
 					else
-						Console . WriteLine ( $"Delegate : CustCollection. CustDataLoaded:\n >>> \nMethod = {item . Method . ToString ( )}" );
+						Console . WriteLine ( $"Delegate : CustCollection. CUSTDATALOADED:\n >>> \nMethod = {item . Method . ToString ( )}" );
 					cnt++;
 				}
 			}
@@ -295,9 +333,9 @@ namespace WPFPages . Views
 				{
 					if ( cnt > 0 ) Console . WriteLine ( );
 					if ( item . Target != null )
-						Console . WriteLine ( $"Delegate : DetCollection. DetDataLoaded:\n >>> {item . Target?.ToString ( )}\nMethod = {item . Method . ToString ( )}" );
+						Console . WriteLine ( $"Delegate : DetCollection. DETDATALOADED:\n >>> {item . Target?.ToString ( )}\nMethod = {item . Method . ToString ( )}" );
 					else
-						Console . WriteLine ( $"Delegate : DetCollection. DetDataLoaded:\n >>> \nMethod = {item . Method . ToString ( )}" );
+						Console . WriteLine ( $"Delegate : DetCollection. DETDATALOADED:\n >>> \nMethod = {item . Method . ToString ( )}" );
 					cnt++;
 				}
 			}
@@ -315,9 +353,9 @@ namespace WPFPages . Views
 				{
 					if ( cnt > 0 ) Console . WriteLine ( );
 					if ( item . Target != null )
-						Console . WriteLine ( $"Delegate : SQLHandlers.DataUpdated:\n >>> {item . Target?.ToString ( )}\nMethod = {item . Method . ToString ( )}" );
+						Console . WriteLine ( $"Delegate : SQLHandlers.DATAUPDATED:\n >>> {item . Target?.ToString ( )}\nMethod = {item . Method . ToString ( )}" );
 					else
-						Console . WriteLine ( $"Delegate : SQLHandlers.DataUpdated::\n >>> \nMethod = {item . Method . ToString ( )}" );
+						Console . WriteLine ( $"Delegate : SQLHandlers.DATAUPDATED::\n >>> \nMethod = {item . Method . ToString ( )}" );
 					cnt++;
 				}
 			}
@@ -335,9 +373,29 @@ namespace WPFPages . Views
 				{
 					if ( cnt > 0 ) Console . WriteLine ( );
 					if ( item . Target != null )
-						Console . WriteLine ( $"Delegate : DbEdit.AllViewersUpdate .:\n >>> {item . Target?.ToString ( )}\nMethod = {item . Method . ToString ( )}" );
+						Console . WriteLine ( $"Delegate : DbEdit.ALLVIEWERSUPDATE :\n >>> {item . Target?.ToString ( )}\nMethod = {item . Method . ToString ( )}" );
 					else
-						Console . WriteLine ( $"Delegate : DbEdit.AllViewersUpdate ::\n >>> \nMethod = {item . Method . ToString ( )}" );
+						Console . WriteLine ( $"Delegate : DbEdit.ALLVIEWERSUPDATE :\n >>> \nMethod = {item . Method . ToString ( )}" );
+					cnt++;
+				}
+			}
+			dglist2 = SqlDbViewer. GetEventCount11 ( );
+			if ( dglist2 != null )
+			{
+				int cnt = 0;
+				if ( !first )
+				{
+					Console . WriteLine ( $"=====================================================================================" ); first = false;
+				}
+				Console . WriteLine ( $"=====================================================================================" );
+				first = true;
+				foreach ( var item in dglist2 )
+				{
+					if ( cnt > 0 ) Console . WriteLine ( );
+					if ( item . Target != null )
+						Console . WriteLine ( $"Delegate : RECORDDELETED:\n >>> {item . Target?.ToString ( )}\nMethod = {item . Method . ToString ( )}" );
+					else
+						Console . WriteLine ( $"Delegate : RECORDDELETED:\n >>> \nMethod = {item . Method . ToString ( )}" );
 					cnt++;
 				}
 			}

@@ -69,7 +69,7 @@ namespace WPFPages . Views
 				Detcollection . ClearItems ( );
 
 			// This all woks just fine, and DOES switch back to UI thread that is MANDATORY before doing the Collection load processing
-			// thanks to the use of TaskScheduler.FromCurrentSynchronizationContext() that oerforms the magic switch back to the UI thread
+			// thanks to the use of TaskScheduler.FromCurrentSynchronizationContext() that performs the magic switch back to the UI thread
 			//			Console . WriteLine ( $"DETAILS : Entering Method to call Task.Run in DetCollection  : Thread = { Thread . CurrentThread . ManagedThreadId}" );
 
 			#region process code to load data

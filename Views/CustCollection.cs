@@ -49,6 +49,22 @@ namespace WPFPages . Views
 		#endregion CONSTRUCTOR
 
 		#region startup/load data / load collection (CustCollection)
+		public static CustCollection LoadCust ( CustCollection cc )
+		{
+			// Called to Load/reload the One & Only Bankcollection data source
+			if ( dtCust. Rows . Count > 0 )
+				dtCust . Clear ( );
+			CustCollection c = new CustCollection();
+			c.LoadCustDataSql ( ); 
+			Custcollection = cc;
+			if ( Custcollection . Count > 0 )
+				Custcollection . ClearItems ( );
+			CustCollection connect = new CustCollection ();
+			Custcollection = CustCollection . LoadCustomerTest();
+			// We now have the ONE AND ONLY pointer the the Bank data in variable Bankcollection
+			return Custcollection;
+		}
+
 
 		//**************************************************************************************************************************************************************//
 		// Entry point for all data load/Reload
@@ -168,11 +184,12 @@ namespace WPFPages . Views
 		}
 
 		//**************************************************************************************************************************************************************//
-		private static async Task<bool> LoadCustomerCollection ( bool Notify = true)
+		private static async Task<bool> LoadCustomerCollection ( bool Notify = true )
 
 		{
 			int count = 0;
-			try {
+			try
+			{
 				for ( int i = 0 ; i < dtCust . Rows . Count ; i++ )
 				{
 					Custcollection . Add ( new CustomerViewModel
@@ -199,12 +216,49 @@ namespace WPFPages . Views
 			}
 			catch ( Exception ex )
 			{
-				Console . WriteLine ($"CUSTOMERS : ERROR {ex . Message} + {ex . Data} ...." );
-				MessageBox . Show ( $"CUSTOMERS : ERROR :\n		Error was  : [{ex.Message}] ...." );
+				Console . WriteLine ( $"CUSTOMERS : ERROR {ex . Message} + {ex . Data} ...." );
+				MessageBox . Show ( $"CUSTOMERS : ERROR :\n		Error was  : [{ex . Message}] ...." );
 			}
 			if ( Notify )
 				OnCustDataLoaded ( Custcollection );
 			return true;
+		}
+		private static  CustCollection LoadCustomerTest( bool Notify = true )
+
+		{
+			int count = 0;
+			try
+			{
+				for ( int i = 0 ; i < dtCust . Rows . Count ; i++ )
+				{
+					Custcollection . Add ( new CustomerViewModel
+					{
+						Id = Convert . ToInt32 ( dtCust . Rows [ i ] [ 0 ] ) ,
+						CustNo = dtCust . Rows [ i ] [ 1 ] . ToString ( ) ,
+						BankNo = dtCust . Rows [ i ] [ 2 ] . ToString ( ) ,
+						AcType = Convert . ToInt32 ( dtCust . Rows [ i ] [ 3 ] ) ,
+						FName = dtCust . Rows [ i ] [ 4 ] . ToString ( ) ,
+						LName = dtCust . Rows [ i ] [ 5 ] . ToString ( ) ,
+						Addr1 = dtCust . Rows [ i ] [ 6 ] . ToString ( ) ,
+						Addr2 = dtCust . Rows [ i ] [ 7 ] . ToString ( ) ,
+						Town = dtCust . Rows [ i ] [ 8 ] . ToString ( ) ,
+						County = dtCust . Rows [ i ] [ 9 ] . ToString ( ) ,
+						PCode = dtCust . Rows [ i ] [ 10 ] . ToString ( ) ,
+						Phone = dtCust . Rows [ i ] [ 11 ] . ToString ( ) ,
+						Mobile = dtCust . Rows [ i ] [ 12 ] . ToString ( ) ,
+						Dob = Convert . ToDateTime ( dtCust . Rows [ i ] [ 13 ] ) ,
+						ODate = Convert . ToDateTime ( dtCust . Rows [ i ] [ 14 ] ) ,
+						CDate = Convert . ToDateTime ( dtCust . Rows [ i ] [ 15 ] )
+					} );
+					count = i;
+				}
+			}
+			catch ( Exception ex )
+			{
+				Console . WriteLine ( $"CUSTOMERS : ERROR {ex . Message} + {ex . Data} ...." );
+				MessageBox . Show ( $"CUSTOMERS : ERROR :\n		Error was  : [{ex . Message}] ...." );
+			}
+			return Custcollection;
 		}
 
 		#endregion startup/load data / load collection (CustCollection)

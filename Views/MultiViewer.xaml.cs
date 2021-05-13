@@ -110,7 +110,7 @@ namespace WPFPages . Views
 		{
 			InitializeComponent ( );
 			BankCollection bc = new BankCollection ( );
-			BankGrid . ItemsSource = bc. Bankcollection;
+			BankGrid . ItemsSource = BankCollection .Bankcollection;
 			CustomerGrid . ItemsSource = CustCollection . Custcollection;
 			DetailsGrid . ItemsSource = DetCollection . Detcollection;
 			this . MouseDown += delegate { DoDragMove ( ); };
@@ -127,7 +127,7 @@ namespace WPFPages . Views
 			Flags . MultiViewer = this;
 			BankCollection bc = new BankCollection ( );
 
-			BankCollection . SubscribeToLoadedEvent ( bc. Bankcollection );
+			BankCollection . SubscribeToLoadedEvent ( BankCollection.Bankcollection );
 			BankCollection b  =new BankCollection();
 			b . LoadBankTaskInSortOrderasync ( true , 0 );
 
@@ -147,7 +147,7 @@ namespace WPFPages . Views
 		private void Window_Closing ( object sender , System . ComponentModel . CancelEventArgs e )
 		{
 			BankCollection bc = new BankCollection ( );
-			BankCollection . UnSubscribeToLoadedEvent ( bc. Bankcollection );
+			BankCollection . UnSubscribeToLoadedEvent ( BankCollection . Bankcollection );
 			CustCollection . UnSubscribeToLoadedEvent ( CustCollection . Custcollection );
 			DetCollection . UnSubscribeToLoadedEvent ( DetCollection . Detcollection );
 			Flags . SqlBankGrid = null;
