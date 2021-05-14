@@ -13,28 +13,25 @@ namespace WPFPages . Views
 	/// <summary>
 	/// Class to hold the Customers data for the system as an Observabke collection
 	/// </summary>
-	public class CustCollection : ObservableCollection<CustomerViewModel>		
+	public class CustCollection : ObservableCollection<CustomerViewModel>
 	{
 		//Declare a global pointer to Observable Customers Collection
 		public static CustCollection Custcollection = new CustCollection();
-
 		public static DataTable dtCust = new DataTable();
+
 
 		#region LOAD EVENT  Handler
 
-		// THIS IS  HOW  TO HANDLE EVENTS RIGHT NOW //
-		//Event CallBack for when Asynchronous data loading has been completed in the Various ViewModel classes
-		public  static  event EventHandler<LoadedEventArgs> CustDataLoaded;
 
 		//-------------------------------------------------------------------------------------------------------------------------------------------------//
-		private static void OnCustDataLoaded ( CustCollection cdata )
-		{
-			if ( CustDataLoaded != null )
-			{
-				Console . WriteLine ( $"CUSTOMERS :Broadcasting DATA LOADED NOTIFICATION from OnCustDataLoaded" );
-				CustDataLoaded?.Invoke ( cdata , new LoadedEventArgs ( ) { DataSource = cdata , CallerDb = "CUSTOMER" } );
-			}
-		}
+		//private static void OnCustDataLoaded ( CustCollection cdata )
+		//{
+		//	if ( CustDataLoaded != null )
+		//	{
+		//		Console . WriteLine ( $"CUSTOMERS :Broadcasting DATA LOADED NOTIFICATION from OnCustDataLoaded" );
+		//		CustDataLoaded?.Invoke ( cdata , new LoadedEventArgs ( ) { DataSource = cdata , CallerDb = "CUSTOMER" } );
+		//	}
+		//}
 
 		#endregion LOAD EVENT  Handler
 
@@ -52,15 +49,21 @@ namespace WPFPages . Views
 		public static CustCollection LoadCust ( CustCollection cc )
 		{
 			// Called to Load/reload the One & Only Bankcollection data source
-			if ( dtCust. Rows . Count > 0 )
+			if ( dtCust . Rows . Count > 0 )
 				dtCust . Clear ( );
-			CustCollection c = new CustCollection();
-			c.LoadCustDataSql ( ); 
-			Custcollection = cc;
+			if ( cc != null )
+				Custcollection = cc;
+			else
+				Custcollection = new CustCollection ( );
+
 			if ( Custcollection . Count > 0 )
 				Custcollection . ClearItems ( );
-			CustCollection connect = new CustCollection ();
-			Custcollection = CustCollection . LoadCustomerTest();
+
+			CustCollection c = new CustCollection();
+			c . LoadCustDataSql ( );
+
+			if(dtCust.Rows.Count >0)
+				Custcollection = LoadCustomerTest ( );
 			// We now have the ONE AND ONLY pointer the the Bank data in variable Bankcollection
 			return Custcollection;
 		}
@@ -69,7 +72,7 @@ namespace WPFPages . Views
 		//**************************************************************************************************************************************************************//
 		// Entry point for all data load/Reload
 		//**************************************************************************************************************************************************************//
-		public async Task<CustCollection> LoadCustomerTaskInSortOrderAsync ( bool isOriginator = false , int mode = -1)
+		public async Task<CustCollection> LoadCustomerTaskInSortOrderAsync ( bool isOriginator = false , int mode = -1 )
 		{
 			if ( dtCust . Rows . Count > 0 )
 				dtCust . Clear ( );
@@ -79,7 +82,7 @@ namespace WPFPages . Views
 
 			// This all woks just fine, and DOES switch back to UI thread that is MANDATORY before doing the Collection load processing
 			// thanks to the use of TaskScheduler.FromCurrentSynchronizationContext() that oerforms the magic switch back to the UI thread
-//			Console . WriteLine ( $"CUSTOMERS : Entering Method to call Task.Run in CustCollection  : Thread = { Thread . CurrentThread . ManagedThreadId}" );
+			//			Console . WriteLine ( $"CUSTOMERS : Entering Method to call Task.Run in CustCollection  : Thread = { Thread . CurrentThread . ManagedThreadId}" );
 
 			#region process code to load data
 
@@ -95,11 +98,11 @@ namespace WPFPages . Views
 			(
 				async ( Custcollection ) =>
 				{
-//					Console . WriteLine ( $"Before starting second Task.Run() : Thread = { Thread . CurrentThread . ManagedThreadId}" );
+					//					Console . WriteLine ( $"Before starting second Task.Run() : Thread = { Thread . CurrentThread . ManagedThreadId}" );
 					await LoadCustomerCollection ( );
 				} , TaskScheduler . FromCurrentSynchronizationContext ( )
 			 );
-//			Console . WriteLine ( $"After second Task.Run() : Thread = { Thread . CurrentThread . ManagedThreadId}" );
+			//			Console . WriteLine ( $"After second Task.Run() : Thread = { Thread . CurrentThread . ManagedThreadId}" );
 
 			#endregion process code to load data
 
@@ -171,7 +174,7 @@ namespace WPFPages . Views
 					SqlCommand cmd = new SqlCommand ( commandline, con );
 					SqlDataAdapter sda = new SqlDataAdapter ( cmd );
 					sda . Fill ( dtCust );
-//					Console . WriteLine ( $"CUSTOMERS : Sql data loaded into Customers DataTable [{dtCust . Rows . Count}] ...." );
+					//					Console . WriteLine ( $"CUSTOMERS : Sql data loaded into Customers DataTable [{dtCust . Rows . Count}] ...." );
 				}
 			}
 			catch ( Exception ex )
@@ -220,10 +223,19 @@ namespace WPFPages . Views
 				MessageBox . Show ( $"CUSTOMERS : ERROR :\n		Error was  : [{ex . Message}] ...." );
 			}
 			if ( Notify )
-				OnCustDataLoaded ( Custcollection );
+			{
+//				OnCustDataLoaded ( Custcollection );
+				EventControl . TriggerCustDataLoaded ( null ,
+					new LoadedEventArgs
+					{
+						CallerDb = "CUSTOMER" ,
+						DataSource = Custcollection ,
+						RowCount = Custcollection . Count
+					} );
+			}
 			return true;
 		}
-		private static  CustCollection LoadCustomerTest( bool Notify = true )
+		private static CustCollection LoadCustomerTest ( bool Notify = true )
 
 		{
 			int count = 0;
@@ -265,36 +277,29 @@ namespace WPFPages . Views
 
 		#region Event Subscription handlers
 
-		public static void SubscribeToLoadedEvent ( object o )
-		{
-			if ( o == Custcollection && CustDataLoaded == null && Flags . CurrentSqlViewer != null)
-				CustDataLoaded += Flags . CurrentSqlViewer . SqlDbViewer_DataLoaded;
-			if ( Flags . MultiViewer != null )
-			{
-				MultiViewer mv = new MultiViewer();
-				CustDataLoaded += mv . MultiViewer_DataLoaded;
-			}
-		}
+		//public static void SubscribeToLoadedEvent ( object o )
+		//{
+		//	//			if ( o == Custcollection && CustDataLoaded == null && Flags . CurrentSqlViewer != null)
+		//	//				CustDataLoaded += Flags . CurrentSqlViewer . SqlDbViewer_DataLoaded;
+		//	if ( Flags . MultiViewer != null )
+		//	{
+		//		MultiViewer mv = new MultiViewer();
+		//		EventControl.CustDataLoaded += mv . MultiViewer_DataLoaded;
+		//	}
+		//}
 
-		public static void UnSubscribeToLoadedEvent ( object o )
-		{
-			if ( o == Custcollection && CustDataLoaded == null && Flags . CurrentSqlViewer != null )
-				CustDataLoaded -= Flags . CurrentSqlViewer . SqlDbViewer_DataLoaded;
-			if ( Flags . MultiViewer != null )
-			{
-				MultiViewer mv = new MultiViewer();
-				CustDataLoaded -= mv . MultiViewer_DataLoaded;
-			}
-		}
+		//public static void UnSubscribeToLoadedEvent ( object o )
+		//{
+		//	//			if ( o == Custcollection && CustDataLoaded == null && Flags . CurrentSqlViewer != null )
+		//	//				CustDataLoaded -= Flags . CurrentSqlViewer . SqlDbViewer_DataLoaded;
+		//	if ( Flags . MultiViewer != null )
+		//	{
+		//		MultiViewer mv = new MultiViewer();
+		//		EventControl . CustDataLoaded -= mv . MultiViewer_DataLoaded;
+		//	}
+		//}
 
 		#endregion Event Subscription handlers
 
-		public static Delegate [ ] GetEventCount7 ( )
-		{
-			Delegate [ ] dglist2 = null;
-			if ( CustDataLoaded != null )
-				dglist2 = CustDataLoaded?.GetInvocationList ( );
-			return dglist2;
-		}
 	}
 }

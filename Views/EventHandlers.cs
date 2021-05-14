@@ -14,26 +14,27 @@ namespace WPFPages . Views
 	//This object will contain information about the triggered event.
 	//	public delegate void SelectionChanged (object source, SelectedEventArgs e);
 
-	#region KNOWN DELEGATES IN USE
+	//#region KNOWN DELEGATES IN USE
 
-	public delegate bool DbReloaded ( object sender , DataLoadedArgs args );
+	//public delegate bool DbReloaded ( object sender , DataLoadedArgs args );
 
-	public delegate void DbUpdated ( SqlDbViewer sender , DataGrid Grid , DataChangeArgs args );
+	//public delegate void DbUpdated ( SqlDbViewer sender , DataGrid Grid , DataChangeArgs args );
 
-	public delegate void EditDbGridSelectionChanged ( int ChangeType , int value , string caller );
+	//public delegate void EditDbGridSelectionChanged ( int ChangeType , int value , string caller );
 
-	public delegate void EditDbDataChanged ( int EditDbChangeType , int row , string CurentDb );
+	//public delegate void EditDbDataChanged ( int EditDbChangeType , int row , string CurentDb );
 
-	public delegate void NotifyViewer ( int status , string info , SqlDbViewer NewSqlViewer );
+	//public delegate void NotifyViewer ( int status , string info , SqlDbViewer NewSqlViewer );
 
-	public delegate void SQLViewerSelectionChanged ( int ChangeType , int row , string CurrentDb );
+	//public delegate void SQLViewerSelectionChanged ( int ChangeType , int row , string CurrentDb );
 
-	public delegate void SqlSelectedRowChanged ( int ChangeType , int row , string CurentDb );
+	//public delegate void SqlSelectedRowChanged ( int ChangeType , int row , string CurentDb );
 
-	public delegate void SqlViewerNotify ( int status , string info , SqlDbViewer NewSqlViewer );
+	//public delegate void SqlViewerNotify ( int status , string info , SqlDbViewer NewSqlViewer );
 
 	//************************************************
 
+	#region chime
 	public delegate void ChimeEventHandler ( );
 
 	public class ClockTower
@@ -65,10 +66,9 @@ namespace WPFPages . Views
 			Chime ( );
 		}
 	}
+	#endregion chime
 
 	// UNUSED			public delegate void SqlViewerRowChange ( int row, string CurentDb );
-
-	#endregion KNOWN DELEGATES IN USE
 
 	public class EventHandlers
 	{
@@ -91,8 +91,8 @@ namespace WPFPages . Views
 			thisWin = this;
 			if ( !BankAccountViewModel . ShowSubscribeData )
 				return;
-//			int count = 0;
-//			int count2 = 0;
+			//			int count = 0;
+			//			int count2 = 0;
 			//if ( Flags . EventHandlerDebug )
 			//{
 			Console . WriteLine ( $"EventHandler.EventHandlers(51) : In Constructor - CallerName = {CallerName}." );
@@ -116,13 +116,13 @@ namespace WPFPages . Views
 			if ( !BankAccountViewModel . ShowSubscribeData )
 				return;
 			//ViewerDataHasBeenChanged
-			Delegate [ ] dg = SqlDbViewer . GetEventCount ( );
+			Delegate [ ] dg = EventControl . GetEventCount ( );
 			if ( dg != null ) count = dg . Length;
 			// NotifyOfDataChange
-			dg = SqlDbViewer . GetEventCount2 ( );
+			dg = EventControl . GetEventCount2 ( );
 			if ( dg != null ) count2 = dg . Length;
 			// NotifyOfDataLoaded
-			dg = SqlDbViewer . GetEventCount3 ( );
+			dg = EventControl . GetEventCount3 ( );
 			if ( dg != null ) count3 = dg . Length;
 			// SqlHasChangedSelection
 			dg = EditDb . GetEventCount4 ( );
@@ -131,13 +131,13 @@ namespace WPFPages . Views
 			dg = EditDb . GetEventCount5 ( );
 			if ( dg != null ) count5 = dg . Length;
 			// DetCollection. BankDataLoaded
-			dg = BankCollection . GetEventCount6 ( );
+			dg = EventControl . GetEventCount6 ( );
 			if ( dg != null ) count6 = dg . Length;
 			// CustCollection. CustDataLoaded 
-			dg = CustCollection . GetEventCount7 ( );
+			dg = EventControl . GetEventCount7 ( );
 			if ( dg != null ) count7 = dg . Length;
 			// CustCollection. DetDataLoaded 
-			dg = DetCollection . GetEventCount8 ( );
+			dg = EventControl . GetEventCount8 ( );
 			if ( dg != null ) count8 = dg . Length;
 			//SQLHandlers. DataUpdated
 			dg = EditDb . GetEventCount9 ( );
@@ -147,11 +147,11 @@ namespace WPFPages . Views
 			if ( dg != null ) count10 = dg . Length;
 
 			//RecordDeleted
-			dg = SqlDbViewer. GetEventCount11 ( );
+			dg = EventControl . GetEventCount11 ( );
 			if ( dg != null ) count11 = dg . Length;
 
 			Console . WriteLine ( $"\n *** Currently Subscribed Events  ***" );
-			if(count < 0)
+			if ( count < 0 )
 				Console . WriteLine ( $"ViewerDataHasBeenChanged=  " );
 			else
 				Console . WriteLine ( $"ViewerDataHasBeenChanged		= {count} " );
@@ -197,7 +197,7 @@ namespace WPFPages . Views
 				Console . WriteLine ( $"RecordDeleted					= {count11}" );
 
 			bool first = true;
-			Delegate [ ] dglist2 = SqlDbViewer . GetEventCount ( );
+			Delegate [ ] dglist2 = EventControl . GetEventCount ( );
 			if ( dglist2 != null )
 			{
 				int cnt = 0;
@@ -211,11 +211,11 @@ namespace WPFPages . Views
 				{
 					if ( cnt > 0 ) Console . WriteLine ( );
 					//item . CurrentDb;
-					Console . WriteLine ( $"Delegate : VIEWERDATAHASBEENCHANGED :\n >>> {item . Target}\nMethod = {item . Method.Name . ToString ( )}" );
+					Console . WriteLine ( $"Delegate : VIEWERDATAHASBEENCHANGED :\n >>> {item . Target}\nMethod = {item . Method . Name . ToString ( )}" );
 					cnt++;
 				}
 			}
-			dglist2 = SqlDbViewer . GetEventCount2 ( );
+			dglist2 = EventControl . GetEventCount2 ( );
 			if ( dglist2 != null )
 			{
 				int cnt = 0;
@@ -232,7 +232,7 @@ namespace WPFPages . Views
 					cnt++;
 				}
 			}
-			dglist2 = SqlDbViewer . GetEventCount3 ( );
+			dglist2 = EventControl . GetEventCount3 ( );
 			if ( dglist2 != null )
 			{
 				int cnt = 0;
@@ -279,7 +279,7 @@ namespace WPFPages . Views
 					cnt++;
 				}
 			}
-			dglist2 = BankCollection . GetEventCount6 ( );
+			dglist2 = EventControl . GetEventCount6 ( );
 			if ( dglist2 != null )
 			{
 				int cnt = 0;
@@ -299,7 +299,7 @@ namespace WPFPages . Views
 					cnt++;
 				}
 			}
-			dglist2 = CustCollection . GetEventCount7 ( );
+			dglist2 = EventControl . GetEventCount7 ( );
 			if ( dglist2 != null )
 			{
 				int cnt = 0;
@@ -319,7 +319,7 @@ namespace WPFPages . Views
 					cnt++;
 				}
 			}
-			dglist2 = DetCollection . GetEventCount8 ( );
+			dglist2 = EventControl . GetEventCount8 ( );
 			if ( dglist2 != null )
 			{
 				int cnt = 0;
@@ -379,7 +379,7 @@ namespace WPFPages . Views
 					cnt++;
 				}
 			}
-			dglist2 = SqlDbViewer. GetEventCount11 ( );
+			dglist2 = EventControl . GetEventCount11 ( );
 			if ( dglist2 != null )
 			{
 				int cnt = 0;
@@ -405,36 +405,37 @@ namespace WPFPages . Views
 	}
 
 	public static class DispatcherExtensions
-	{
-		public static SwitchToUiAwaitable SwitchToUi ( this Dispatcher dispatcher )
 		{
-			return new SwitchToUiAwaitable ( dispatcher );
+			public static SwitchToUiAwaitable SwitchToUi ( this Dispatcher dispatcher )
+			{
+				return new SwitchToUiAwaitable ( dispatcher );
+			}
+
+			public struct SwitchToUiAwaitable : INotifyCompletion
+			{
+				private readonly Dispatcher _dispatcher;
+
+				public SwitchToUiAwaitable ( Dispatcher dispatcher )
+				{
+					_dispatcher = dispatcher;
+				}
+
+				public SwitchToUiAwaitable GetAwaiter ( )
+				{
+					return this;
+				}
+
+				public void GetResult ( )
+				{
+				}
+
+				public bool IsCompleted => _dispatcher . CheckAccess ( );
+
+				public void OnCompleted ( Action continuation )
+				{
+					_dispatcher . BeginInvoke ( continuation );
+				}
+			}
 		}
 
-		public struct SwitchToUiAwaitable : INotifyCompletion
-		{
-			private readonly Dispatcher _dispatcher;
-
-			public SwitchToUiAwaitable ( Dispatcher dispatcher )
-			{
-				_dispatcher = dispatcher;
-			}
-
-			public SwitchToUiAwaitable GetAwaiter ( )
-			{
-				return this;
-			}
-
-			public void GetResult ( )
-			{
-			}
-
-			public bool IsCompleted => _dispatcher . CheckAccess ( );
-
-			public void OnCompleted ( Action continuation )
-			{
-				_dispatcher . BeginInvoke ( continuation );
-			}
-		}
-	}
 } // End namespace

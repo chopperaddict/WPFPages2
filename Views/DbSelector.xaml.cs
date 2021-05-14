@@ -653,7 +653,7 @@ namespace WPFPages . Views
 				else if ( DbType == 1 )
 				{
 					CustomerViewModel rec = new CustomerViewModel ( );
-					rec = Flags . CurrentSqlViewer . CustomerGrid . SelectedItem as CustomerViewModel;
+					rec = Flags . CurrentSqlViewer .  CustomerGrid . SelectedItem as CustomerViewModel;
 					MainWindow . gv . PrettyDetails = $"Customer - A/c # {rec?.BankNo}, Cust # {rec?.CustNo}, Forename: {rec?.FName}, Surname : {rec?.LName}, Town : {rec?.Town}";
 					lbi . Content = MainWindow . gv . PrettyDetails;
 				}
@@ -1661,6 +1661,17 @@ namespace WPFPages . Views
 				this . Topmost = true;
 			else
 				this . Topmost = false;
+		}
+
+		private void Multi_Click ( object sender , RoutedEventArgs e )
+		{
+
+		}
+
+		private void Bankedit_Click ( object sender , RoutedEventArgs e )
+		{
+			BankDbView cdbv = new BankDbView();
+			cdbv . Show ( );
 		}
 	}
 }

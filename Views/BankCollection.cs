@@ -18,15 +18,16 @@ namespace WPFPages . Views
 
 	public class BankCollection : ObservableCollection<BankAccountViewModel>
 	{
-//		//Declare a global pointer to Observable BankAccount Collection
-		public  static BankCollection Bankcollection=null;// = new BankCollection();
-		//public  static BankCollection Bankcollection ;
+
+		//		//Declare a global pointer to Observable BankAccount Collection
+		public  static BankCollection Bankcollection=new BankCollection();
+										  //public  static BankCollection Bankcollection ;
 
 		public static DataTable dtBank = new DataTable("BankDataTable");
 		//public static DataTable dtBank;
 		// THIS IS  HOW  TO HANDLE EVENTS RIGHT NOW //
-		//Event CallBack for when Asynchronous data loading has been completed in the Various ViewModel classes
-		public static  event EventHandler<LoadedEventArgs> BankDataLoaded;
+		////Event CallBack for when Asynchronous data loading has been completed in the Various ViewModel classes
+		//public static  event EventHandler<LoadedEventArgs> BankDataLoaded;
 
 		#region CONSTRUCTOR
 
@@ -34,19 +35,30 @@ namespace WPFPages . Views
 		{
 		}
 
-		public static BankCollection  LoadBank (BankCollection bc )
+
+		public static BankCollection LoadBank ( BankCollection bc )
 		{
 			// Called to Load/reload the One & Only Bankcollection data source
 			if ( dtBank . Rows . Count > 0 )
 				dtBank . Clear ( );
+
+			if ( bc != null )
+				Bankcollection = bc;
+			else
+				Bankcollection = new BankCollection ( );
+
 			LoadBankData ( );
-			Bankcollection = bc;
+			if ( Bankcollection == null )
+				Bankcollection = new BankCollection ( );
 			if ( Bankcollection . Count > 0 )
 				Bankcollection . ClearItems ( );
-			BankCollection connect = new BankCollection();
-			Bankcollection  =  connect.LoadBankTest ( );
+			if ( dtBank.Rows.Count > 0 )
+			{
+				BankCollection b = new BankCollection();
+				Bankcollection = b. LoadBankTest ( );
+			}
 			// We now have the ONE AND ONLY pointer the the Bank data in variable Bankcollection
-			return Bankcollection ;
+			return Bankcollection;
 		}
 		#endregion CONSTRUCTOR
 
@@ -58,20 +70,20 @@ namespace WPFPages . Views
 
 
 		//-------------------------------------------------------------------------------------------------------------------------------------------------//
-		private static void OnBankDataLoaded ( BankCollection bnkdata )
-		{
-			if ( BankDataLoaded != null )
-			{
-				Console . WriteLine ( $"BANKACCOUNT : Broadcasting DATA LOADED NOTIFICATION from OnBankDataLoaded" );
-				BankDataLoaded?.Invoke ( bnkdata , new LoadedEventArgs ( ) { DataSource = bnkdata , CallerDb = "BANKACCOUNT" } );
-			}
-		}
+		//private static void OnBankDataLoaded ( BankCollection bnkdata )
+		//{
+		//	if ( BankDataLoaded != null )
+		//	{
+		//		Console . WriteLine ( $"BANKACCOUNT : Broadcasting DATA LOADED NOTIFICATION from OnBankDataLoaded" );
+		//		BankDataLoaded?.Invoke ( bnkdata , new LoadedEventArgs ( ) { DataSource = bnkdata , CallerDb = "BANKACCOUNT" } );
+		//	}
+		//}
 
 		#endregion DATA LOADED EVENT
 
 		#region LOAD THE DATA
 
-		public  async Task<BankCollection> LoadBankTaskInSortOrderasync ( bool Notify = false , int i = -1 )
+		public async Task<BankCollection> LoadBankTaskInSortOrderasync ( bool Notify = false , int i = -1 )
 		{
 			if ( dtBank . Rows . Count > 0 )
 				dtBank . Clear ( );
@@ -94,7 +106,7 @@ namespace WPFPages . Views
 						// throw new AccessViolationException();
 					}
 				);
-	#region Continuations
+			#region Continuations
 			t1 . ContinueWith
 			(
 				async ( Bankcollection ) =>
@@ -161,8 +173,11 @@ namespace WPFPages . Views
 
 			return Bankcollection;
 		}
-		public async Task<BankCollection> ReLoadBankData (bool b=false , int mode=-1 )
+		public async Task<BankCollection> ReLoadBankData ( bool b = false , int mode = -1 )
 		{
+			if ( dtBank . Rows . Count > 0 )
+				dtBank . Clear ( );
+
 			//await LoadBankTaskInSortOrderasync ( false );
 			if ( Bankcollection . Count > 0 )
 				Bankcollection . ClearItems ( );
@@ -258,12 +273,17 @@ namespace WPFPages . Views
 				BankCollection bc = new BankCollection ( );
 
 				if ( Notify )
-					OnBankDataLoaded ( Bankcollection );
+					EventControl.TriggerBankDataLoaded ( null ,
+						new LoadedEventArgs { 
+						CallerDb = "BankAccount" , 
+						DataSource = bc , 
+						RowCount = Bankcollection . Count } );
+//					EventControl . OnBankDataLoaded ( Bankcollection );
 			}
 			return true;
 		}
 
-		public  BankCollection LoadBankTest( )
+		public BankCollection LoadBankTest ( )
 		{
 			int count = 0;
 			//			Console . WriteLine ( $"BANK : Entered LoadBankCollection in Bankcollection ...." );
@@ -293,7 +313,7 @@ namespace WPFPages . Views
 			}
 			finally
 			{
-			Console . WriteLine ( $"BANK : Completed load into Bankcollection :  {Bankcollection . Count} records loaded successfully ...." );
+				Console . WriteLine ( $"BANK : Completed load into Bankcollection :  {Bankcollection . Count} records loaded successfully ...." );
 			}
 			return Bankcollection;
 		}
@@ -301,37 +321,37 @@ namespace WPFPages . Views
 
 		#region EVENT Subscription methods
 
-		public static void SubscribeToLoadedEvent ( object o )
-		{
-			if ( BankDataLoaded == null && Flags . CurrentSqlViewer != null )
-				BankDataLoaded += Flags . CurrentSqlViewer . SqlDbViewer_DataLoaded;
-			if ( Flags . MultiViewer != null )
-			{
-				MultiViewer mv = new MultiViewer();
-				BankDataLoaded += mv . MultiViewer_DataLoaded;
-			}
-		}
+		//public static void SubscribeToLoadedEvent ( object o )
+		//{
+		//	if ( EventControl.BankDataLoaded == null && Flags . CurrentSqlViewer != null )
+		//		BankDataLoaded += Flags . CurrentSqlViewer . SqlDbViewer_DataLoaded;
+		//	if ( Flags . MultiViewer != null )
+		//	{
+		//		MultiViewer mv = new MultiViewer();
+		//		BankDataLoaded += mv . MultiViewer_DataLoaded;
+		//	}
+		//}
 
-		public static void UnSubscribeToLoadedEvent ( object o )
-		{
-			if ( BankDataLoaded == null && Flags . CurrentSqlViewer != null )
-				BankDataLoaded -= Flags . CurrentSqlViewer . SqlDbViewer_DataLoaded;
-			if ( Flags . MultiViewer != null )
-			{
-				MultiViewer mv = new MultiViewer();
-				BankDataLoaded -= mv . MultiViewer_DataLoaded;
-			}
-		}
+		//public static void UnSubscribeToLoadedEvent ( object o )
+		//{
+		//	if ( EventControl . BankDataLoaded == null && Flags . CurrentSqlViewer != null )
+		//		BankDataLoaded -= Flags . CurrentSqlViewer . SqlDbViewer_DataLoaded;
+		//	if ( Flags . MultiViewer != null )
+		//	{
+		//		MultiViewer mv = new MultiViewer();
+		//		BankDataLoaded -= mv . MultiViewer_DataLoaded;
+		//	}
+		//}
 
 		#endregion EVENT Subscription methods
 
-		public static Delegate [ ] GetEventCount6 ( )
-		{
-			Delegate [ ] dglist2 = null;
-			if ( BankDataLoaded != null )
-				dglist2 = BankDataLoaded?.GetInvocationList ( );
-			return dglist2;
-		}
+		//public static Delegate [ ] GetEventCount6 ( )
+		//{
+		//	Delegate [ ] dglist2 = null;
+		//	if ( BankDataLoaded != null )
+		//		dglist2 = BankDataLoaded?.GetInvocationList ( );
+		//	return dglist2;
+		//}
 		public void ListBankInfo ( KeyboardDelegate KeyBoardDelegate )
 		{
 			// Run a specified delegate sent by SqlDbViewer

@@ -18,6 +18,7 @@ namespace WPFPages . Views
 		public int CurrSelection { get; set; }
 		public string CallerDb { get; set; }
 		public object DataSource { get; set; }
+		public int RowCount { get; set; }
 	}
 	public class NotifyAllViewersOfUpdateEventArgs : EventArgs
 	{

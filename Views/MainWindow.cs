@@ -27,6 +27,7 @@ namespace WPFPages
 
 		public  BankCollection Bankcollection= new BankCollection();
 		public  CustCollection Custcollection= new CustCollection();
+		public  DetCollection Detcollection= new DetCollection ();
 
 		// Global pointers to Viewmodel classes
 		public static BankAccountViewModel bvm = null;
@@ -82,6 +83,10 @@ namespace WPFPages
 			// Load the Customer account Observable collection (Custcollection)
 			CustCollection . LoadCust ( Custcollection );
 			Console . WriteLine ( $"bc.Count = {Custcollection . Count}" );
+			//----------------------------------------------------------------------------------------//
+			// Load the Details  account Observable collection (Detcollection)
+			Detcollection = DetCollection . LoadDet ( Detcollection );
+			Console . WriteLine ( $"bc.Count = {Detcollection . Count}" );
 			//----------------------------------------------------------------------------------------//
 		}
 
@@ -447,8 +452,9 @@ namespace WPFPages
 
 		private void OntopChkbox_Click ( object sender , RoutedEventArgs e )
 		{
-			OntopChkbox . IsChecked = !OntopChkbox . IsChecked;
-			Topmost = (bool)OntopChkbox . IsChecked;
+			bool? setting = OntopChkbox . IsChecked;
+			OntopChkbox . IsChecked = setting;
+			Topmost = (bool)setting;
 		}
 	}
 }

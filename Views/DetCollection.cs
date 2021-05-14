@@ -13,8 +13,8 @@ using WPFPages . ViewModels;
 
 namespace WPFPages . Views
 {
-	public class DetCollection : ObservableCollection<DetailsViewModel>//, INotifyCompletion
-	{
+	public class DetCollection : ObservableCollection<DetailsViewModel>
+	{ 
 		//Declare a global pointer to Observable Details Collection
 		//		public  DetCollection DetcollectionStatic;
 		public static DetCollection Detcollection = new DetCollection();
@@ -25,20 +25,16 @@ namespace WPFPages . Views
 
 		#region DATA LOADED EVENT trigger method
 
-		// THIS IS  HOW  TO HANDLE EVENTS RIGHT NOW  - WORKING WELL 4/5/21//
-		// We no longer need ot delcare a Delegate  to do this
-		//Event CallBack for when Asynchronous data loading has been completed in the Various ViewModel classes
-		public   static event EventHandler<LoadedEventArgs> DetDataLoaded;
 
 		//-------------------------------------------------------------------------------------------------------------------------------------------------//
-		private static void OnDetDataLoaded ( DetCollection dtdata , int row )
-		{
-			if ( DetDataLoaded != null )
-			{
-				Console . WriteLine ( $"DETAILS : Broadcasting DATA LOADED NOTIFICATION from OnDetDataLoaded" );
-				DetDataLoaded?.Invoke ( dtdata , new LoadedEventArgs ( ) { DataSource = dtdata , CallerDb = "DETAILS" , CurrSelection = row } );
-			}
-		}
+		//private static void OnDetDataLoaded ( DetCollection dtdata , int row )
+		//{
+		//	if ( DetDataLoaded != null )
+		//	{
+		//		Console . WriteLine ( $"DETAILS : Broadcasting DATA LOADED NOTIFICATION from OnDetDataLoaded" );
+		//		DetDataLoaded?.Invoke ( dtdata , new LoadedEventArgs ( ) { DataSource = dtdata , CallerDb = "DETAILS" , CurrSelection = row } );
+		//	}
+		//}
 
 		#endregion DATA LOADED EVENT trigger method
 
@@ -53,6 +49,27 @@ namespace WPFPages . Views
 
 		#endregion CONSTRUCTOR
 
+		public static DetCollection LoadDet ( DetCollection dc )
+		{
+			// Called to Load/reload the One & Only Bankcollection data source
+			if ( dtDetails. Rows . Count > 0 )
+				dtDetails . Clear ( );
+
+			if ( dc != null )
+				Detcollection = dc;
+			else
+				Detcollection = new DetCollection ( );
+
+			if ( Detcollection . Count > 0 )
+				Detcollection . ClearItems ( );
+
+			DetCollection d = new DetCollection();
+			d.LoadDetailsDataSql ( );
+			if(dtDetails.Rows.Count > 0)
+				LoadDetTest ( Detcollection);
+			// We now have the ONE AND ONLY pointer the the Bank data in variable Bankcollection
+			return Detcollection;
+		}
 
 		#region startup/load data / load collection (DetCollection)
 
@@ -199,7 +216,16 @@ namespace WPFPages . Views
 				}
 				Console . WriteLine ( $"DETAILS : Sql data loaded into Details ObservableCollection \"DetCollection\" [{count}] ...." );
 				if ( Notify )
-					OnDetDataLoaded ( Detcollection , row );
+				{
+//					OnDetDataLoaded ( Detcollection , row );
+					EventControl . TriggerDetDataLoaded ( null ,
+						new LoadedEventArgs
+						{
+							CallerDb = "DETAILS" ,
+							DataSource = Detcollection ,
+							RowCount = Detcollection . Count
+						} );
+                       }
 				return Detcollection;
 			}
 			catch ( Exception ex )
@@ -210,46 +236,69 @@ namespace WPFPages . Views
 			}
 		}
 
+		public static async Task<DetCollection> LoadDetTest ( DetCollection Detcollection)
+		{
+			int count = 0;
+			try
+			{
+				for ( int i = 0 ; i < dtDetails . Rows . Count ; i++ )
+				{
+					Detcollection . Add ( new DetailsViewModel
+					{
+						Id = Convert . ToInt32 ( dtDetails . Rows [ i ] [ 0 ] ) ,
+						BankNo = dtDetails . Rows [ i ] [ 1 ] . ToString ( ) ,
+						CustNo = dtDetails . Rows [ i ] [ 2 ] . ToString ( ) ,
+						AcType = Convert . ToInt32 ( dtDetails . Rows [ i ] [ 3 ] ) ,
+						Balance = Convert . ToDecimal ( dtDetails . Rows [ i ] [ 4 ] ) ,
+						IntRate = Convert . ToDecimal ( dtDetails . Rows [ i ] [ 5 ] ) ,
+						ODate = Convert . ToDateTime ( dtDetails . Rows [ i ] [ 6 ] ) ,
+						CDate = Convert . ToDateTime ( dtDetails . Rows [ i ] [ 7 ] )
+					} );
+					count = i;
+				}
+				Console . WriteLine ( $"DETAILS : Sql data loaded into Details ObservableCollection \"DetCollection\" [{count}] ...." );
+				return Detcollection;
+			}
+			catch ( Exception ex )
+			{
+				Console . WriteLine ( $"DETAILS : ERROR in  LoadDetCollection() : loading Details into ObservableCollection \"DetCollection\" : [{ex . Message}] : {ex . Data} ...." );
+				MessageBox . Show ( $"DETAILS : ERROR in  LoadDetCollection() : loading Details into ObservableCollection \"DetCollection\" : [{ex . Message}] : {ex . Data} ...." );
+				return null;
+			}
+		}
 		//**************************************************************************************************************************************************************//
 
 		#endregion startup/load data / load collection (DetCollection)
 
 		#region Event Subscribing Hsndlers
 
-		public static void SubscribeToLoadedEvent ( object o )
-		{
-			if ( o == Detcollection && DetDataLoaded == null )
-			{
-				if ( Flags . CurrentSqlViewer != null )
-					DetDataLoaded += Flags . CurrentSqlViewer . SqlDbViewer_DataLoaded;
-				if ( Flags . MultiViewer != null )
-				{
-					MultiViewer mv = new MultiViewer();
-					DetDataLoaded += mv . MultiViewer_DataLoaded;
-				}
-			}
-		}
+//		public static void SubscribeToLoadedEvent ( object o )
+//		{
+//			if ( o == Detcollection && DetDataLoaded == null )
+//			{
+////				if ( Flags . CurrentSqlViewer != null )
+////					DetDataLoaded += Flags . CurrentSqlViewer . SqlDbViewer_DataLoaded;
+//				if ( Flags . MultiViewer != null )
+//				{
+//					MultiViewer mv = new MultiViewer();
+//					DetDataLoaded += mv . MultiViewer_DataLoaded;
+//				}
+//			}
+//		}
 
-		public static void UnSubscribeToLoadedEvent ( object o )
-		{
-			if ( o == Detcollection && DetDataLoaded == null )
-				DetDataLoaded -= Flags . CurrentSqlViewer . SqlDbViewer_DataLoaded;
-			if ( Flags . MultiViewer != null )
-			{
-				MultiViewer mv2 = new MultiViewer();
-				DetDataLoaded -= mv2 . MultiViewer_DataLoaded;
-			}
-		}
+//		public static void UnSubscribeToLoadedEvent ( object o )
+//		{
+////			if ( o == Detcollection && DetDataLoaded == null )
+////				DetDataLoaded -= Flags . CurrentSqlViewer . SqlDbViewer_DataLoaded;
+//			if ( Flags . MultiViewer != null )
+//			{
+//				MultiViewer mv2 = new MultiViewer();
+//				DetDataLoaded -= mv2 . MultiViewer_DataLoaded;
+//			}
+//		}
 
 		#endregion Event Subscribing Hsndlers
 
-		public static Delegate [ ] GetEventCount8 ( )
-		{
-			Delegate [ ] dglist2 = null;
-			if ( DetDataLoaded != null )
-				dglist2 = DetDataLoaded?.GetInvocationList ( );
-			return dglist2;
-		}
 
 		#region INotifyCompletion Interface code
 		// INotifyCompletion Interface code
