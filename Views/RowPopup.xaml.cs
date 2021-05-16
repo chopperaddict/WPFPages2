@@ -20,10 +20,10 @@ namespace WPFPages . Views
 		private bool IsDirty = false;
 		private DataGrid ParentGrid = null;
 
-		BankCollection bc = new BankCollection ( );
-		public BankCollection Bankcollection;// = bc.Bankcollection;
-		public CustCollection Custcollection = CustCollection . Custcollection;
-		public DetCollection Detcollection = DetCollection.Detcollection;
+		//BankCollection bc = new BankCollection ( );
+		//public BankCollection Bankcollection;// = bc.Bankcollection;
+		//public CustCollection Custcollection = CustCollection . Custcollection;
+		//public DetCollection Detcollection = DetCollection.Detcollection;
 
 		public RowInfoPopup ( string callerType , DataGrid parentGrid,  DataGridRow RowData)
 		{

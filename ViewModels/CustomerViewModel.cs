@@ -7,9 +7,6 @@ using WPFPages . ViewModels;
 
 namespace WPFPages . Views
 {
-	//==================================
-	//Delegate & Event handler for Db Updates
-	//==================================
 	//===========================
 	//CUSTOMER VIEW MODEL CLASS
 	//===========================
@@ -29,9 +26,6 @@ namespace WPFPages . Views
 		public void SubscribeToChangeEvents ( )
 		{
 			if ( loaded ) return;
-			// subscribe to Data chnaged event fired by SqlDbviewer
-			//			SqlDbViewer sqlv = new SqlDbViewer ();
-			// assign event handler function
 			loaded = true;
 		}
 
@@ -245,155 +239,7 @@ namespace WPFPages . Views
 
 		#region SQL data handling
 
-		//**************************************************************************************************************************************************************//
-
-		//		public async Task<bool> LoadCustomerTaskInSortOrderAsync ( bool isOriginator, int mode = -1 )
-		//		{
-		//			//THIS Fn HANDLES SPAWNING THE TASK/AWAIT
-		//			//and handles the Broadcast Notification
-		//			Console . WriteLine ( $"Starting AWAITED Task LoadCustomerTaskInSortOrderAsync using Sql" );
-		//			Stopwatch sw = new Stopwatch ( );
-		//			sw . Start ( );
-		////			List<Task<bool>> tasks = new List<Task<bool>> ( );
-
-		//			Task<bool> task = Task . Run ( ( ) => LoadCustomersTask ( isOriginator, 0 ) );
-		//			await task . ContinueWith ( ( antecedent ) => LoadSqlData ( dtCust ) );
-		//			await LoadCustomerObsCollection ( );
-		//			Console . WriteLine ( $"Customer fully loaded in { sw . ElapsedMilliseconds} milli seconds" );
-		//			// WE NOW HAVE OUR DATA HERE - fully loaded into Obs, So Notify any interested Party that the data is here?
-
-		//			DataLoadedArgs args = new DataLoadedArgs ( );
-		//			args . DbName = "CUSTOMER";
-		//			args . CurrentIndex = 0;
-		//			// Notify all interested parties that the full Customer data is loaded and available for them in -  dtcust & CustomersObs at least
-		//			if ( !isOriginator )
-		//				SqlDbViewer . SendDBLoadedMsg ( null, args );
-		//			Mouse . OverrideCursor = Cursors . Arrow;
-		//			return true;
-		//		}
-
-		//**************************************************************************************************************************************************************//
-		/// <summary>
-		///  Initialise Data for Customer Grid using Task.Factory thread
-		///  and it then triggers the [TriggerCustDataLoad Event]
-		///  and finally ensures the ItemsSource is set to the ObsCollection
-		///  once ithe Event has triggered all theother load code ?
-		///  Called from DBSELECTOR
-		/// </summary>
-		/// <param> </param>
-		//public async Task<bool> LoadCustomersTask ( bool isOriginator, int mode = -1 )
-		//{
-		//	if ( CustomerViewModel . dtCust == null ) CustomerViewModel . dtCust = new DataTable ( );
-		//	else dtCust . Clear ( );
-
-		//	try
-		//	{
-		//		//{if ( this . CustomersObs != null && this . CustomersObs . Count > 0 )
-		//		//		this . CustomersObs . Clear ( );}
-		//	}
-		//	catch ( Exception ex )
-		//	{
-		//		Console . WriteLine ( $"CustomersObs Exception [{ex . Data}\r\n" );
-		//	}
-		//	//// WE NOW HAVE OUR DATA HERE - fully loaded into Obs, So Notify any interested Party that the data is here?
-		//	//Console . WriteLine ( $"Customer fully loaded in {( DateTime . Now - start ) . Milliseconds} milli seconds" );
-		//	//Mouse . OverrideCursor = Cursors . Arrow;
-		//	return true;
-		//}
-
-		//**************************************************************************************************************************************************************//
-
-		//public async static Task<bool> LoadSqlData ( DataTable dt, int mode = -1, bool isMultiMode = false )
-		////Load data from Sql Server
-		//{
-		//	try
-		//	{
-		//		SqlConnection con;
-		//		string ConString = "";
-		//		ConString = ( string ) Properties . Settings . Default [ "BankSysConnectionString" ];
-		//		con = new SqlConnection ( ConString );
-
-		//		using ( con )
-		//		{
-		//			string commandline = "";
-
-		//			if ( Flags . IsMultiMode )
-		//			{
-		//				// Create a valid Query Command string including any active sort ordering
-		//				commandline = $"SELECT * FROM CUSTOMER WHERE CUSTNO IN "
-		//					+ $"(SELECT CUSTNO FROM CUSTOMER  "
-		//					+ $" GROUP BY CUSTNO"
-		//					+ $" HAVING COUNT(*) > 1) ORDER BY ";
-		//				commandline = Utils . GetDataSortOrder ( commandline );
-		//			}
-		//			else if ( Flags . FilterCommand != "" )
-		//			{commandline = Flags . FilterCommand;}
-		//			else
-		//			{
-		//				// Create a valid Query Command string including any active sort ordering
-		//				commandline = "Select * from Customer  order by ";
-		//				commandline = Utils . GetDataSortOrder ( commandline );
-		//			}
-		//			SqlCommand cmd = new SqlCommand ( commandline, con );
-		//			SqlDataAdapter sda = new SqlDataAdapter ( cmd );
-		//			sda . Fill ( dt );
-		//			Console . WriteLine ( $"Sql data loaded into Customers DataTable [{dt . Rows . Count}] ...." );
-		//			return true;
-		//		}
-		//	}
-		//	catch ( Exception ex )
-		//	{
-		//		Console . WriteLine ( $"Failed to load Customer Details - {ex . Message}" );
-		//		return false;
-		//	}
-		//	return true;
-		//}
-
-		//**************************************************************************************************************************************************************//
-		/// <summary>
-		///  Loads the data from dtCust into CustomerObs Observable collection
-		/// </summary>
-		/// <returns></returns>
-		//public async Task<bool> LoadCustomerObsCollection ( )
-		//{
-		//	try
-		//	{
-		//		if ( CustomersObs . Count > 0 )
-		//			CustomersObs . Clear ( );
-		//		for ( int i = 0 ; i < dtCust . Rows . Count ; i++ )
-		//		{
-		//			CustomersObs . Add ( new CustomerViewModel
-		//			{
-		//				Id = Convert . ToInt32 ( dtCust . Rows [ i ] [ 0 ] ),
-		//				CustNo = dtCust . Rows [ i ] [ 1 ] . ToString ( ),
-		//				BankNo = dtCust . Rows [ i ] [ 2 ] . ToString ( ),
-		//				AcType = Convert . ToInt32 ( dtCust . Rows [ i ] [ 3 ] ),
-		//				FName = dtCust . Rows [ i ] [ 4 ] . ToString ( ),
-		//				LName = dtCust . Rows [ i ] [ 5 ] . ToString ( ),
-		//				Addr1 = dtCust . Rows [ i ] [ 6 ] . ToString ( ),
-		//				Addr2 = dtCust . Rows [ i ] [ 7 ] . ToString ( ),
-		//				Town = dtCust . Rows [ i ] [ 8 ] . ToString ( ),
-		//				County = dtCust . Rows [ i ] [ 9 ] . ToString ( ),
-		//				PCode = dtCust . Rows [ i ] [ 10 ] . ToString ( ),
-		//				Phone = dtCust . Rows [ i ] [ 11 ] . ToString ( ),
-		//				Mobile = dtCust . Rows [ i ] [ 12 ] . ToString ( ),
-		//				Dob = Convert . ToDateTime ( dtCust . Rows [ i ] [ 13 ] ),      // != null ? Convert . ToDateTime ( dtCust . Rows [ i ] [ 13 ] ) : Convert . ToDateTime ( "01/01/2020" ),
-		//				ODate = Convert . ToDateTime ( dtCust . Rows [ i ] [ 14 ] ),
-		//				CDate = Convert . ToDateTime ( dtCust . Rows [ i ] [ 15 ] )
-		//			} );
-		//		}
-		//		Console . WriteLine ( $"Sql data loaded into Customers Db [{CustomersObs . Count}] ...." );
-		//	}
-		//	catch ( Exception ex )
-		//	{
-		//		Console . WriteLine ( $"Error loading Customers Data {ex . Message}" );
-		//		MessageBox . Show ( $"SQL error occurred \n\n{ex . Message},\n{ex . Data}" );
-		//		return false;
-		//	}
-		//	return true;
-		//}
-		////**************************************************************************************************************************************************************//
-
+		
 		#endregion SQL data handling
 	}
 }

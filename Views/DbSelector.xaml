@@ -326,7 +326,21 @@
 				Orientation="Horizontal"
 				HorizontalAlignment="Right"
 				>
-			<Button x:Name="CancelBtn"
+				<Button x:Name="CloseApp"
+					   Background="{StaticResource HeaderBrushBlue}"
+					   Content="Close Program"
+					   Click="Closeapp_Click"
+					   FontSize="14"
+					   Foreground="White"
+					   Height="30"  
+					   HorizontalAlignment="Right"
+					   IsTabStop="True"
+					   Margin="2,2,5,2"
+					   Template="{StaticResource HorizontalGradientTemplateBlue}"
+					   TabIndex="1"
+					   Width="108"
+								  />
+				<Button x:Name="CancelBtn"
 				Background="{StaticResource HeaderBrushBlue}"
 				Content="Close"
 				Click="Cancel_Click"
@@ -384,7 +398,8 @@
 				Template="{StaticResource HorizontalGradientTemplateBlue}"
 				Width="120"
 				/>
-			</StackPanel>
+				
+				</StackPanel>
 		</Grid>
 
 		<!--List of (Lower) currently open viewers-->

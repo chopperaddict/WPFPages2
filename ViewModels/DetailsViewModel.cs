@@ -39,16 +39,7 @@ namespace WPFPages . ViewModels
 
 		public static bool SqlUpdating = false;
 		public static int CurrentSelectedIndex = 0;
-		//		public static DataTable dtDetails = null;
-		//		private static bool IsSubscribedToObsNotifications = false;
-		//		LayoutSettings;
-
-		//==================================
-		//Delegate & Event handler for Db Updates
-		//==================================
-		//		public delegate void DbUpdated ( SqlDbViewer sender, DataGrid Grid, DataChangeArgs args );
-		//		public DbUpdated NotifyOfDataChange;
-
+	
 		#region properties
 
 		private int id;

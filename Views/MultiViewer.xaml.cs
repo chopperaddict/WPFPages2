@@ -6,7 +6,7 @@ using System . Windows . Controls;
 using System . Windows . Data;
 using System . Windows . Input;
 using System . Windows . Media;
-
+using System . Linq;
 using WPFPages . ViewModels;
 
 namespace WPFPages . Views
@@ -20,19 +20,22 @@ namespace WPFPages . Views
 		public CustomerViewModel cvm = MainWindow . cvm;
 		public DetailsViewModel dvm = MainWindow . dvm;
 
-		public static BankCollection Bankcollection = Bankcollection;
+		public static BankCollection Bankcollection = Flags.BankCollection;
 		public static CustCollection Custcollection = Custcollection;
 		public static DetCollection Detcollection = Detcollection;
+
+
+		public  static BankCollection MultiBankcollection=new BankCollection();
+		public  static CustCollection MultiCustcollection=new CustCollection();
+		public  static DetCollection MultiDetcollection=new DetCollection();
 
 		dynamic  bindex = 0;
 		dynamic  cindex = 0;
 		dynamic  dindex = 0;
 		dynamic  CurrentSelection = 0;
+
 		#region DELEGATES / EVENTS Declarations
 
-		// Repeat DEclaratoin to srtop Erro messages
-		//		public static  event EventHandler<LoadedEventArgs> BankDataLoaded;
-		//		public static  event EventHandler<LoadedEventArgs> CustDataLoaded;
 		public static  event EventHandler<LoadedEventArgs> DetDataLoaded;
 
 		#endregion DELEGATES / EVENTS Declarations
@@ -51,17 +54,17 @@ namespace WPFPages . Views
 		{
 			InitializeComponent ( );
 			//			BankCollection bc = new BankCollection ( );
-			this . BankGrid . ItemsSource = BankCollection . Bankcollection;
-			this . CustomerGrid . ItemsSource = CustCollection . Custcollection;
-			DetailsGrid . ItemsSource = DetCollection . Detcollection;
+			this . BankGrid . ItemsSource = MultiBankcollection;
+			this . CustomerGrid . ItemsSource = MultiCustcollection;
+			this. DetailsGrid . ItemsSource = MultiDetcollection;
 			this . MouseDown += delegate { DoDragMove ( ); };
 			this . BankGrid . MouseDown += delegate { DoDragMove ( ); };
 			this . CustomerGrid . MouseDown += delegate { DoDragMove ( ); };
-			DetailsGrid . MouseDown += delegate { DoDragMove ( ); };
+			this. DetailsGrid . MouseDown += delegate { DoDragMove ( ); };
 
 			Flags . SqlBankGrid = this . BankGrid;
-			Flags . SqlCustGrid = CustomerGrid;
-			Flags . SqlDetGrid = DetailsGrid;
+			Flags . SqlCustGrid = this . CustomerGrid;
+			Flags . SqlDetGrid = this . DetailsGrid;
 			Flags . MultiViewer = this;
 		}
 		private async void Window_Loaded ( object sender , RoutedEventArgs e )
@@ -76,18 +79,16 @@ namespace WPFPages . Views
 
 			EventControl . ViewerDataHasBeenChanged += EventControl_ViewerDataHasBeenChanged;
 
-			//			//			BankCollection b  =new BankCollection();
-			//			if ( Bankcollection == null )
-			//				Bankcollection = BankCollection . LoadBank ( Bankcollection );
-			//			//			EventControl . SubscribeToLoadedEvent ( BankCollection . Bankcollection );
-
-			//			if ( Custcollection == null )
-			//				Custcollection = CustCollection . LoadCust ( Custcollection );
-			////			CustCollection . SubscribeToLoadedEvent ( CustCollection . Custcollection );
-
-			//			if ( Detcollection == null )
-			//				Detcollection = DetCollection . LoadDet ( Detcollection );
-			////			DetCollection . SubscribeToLoadedEvent ( DetCollection . Detcollection );
+			if ( MultiBankcollection == null || MultiBankcollection . Count == 0 )
+				MultiBankcollection  = BankCollection . LoadBank ( 3 );
+			BankGrid . ItemsSource = MultiBankcollection;
+			if ( MultiCustcollection == null || MultiCustcollection . Count == 0 )
+				MultiCustcollection = CustCollection . LoadCust ( MultiCustcollection );
+			if ( MultiDetcollection == null || MultiDetcollection . Count == 0 )
+				MultiDetcollection = DetCollection . LoadDet( MultiDetcollection );
+			this . BankGrid . ItemsSource = MultiBankcollection;
+			this . CustomerGrid . ItemsSource = MultiCustcollection;
+			this . DetailsGrid . ItemsSource = MultiDetcollection;
 		}
 
 		private void EventControl_ViewerDataHasBeenChanged ( int EditDbChangeType , int row , string CurentDb )
@@ -105,6 +106,10 @@ namespace WPFPages . Views
 			EventControl . BankDataLoaded -= UpdatedDataLoaded;
 
 			EventControl.ViewerDataHasBeenChanged -= ExternalDataUpdate;      // Callback in THIS FILE
+			// Clear databases
+			MultiBankcollection . Clear ( );
+			MultiCustcollection . Clear ( );
+			MultiDetcollection . Clear ( );
 
 			Flags . SqlBankGrid = null;
 			Flags . SqlCustGrid = null;
@@ -145,28 +150,10 @@ namespace WPFPages . Views
 			SQLHandlers sqlh = new SQLHandlers  ();
 			sqlh . UpdateAllDb ( CurrentDb , e , 2 );
 			//Gotta reload our data because the update clears it down totally to null
-			//Bankcollection = BankCollection . Bankcollection;
-			//Custcollection = CustCollection . Custcollection;
-			//Detcollection = DetCollection . Detcollection;
 			// Refresh our grids
 			RefreshAllGrids ( );
 			inprogress = false;
 
-			//if ( CurrentDb == "BANKACCOUNT" )
-			//{
-			//	BankGrid . SelectedIndex = bindex;
-			//	BankGrid . Refresh ( );
-			//}
-			//else if ( CurrentDb == "CUSTOMER" )
-			//{
-			//	this . CustomerGrid . SelectedIndex = cindex;
-			//	this . CustomerGrid . Refresh ( );
-			//}
-			//else if ( CurrentDb == "DETAILS" )
-			//{
-			//	DetailsGrid . SelectedIndex = dindex;
-			//	DetailsGrid . Refresh ( );
-			//}
 		}
 		public async void RefreshAllGrids ( )
 		{
@@ -177,27 +164,28 @@ namespace WPFPages . Views
 		{
 			this . BankGrid . ItemsSource = null;
 			this . CustomerGrid . ItemsSource = null;
-			DetailsGrid . ItemsSource = null;
+			this. DetailsGrid . ItemsSource = null;
 
 			this . BankGrid . Items . Clear ( );
 			this . CustomerGrid . Items . Clear ( );
-			DetailsGrid . Items . Clear ( );
+			this. DetailsGrid . Items . Clear ( );
 
-			Bankcollection = BankCollection . LoadBank ( Bankcollection );
-			Custcollection = CustCollection . LoadCust ( Custcollection );
-			Detcollection = DetCollection . LoadDet ( Detcollection );
+			BankCollection . LoadBank ( 3);
+			MultiBankcollection = BankCollection . LoadBank( 3 );
+			MultiCustcollection = CustCollection . LoadCust ( MultiCustcollection );
+			MultiDetcollection = DetCollection . LoadDet ( MultiDetcollection );
 			int b =bindex;
 			int c = cindex;
 			int d = dindex;
-			this . BankGrid . ItemsSource = Bankcollection;
-			this . CustomerGrid . ItemsSource = Custcollection;
-			DetailsGrid . ItemsSource = Detcollection;
+			this . BankGrid . ItemsSource = MultiBankcollection;
+			this . CustomerGrid . ItemsSource = MultiCustcollection;
+			this . DetailsGrid . ItemsSource = MultiDetcollection;
 			bindex = b;
 			cindex = c;
 			dindex = d;
 			this . BankGrid . Refresh ( );
 			this . CustomerGrid . Refresh ( );
-			DetailsGrid . Refresh ( );
+			this. DetailsGrid . Refresh ( );
 
 		}
 
@@ -209,7 +197,7 @@ namespace WPFPages . Views
 			inprogress = true;
 			bindex = this . BankGrid . SelectedIndex;
 			cindex = this . CustomerGrid . SelectedIndex;
-			dindex = DetailsGrid . SelectedIndex;
+			dindex = this. DetailsGrid . SelectedIndex;
 
 			CurrentSelection = this . BankGrid . SelectedIndex;
 			this . BankGrid  . SelectedItem = this . BankGrid  . SelectedIndex;
@@ -226,25 +214,20 @@ namespace WPFPages . Views
 		{
 			inprogress = true;
 			BankGrid . SelectedIndex = bindex;
-			this . CustomerGrid . SelectedIndex = cindex;
-			DetailsGrid . SelectedIndex = dindex;
 			if ( CurrentDb == "BANKACCOUNT" )
 			{
 				this . BankGrid  . SelectedItem= bindex;
 				this . BankGrid  . ScrollIntoView(bindex );
-//				this . BankGrid  . Focus ( );
 			}
 			else if ( CurrentDb == "CUSTOMER" )
 			{
 				this . CustomerGrid . SelectedItem = cindex;
 				this . CustomerGrid . ScrollIntoView ( cindex );
-//				this . CustomerGrid . Focus ( );
 			}
 			else if ( CurrentDb == "DETAILS" )
 			{
-				DetailsGrid . SelectedItem = dindex;
-				DetailsGrid . ScrollIntoView ( dindex );
-//				DetailsGrid . Focus ( );
+				this. DetailsGrid . SelectedItem = dindex;
+				this. DetailsGrid . ScrollIntoView ( dindex );
 			}
 			inprogress = false;
 		}
@@ -259,16 +242,16 @@ namespace WPFPages . Views
 				current = DGrid . SelectedIndex == -1 ? 0 : DGrid . SelectedIndex;
 				this . BankGrid  . ItemsSource = null;
 				this . CustomerGrid . ItemsSource = null;
-				DetailsGrid . ItemsSource = null;
+				this. DetailsGrid . ItemsSource = null;
 
-				Bankcollection = BankCollection . LoadBank ( Bankcollection );
-				this . BankGrid  . ItemsSource = Bankcollection;
+				BankCollection . LoadBank (3 );
+				this . BankGrid  . ItemsSource = MultiBankcollection;
 
-				Custcollection = CustCollection . LoadCust ( Custcollection );
-				this . CustomerGrid . ItemsSource = Custcollection;
+				MultiCustcollection = CustCollection . LoadCust ( MultiCustcollection );
+				this . CustomerGrid . ItemsSource = MultiCustcollection;
 
-				Detcollection = DetCollection . LoadDet ( Detcollection );
-				DetailsGrid . ItemsSource = Detcollection;
+				MultiDetcollection = DetCollection . LoadDet ( MultiDetcollection );
+				this. DetailsGrid . ItemsSource = MultiDetcollection;
 
 				DGrid . SelectedIndex = current;
 				Console . WriteLine ( $"End of ReloadGrid() : Thread = { Thread . CurrentThread . ManagedThreadId}" );
@@ -289,27 +272,25 @@ namespace WPFPages . Views
 		{
 			bindex = this . BankGrid  . SelectedIndex;
 			cindex = this . CustomerGrid . SelectedIndex;
-			dindex = DetailsGrid . SelectedIndex;
+			dindex = this. DetailsGrid . SelectedIndex;
 
 			this . BankGrid  . ItemsSource = null;
-			this . BankGrid  . ItemsSource = Bankcollection;
+			this . BankGrid  . ItemsSource = MultiBankcollection;
 			this . CustomerGrid . ItemsSource = null;
-			this . CustomerGrid . ItemsSource = Bankcollection;
-			DetailsGrid . ItemsSource = null;
-			DetailsGrid . ItemsSource = Bankcollection;
+			this . CustomerGrid . ItemsSource = MultiCustcollection;
+			this. DetailsGrid . ItemsSource = null;
+			this. DetailsGrid . ItemsSource = MultiDetcollection;
 
-//			inprogress = true;
 			RefreshAllGrids ( );
-//			inprogress = false;
 			// Refresh all grids
 			Mouse . OverrideCursor = Cursors . Wait;
 			this . BankGrid  . SelectedIndex = bindex;
 			this . CustomerGrid . SelectedIndex = cindex;
-			DetailsGrid . SelectedIndex = dindex;
+			this. DetailsGrid . SelectedIndex = dindex;
 
 			this . BankGrid  . ScrollIntoView ( bindex );
 			this . CustomerGrid . ScrollIntoView ( cindex );
-			DetailsGrid . ScrollIntoView ( dindex );
+			this. DetailsGrid . ScrollIntoView ( dindex );
 			inprogress = false;
 			Mouse . OverrideCursor = Cursors . Arrow;
 		}
@@ -334,29 +315,36 @@ namespace WPFPages . Views
 			{
 				this . BankGrid  . SelectedIndex = 0;
 				this . CustomerGrid . SelectedIndex = 0;
-				DetailsGrid . SelectedIndex = 0;
+				this. DetailsGrid . SelectedIndex = 0;
 				ExtensionMethods . Refresh ( this . BankGrid  );
-				ExtensionMethods . Refresh ( CustomerGrid );
-				ExtensionMethods . Refresh ( DetailsGrid );
+				ExtensionMethods . Refresh ( this . CustomerGrid );
+				ExtensionMethods . Refresh ( this . DetailsGrid );
 			}
 			else if ( e . Key == Key . End )
 			{
 				this . BankGrid  . SelectedIndex = this . BankGrid  . Items . Count - 1;
 				this . CustomerGrid . SelectedIndex = this . CustomerGrid . Items . Count - 1;
-				DetailsGrid . SelectedIndex = DetailsGrid . Items . Count - 1;
+				this. DetailsGrid . SelectedIndex = this. DetailsGrid . Items . Count - 1;
 				this . BankGrid  . SelectedItem = this . BankGrid  . Items . Count - 1;
 				this . CustomerGrid . SelectedItem = this . CustomerGrid . Items . Count - 1;
-				DetailsGrid . SelectedItem = DetailsGrid . Items . Count - 1;
+				this. DetailsGrid . SelectedItem = this. DetailsGrid . Items . Count - 1;
 				this . BankGrid  . ScrollIntoView ( this . BankGrid  . Items . Count - 1 );
 				this . CustomerGrid . ScrollIntoView ( this . CustomerGrid . Items . Count - 1 );
-				DetailsGrid . ScrollIntoView ( DetailsGrid . Items . Count - 1 );
+				this. DetailsGrid . ScrollIntoView ( this. DetailsGrid . Items . Count - 1 );
 				ExtensionMethods . Refresh ( this . BankGrid  );
-				ExtensionMethods . Refresh ( CustomerGrid );
-				ExtensionMethods . Refresh ( DetailsGrid );
+				ExtensionMethods . Refresh ( this . CustomerGrid );
+				ExtensionMethods . Refresh ( this . DetailsGrid );
 			}
 		}
 
-		#region DATAGRID HANDLERS SELECTION CHANGE 
+		#region DATAGRID  SELECTION CHANGE  HANDLING  (SelectedIndex matching across all 3 grids)
+		/// <summary>
+		/// /// *************************************************************************
+		/// THESE ALL WORK CORRECTLY, AND THE SELECTED ROWS ALL MATCH PERFECTLY - 15/5/2021
+		/// /// *************************************************************************
+		/// </summary>
+		/// <param name="sender"></param>
+		/// <param name="e"></param>
 		private void BankGrid_SelectionChanged ( object sender , SelectionChangedEventArgs e )
 		{
 			int rec = 0;
@@ -368,29 +356,30 @@ namespace WPFPages . Views
 
 			DataGrid dg = sender as   DataGrid;
 			int  currsel = dg.SelectedIndex;
-			if ( currsel <= 0 ) currsel = bindex;
 			bindex = currsel;
-			if ( currsel <= 0 ) currsel = cindex;
+			if ( currsel <= 0 ) currsel = bindex;
 			this . BankGrid  . SelectedIndex = currsel;
 			Utils . ScrollRecordIntoView ( this . BankGrid  , 1 );
 
 			// Get Custno from ACTIVE gridso we can find it in other grids
 			BankAccountViewModel bgr = this . BankGrid .SelectedItem as BankAccountViewModel ;
 			if ( bgr == null ) return;
-			rec = FindMatchingRecord ( bgr . CustNo , bgr . BankNo , CustomerGrid , "BANKACCOUNT" );
+			rec = FindMatchingRecord ( bgr . CustNo , bgr . BankNo , this.BankGrid , "BANKACCOUNT" );
+			this . BankGrid . SelectedIndex = rec;
+			bindex = rec;
 			Utils . ScrollRecordIntoView ( this . BankGrid  , 1 );
 
-			rec = FindMatchingRecord ( bgr . CustNo , bgr . BankNo , CustomerGrid , "CUSTOMER" );
+			rec = FindMatchingRecord ( bgr . CustNo , bgr . BankNo , this . CustomerGrid , "CUSTOMER" );
 			this . CustomerGrid . SelectedIndex = rec;
 			cindex = rec;
-			Utils . ScrollRecordIntoView ( CustomerGrid , 1 );
+			BankData . DataContext = this . CustomerGrid . SelectedItem;
+			Utils . ScrollRecordIntoView ( this . CustomerGrid , 1 );
 
-			rec = FindMatchingRecord ( bgr . CustNo , bgr . BankNo , DetailsGrid , "DETAILS" );
-			DetailsGrid . SelectedIndex = rec;
+			rec = FindMatchingRecord ( bgr . CustNo , bgr . BankNo , this . DetailsGrid , "DETAILS" );
+			this. DetailsGrid . SelectedIndex = rec;
 			dindex = rec;
-			Utils . ScrollRecordIntoView ( DetailsGrid , 1 );
+			Utils . ScrollRecordIntoView ( this . DetailsGrid , 1 );
 			inprogress = false;
-			BankData . DataContext = this . CustomerGrid  . SelectedItem;
 			return;
 
 		}
@@ -403,21 +392,20 @@ namespace WPFPages . Views
 				return;
 			inprogress = true;
 
-//			SetScrollVariables ( sender );
 			DataGrid dg = sender as   DataGrid;
 			int  currsel = dg .SelectedIndex;
 			cindex = currsel;
 			if ( currsel <= 0 ) currsel = cindex;
 			this . CustomerGrid . SelectedIndex = currsel;
-			Utils . ScrollRecordIntoView ( CustomerGrid , 1 );
+			Utils . ScrollRecordIntoView ( this . CustomerGrid , 1 );
 
-			// Get Custno from ACTIVE gridso we can find it in other grids
+			// Get Custno from ACTIVE grid so we can find it in other grids
 			CustomerViewModel cgr = CustomerGrid.SelectedItem as CustomerViewModel ;
 			if ( cgr == null ) return;
-			rec = FindMatchingRecord ( cgr . CustNo , cgr . BankNo , CustomerGrid , "CUSTOMER" );
+			rec = FindMatchingRecord ( cgr . CustNo , cgr . BankNo , this . CustomerGrid , "CUSTOMER" );
 			this . CustomerGrid . SelectedIndex = rec;
 			cindex = rec;
-			Utils . ScrollRecordIntoView ( CustomerGrid , 1 );
+			Utils . ScrollRecordIntoView ( this . CustomerGrid , 1 );
 
 			rec = FindMatchingRecord ( cgr . CustNo , cgr . BankNo , this . BankGrid  , "BANKACCOUNT" );
 			this . BankGrid  . SelectedIndex = rec;
@@ -425,10 +413,10 @@ namespace WPFPages . Views
 			Utils . ScrollRecordIntoView ( this . BankGrid  , 1 );
 			// Now use SAME CUSTNO to findmatch in Bank  DbGrid
 
-			rec = FindMatchingRecord ( cgr . CustNo , cgr . BankNo , DetailsGrid , "DETAILS" );
-			DetailsGrid . SelectedIndex = rec;
+			rec = FindMatchingRecord ( cgr . CustNo , cgr . BankNo , this . DetailsGrid , "DETAILS" );
+			this. DetailsGrid . SelectedIndex = rec;
 			dindex = rec;
-			Utils . ScrollRecordIntoView ( DetailsGrid , 1 );
+			Utils . ScrollRecordIntoView ( this . DetailsGrid , 1 );
 			inprogress = false;
 
 			BankData . DataContext = this . CustomerGrid . SelectedItem;
@@ -442,20 +430,19 @@ namespace WPFPages . Views
 				return;
 
 			inprogress = true;
-//			SetScrollVariables ( sender );
 			DataGrid dg = sender as   DataGrid;
-
 			int  currsel = dg .SelectedIndex;
+			dindex = currsel;
 			if ( currsel <= 0 ) currsel = dindex;
-			DetailsGrid . SelectedIndex = currsel;
+			this. DetailsGrid . SelectedIndex = currsel;
+			dindex = rec;
 			Utils . ScrollRecordIntoView ( DetailsGrid , 1 );
 
 			// Get Custno from ACTIVE gridso we can find it in other grids
 			DetailsViewModel dgr = DetailsGrid.SelectedItem as DetailsViewModel ;
 			if ( dgr == null ) return;
-
-			rec = FindMatchingRecord ( dgr . CustNo , dgr . BankNo , DetailsGrid , "DETAILS" );
-			DetailsGrid . SelectedIndex = rec;
+			rec = FindMatchingRecord ( dgr . CustNo , dgr . BankNo , this.DetailsGrid , "DETAILS" );
+			this. DetailsGrid . SelectedIndex = rec;
 			dindex = rec;
 			Utils . ScrollRecordIntoView ( DetailsGrid , 1 );
 
@@ -465,27 +452,71 @@ namespace WPFPages . Views
 			Utils . ScrollRecordIntoView ( this . BankGrid  , 1 );
 
 			// Now use SAME CUSTNO to findmatch in Customer DbGrid
-			rec = FindMatchingRecord ( dgr . CustNo , dgr . BankNo , CustomerGrid , "CUSTOMER" );
+			rec = FindMatchingRecord ( dgr . CustNo , dgr . BankNo , this . CustomerGrid , "CUSTOMER" );
 			this . CustomerGrid . SelectedIndex = rec;
 			cindex = rec;
-			Utils . ScrollRecordIntoView ( CustomerGrid , 1 );
+			Utils . ScrollRecordIntoView ( this . CustomerGrid , 1 );
 
 			inprogress = false;
 			BankData . DataContext = this . CustomerGrid . SelectedItem;
 		}
+		private int FindMatchingRecord ( string Custno , string Bankno , DataGrid Grid , string CurrentDb )
+		{
+			int index = 0;
+			if ( CurrentDb == "BANKACCOUNT" )
+			{
+				foreach ( var item in this . BankGrid . Items )
+				{
+					BankAccountViewModel cvm = item as  BankAccountViewModel ;
+					if ( cvm == null ) break;
+					if ( cvm . CustNo == Custno && cvm . BankNo == Bankno )
+					{
+						break;
+					}
+					index++;
+				}
+			}
+			else if ( CurrentDb == "CUSTOMER" )
+			{
+				foreach ( var item in this . CustomerGrid . Items )
+				{
+					CustomerViewModel cvm = item as     CustomerViewModel;
+					if ( cvm == null ) break;
+					if ( cvm . CustNo == Custno && cvm . BankNo == Bankno )
+					{
+						break;
+					}
+					index++;
+				}
+			}
+			else if ( CurrentDb == "DETAILS" )
+			{
+				foreach ( var item in this . DetailsGrid . Items )
+				{
+					DetailsViewModel cvm = item as     DetailsViewModel ;
+					if ( cvm == null ) break;
+					if ( cvm . CustNo == Custno && cvm . BankNo == Bankno )
+					{
+						break;
+					}
+					index++;
+				}
+			}
+			return index;
+		}
 
-		#endregion DATAGRID HANDLERS
+
+		#endregion DATAGRID  SELECTION CHANGE  HANDLING
 
 		#region focus events
+
 		private void CustomerGrid_GotFocus ( object sender , RoutedEventArgs e )
 		{ CurrentDb = "CUSTOMER"; }
 		private void BankGrid_GotFocus ( object sender , RoutedEventArgs e )
-		{
-			CurrentDb = "BANKACCOUNT"; 
-
-		}
+		{CurrentDb = "BANKACCOUNT"; }
 		private void DetailsGrid_GotFocus ( object sender , RoutedEventArgs e )
 		{ CurrentDb = "DETAILS"; }
+
 		#endregion focus events
 
 		#region SCROLLBARS
@@ -501,8 +532,8 @@ namespace WPFPages . Views
 			scroll . CanContentScroll = true;
 			SetScrollVariables ( sender );
 			this . BankGrid  . ScrollIntoView ( this . BankGrid  . SelectedIndex );
-			this . CustomerGrid . ScrollIntoView ( DetailsGrid . SelectedIndex );
-			DetailsGrid . ScrollIntoView ( this . CustomerGrid . SelectedIndex );
+			this . CustomerGrid . ScrollIntoView ( this. BankGrid . SelectedIndex );
+			this. DetailsGrid . ScrollIntoView ( this . BankGrid . SelectedIndex );
 
 		}
 		private void CustomerGrid_ScrollChanged ( object sender , ScrollChangedEventArgs e )
@@ -513,8 +544,8 @@ namespace WPFPages . Views
 			scroll . CanContentScroll = true;
 			SetScrollVariables ( sender );
 			this . BankGrid  . ScrollIntoView ( this . CustomerGrid . SelectedIndex );
-			this . CustomerGrid . ScrollIntoView ( DetailsGrid . SelectedIndex );
-			DetailsGrid . ScrollIntoView ( this . CustomerGrid . SelectedIndex );
+			this . CustomerGrid . ScrollIntoView ( this. CustomerGrid . SelectedIndex );
+			this. DetailsGrid . ScrollIntoView ( this . CustomerGrid . SelectedIndex );
 		}
 
 		private void DetailsGrid_ScrollChanged ( object sender , ScrollChangedEventArgs e )
@@ -524,9 +555,9 @@ namespace WPFPages . Views
 			var scroll = DataGridNavigation . FindVisualChild<ScrollViewer> ( (DependencyObject)dg);
 			scroll . CanContentScroll = true;
 			SetScrollVariables ( sender );
-			this . CustomerGrid . ScrollIntoView ( DetailsGrid . SelectedIndex );
-			this . BankGrid  . ScrollIntoView ( DetailsGrid . SelectedIndex );
-			DetailsGrid . ScrollIntoView ( this . CustomerGrid . SelectedIndex );
+			this . CustomerGrid . ScrollIntoView ( this. DetailsGrid . SelectedIndex );
+			this . BankGrid  . ScrollIntoView ( this. DetailsGrid . SelectedIndex );
+			this. DetailsGrid . ScrollIntoView ( this . DetailsGrid . SelectedIndex );
 		}
 		#endregion SCROLLBARS
 
@@ -553,12 +584,12 @@ namespace WPFPages . Views
 				//				Console . WriteLine ( $"\n######## Flags . TopVisibleDetGridRow == {scroll . VerticalOffset}\n######## TopVisible = { Flags . TopVisibleBankGridRow}\n######## NEW Value = { scroll . VerticalOffset}" );
 				Flags . TopVisibleBankGridRow = ( double ) rounded;
 			}
-			else if ( dg == CustomerGrid )
+			else if ( dg == this . CustomerGrid )
 			{
 				//				Console . WriteLine ( $"\n######## Flags . TopVisibleDetGridRow == {scroll . VerticalOffset}\n######## TopVisible = { Flags . TopVisibleCustGridRow}\n######## NEW Value = { scroll . VerticalOffset}" );
 				Flags . TopVisibleCustGridRow = ( double ) rounded;
 			}
-			else if ( dg == DetailsGrid )
+			else if ( dg == this . DetailsGrid )
 			{
 				//				Console . WriteLine ( $"\n######## Flags . TopVisibleDetGridRow == {scroll . VerticalOffset}\n######## TopVisible = { Flags . TopVisibleDetGridRow}\n######## NEW Value = { scroll . VerticalOffset}" );
 				Flags . TopVisibleDetGridRow = ( double ) rounded;
@@ -581,12 +612,12 @@ namespace WPFPages . Views
 				//				Console . WriteLine ( $"\n######## Flags . TopVisibleDetGridRow == {scroll . VerticalOffset}\n######## TopVisible = { Flags . BottomVisibleBankGridRow}\n######## NEW Value = { scroll . VerticalOffset}" );
 				Flags . BottomVisibleBankGridRow = ( double ) rounded;
 			}
-			else if ( dg == CustomerGrid )
+			else if ( dg == this . CustomerGrid )
 			{
 				//				Console . WriteLine ( $"\n######## Flags . TopVisibleDetGridRow == {scroll . VerticalOffset}\n######## TopVisible = { Flags . BottomVisibleCustGridRow}\n######## NEW Value = { scroll . VerticalOffset}" );
 				Flags . BottomVisibleCustGridRow = ( double ) rounded;
 			}
-			else if ( dg == DetailsGrid )
+			else if ( dg == this . DetailsGrid )
 			{
 				//				Console . WriteLine ( $"\n######## Flags . TopVisibleDetGridRow == {scroll . VerticalOffset}\n######## TopVisible = { Flags . BottomVisibleDetGridRow}\n######## NEW Value = { scroll . VerticalOffset}" );
 				Flags . BottomVisibleDetGridRow = ( double ) rounded;
@@ -603,50 +634,6 @@ namespace WPFPages . Views
 			Flags . ViewPortHeight = scroll . ViewportHeight;
 		}
 
-		private int FindMatchingRecord ( string Custno ,string Bankno, DataGrid Grid , string CurrentDb )
-		{
-			int index = 0;
-			if ( CurrentDb == "BANKACCOUNT" )
-			{
-				foreach ( var item in this . BankGrid  . Items )
-				{
-					BankAccountViewModel cvm = item as  BankAccountViewModel ;
-					if ( cvm == null ) break;
-					if ( cvm . CustNo == Custno  && cvm.BankNo == Bankno)
-					{
-						break;
-					}
-					index++;
-				}
-			}
-			else if ( CurrentDb == "CUSTOMER" )
-			{
-				foreach ( var item in this . CustomerGrid . Items )
-				{
-					CustomerViewModel cvm = item as     CustomerViewModel;
-					if ( cvm == null ) break;
-					if ( cvm . CustNo == Custno && cvm . BankNo == Bankno )
-					{
-						break;
-					}
-					index++;
-				}
-			}
-			else if ( CurrentDb == "DETAILS" )
-			{
-				foreach ( var item in DetailsGrid . Items )
-				{
-					DetailsViewModel cvm = item as     DetailsViewModel ;
-					if ( cvm == null ) break;
-					if ( cvm . CustNo == Custno && cvm . BankNo == Bankno )
-					{
-						break;
-					}
-					index++;
-				}
-			}
-			return index;
-		}
 
 		#endregion Scroll bar utilities
 
@@ -669,7 +656,6 @@ namespace WPFPages . Views
 		/// <param name="e"></param>
 		private void Details_Click ( object sender , RoutedEventArgs e )
 		{
-
 		}
 
 		private void Filter_Click ( object sender , RoutedEventArgs e )

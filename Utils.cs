@@ -7,6 +7,7 @@ using System . Text;
 using System . Threading . Tasks;
 using System . Windows;
 using System . Windows . Controls;
+using System . Windows . Input;
 using System . Windows . Media;
 
 using DocumentFormat . OpenXml . ExtendedProperties;
@@ -23,8 +24,18 @@ namespace WPFPages
 	/// </summary>
 	public class Utils
 	{
-
-		public static void ScrollRecordIntoView ( DataGrid Dgrid , int caller)
+		public static bool DataGridHasFocus ( DependencyObject instance )
+		{
+			//how to fibnd out whether a datagrid has focus or not to handle key previewers
+			IInputElement focusedControl = FocusManager.GetFocusedElement(instance);
+			if( focusedControl  == null)	return true;
+				string compare = focusedControl.ToString();
+			if ( compare . ToUpper ( ) . Contains ( "DATAGRID" ) )
+				return true;
+			else
+				return false;
+		}
+		public static void ScrollRecordIntoView ( DataGrid Dgrid , int caller )
 		{
 			double currentTop = 0;
 			double currentBottom= 0;
@@ -50,20 +61,20 @@ namespace WPFPages
 
 			if ( Dgrid == null || Dgrid . Items . Count == 0 || Dgrid . SelectedItem == null ) return;
 
-//			if ( Dgrid . SelectedItem == null ) return;
-//			Dgrid . SelectedIndex = Dgrid.SelectedIndex + (int)offset;
+			//			if ( Dgrid . SelectedItem == null ) return;
+			//			Dgrid . SelectedIndex = Dgrid.SelectedIndex + (int)offset;
 			//update and scroll to bottom first
 			Dgrid . UpdateLayout ( );
 			Dgrid . ScrollIntoView ( Dgrid . Items . Count - 1 );
 			Dgrid . UpdateLayout ( );
-			Dgrid . ScrollIntoView ( Dgrid . SelectedItem);
+			Dgrid . ScrollIntoView ( Dgrid . SelectedItem );
 			Dgrid . UpdateLayout ( );
-			Dgrid . SelectedIndex = (int)currsel;
-			if ( caller == 0)
-				Flags.CurrentSqlViewer.SetScrollVariables ( Dgrid);
+			Dgrid . SelectedIndex = ( int ) currsel;
+			if ( caller == 0 )
+				Flags . CurrentSqlViewer?.SetScrollVariables ( Dgrid );
 
-//			Flags . TopVisibleDetGridRow = currentTop;
-//			Flags . BottomVisibleDetGridRow = currentBottom;
+			//			Flags . TopVisibleDetGridRow = currentTop;
+			//			Flags . BottomVisibleDetGridRow = currentBottom;
 		}
 
 		//		public NewFlags Flags = new NewFlags();

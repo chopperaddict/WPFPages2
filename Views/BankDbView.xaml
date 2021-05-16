@@ -23,17 +23,6 @@
 
 		<!--<bank:BankAccountViewModel x:Key="BankViewData"/>-->
 
-
-		<!--<CollectionViewSource Source="{StaticResource BankData}" x:Key="Cvs">
-			<CollectionViewSource.SortDescriptions>
-				<componentModel:SortDescription PropertyName="CustNo"/>
-			</CollectionViewSource.SortDescriptions>
-			<CollectionViewSource.GroupDescriptions>
-				<PropertyGroupDescription PropertyName="State"/>
-			</CollectionViewSource.GroupDescriptions>
-		</CollectionViewSource>-->
-
-
 		<Style x:Key="HeaderStyleBlue" TargetType="DataGridColumnHeader">
 			<Setter Property="Background" Value="{StaticResource HeaderBrushBlue}" />
 			<Setter Property="Foreground" Value="White" />
@@ -50,7 +39,6 @@
 				</Trigger>
 			</Style.Triggers>
 		</Style>
-
 
 	</Window.Resources>
 	<Grid>
@@ -83,19 +71,18 @@
 		<DataGrid x:Name="BankGrid"
 				AlternatingRowBackground="{StaticResource Blue4}"
 				AutoGenerateColumns="False"
-			    CellEditEnding="BankGrid_CellEditEnding"
 				ColumnHeaderStyle ="{StaticResource HeaderStyleBlue}"
 				Grid.Row="1"
 				Grid.Column="1"
 				Grid.ColumnSpan="4" 
+			    CanUserAddRows="False"
 				Grid.RowSpan="1" 
 				HorizontalAlignment="Stretch" 
 				IsSynchronizedWithCurrentItem="True"
 				Margin="0,0,10,8"
 				Padding="-10"
 				RowEditEnding="ViewerGrid_RowEditEnding"
-			    CurrentCellChanged="BankGrid_CurrentCellChanged"
-			    SelectionChanged="BankGrid_SelectionChanged"
+				SelectionChanged="BankGrid_SelectionChanged"
 				SelectionMode="Single"
 				SelectionUnit="FullRow"
 				IsTabStop="False"
@@ -115,16 +102,18 @@
 				</LinearGradientBrush>
 			</DataGrid.Background>
 
-			<SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightBrushKey}" Color="#CCFAFB"/>
-			<Style TargetType="DataGridCell">
-				<Style.Triggers>
-					<Trigger Property="DataGridCell.IsSelected" Value="True">
-						<Setter Property="FontWeight" Value="SemiBold" />
-						<Setter Property="Foreground" Value="White" />
-						<Setter Property="Background" Value="#6578FD" />
-					</Trigger>
-				</Style.Triggers>
-			</Style>
+			<DataGrid.Resources>
+				<SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightBrushKey}" Color="#6578FD"/>
+				<Style TargetType="DataGridCell">
+					<Style.Triggers>
+						<Trigger Property="DataGridCell.IsSelected" Value="True">
+							<Setter Property="FontWeight" Value="SemiBold" />
+							<Setter Property="Foreground" Value="White" />
+							<Setter Property="Background" Value="#6578FD" />
+						</Trigger>
+					</Style.Triggers>
+				</Style>
+			</DataGrid.Resources>
 
 			<!--#region bank Columns-->
 			<DataGrid.Columns >
@@ -222,7 +211,7 @@
 		</DataGrid>
 
 		<Grid
-			DataContext="BankGrid.SelectedItem"
+			DataContext="BankGrid"
 			Grid.Row="2"
 			Grid.Column="1"
 			VerticalAlignment="Stretch"
@@ -263,7 +252,7 @@
 					    HorizontalAlignment="Center" 
 					   HorizontalContentAlignment="Center"
 					    Padding="5,3,0,0"
-					    Text="{Binding CustNo, UpdateSourceTrigger=Explicit, FallbackValue=Cust  #}" 
+					    Text="{Binding CustNo, UpdateSourceTrigger=LostFocus, FallbackValue=Cust  #}" 
 					    VerticalAlignment="Center" 
 					    Height="24" 
 					   TabIndex="0"
@@ -288,7 +277,7 @@
 					    HorizontalAlignment="Center" 
 					   HorizontalContentAlignment="Center"
 						Padding="5,3,0,0"
-					    Text="{Binding BankNo,UpdateSourceTrigger=Explicit, FallbackValue=Bank A/c #}" 
+					    Text="{Binding BankNo,UpdateSourceTrigger=LostFocus, FallbackValue=Bank A/c #}" 
 					    VerticalAlignment="Center" 
 					    Height="24" 
 					    Width="90" 
@@ -307,21 +296,22 @@
 				Canvas.Left="24" 
 				Canvas.Top="76"/>
 
-				<TextBox x:Name="actype" 
+				<TextBox x:Name="acType" 
 				FontSize="12"
 				Foreground="Black"
 				HorizontalAlignment="Center" 
 				HorizontalContentAlignment="Center"
 				Padding="5,3,0,0"
-				Text="{Binding AcType, FallbackValue=AcType, UpdateSourceTrigger=Explicit}" 
+				Text="{Binding AcType, FallbackValue=AcType, UpdateSourceTrigger=LostFocus}" 
 			     TextAlignment="Center"
 				VerticalAlignment="Center" 
 				Height="24" 
 				Width="90" 
 				TabIndex="2"
 				Canvas.Left="108" 
-				Canvas.Top="76"/>
-
+				Canvas.Top="76" 
+				SelectionChanged="SelectionChanged" 
+				TextChanged="TextChanged"/>
 
 				<TextBlock x:Name="textBlock_Copy1" 
 				    Foreground="White"
@@ -342,12 +332,14 @@
 				HorizontalAlignment="Center" 
 				HorizontalContentAlignment="Center"
 				Padding="5,3,0,0"
-				Text="{Binding Path=Balance, FallbackValue=Balance, UpdateSourceTrigger=Explicit}" 
+				Text="{Binding Path=Balance, FallbackValue=Balance, UpdateSourceTrigger=LostFocus}" 
 			     TextAlignment="Center"
 				VerticalAlignment="Center" 
 				Height="32" 
 				Width="104" 
 				TabIndex="3"
+				SelectionChanged="SelectionChanged" 
+				TextChanged="TextChanged"
 				Canvas.Left="250" 
 				Canvas.Top="46"/>
 
@@ -369,14 +361,16 @@
 				HorizontalAlignment="Center" 
 				HorizontalContentAlignment="Center"
 				Padding="5,3,0,0"
-				Text="{Binding ODate, FallbackValue=ODate, UpdateSourceTrigger=Explicit, StringFormat='dd/MM/yyyy'}" 
+				Text="{Binding ODate, FallbackValue=ODate, UpdateSourceTrigger=LostFocus, StringFormat='dd/MM/yyyy'}" 
 			     TextAlignment="Center"
 				VerticalAlignment="Center" 
 				Height="24" 
 				Width="90" 
 				TabIndex="4"
 				Canvas.Left="501" 
-				Canvas.Top="27"/>
+				Canvas.Top="27"
+				SelectionChanged="SelectionChanged" 
+				TextChanged="TextChanged"/>
 
 				<TextBlock x:Name="textBlock_Copy4" 
 				Foreground="White"
@@ -395,33 +389,48 @@
 				HorizontalAlignment="Center" 
 				HorizontalContentAlignment="Center"
 				Padding="5,3,0,0"
-				Text="{Binding CDate, FallbackValue=CDate, UpdateSourceTrigger=Explicit, StringFormat='dd/MM/yyyy'}" 
+				Text="{Binding CDate, FallbackValue=CDate, UpdateSourceTrigger=LostFocus, StringFormat='dd/MM/yyyy'}" 
 			     TextAlignment="Center"
 				VerticalAlignment="Center" 
 				Height="24" 
 				TabIndex="5"
 				Width="90" 
+				SelectionChanged="SelectionChanged" 
+				TextChanged="TextChanged"
 				Canvas.Left="501" 
 				Canvas.Top="53"/>
 
-
-
+				<Button x:Name="MultiAccounts"
+					Background="{StaticResource HeaderBrushBlue}"
+					Click="MultiAccts_Click"
+					Content="Multi Accounts"
+					Foreground="White"
+					HorizontalAlignment="Center"
+					IsEnabled="true"
+					TabIndex="6"
+					VerticalAlignment="Top"
+					Height="36"
+					Template="{StaticResource HorizontalGradientTemplateBlue}" 
+					Width="100"
+					Canvas.Left="541" Canvas.Top="94"
+					/>
 				<!--#endregion Text Fields-->
 			</Canvas>
 
 		</Grid>
-		<Button
+
+		<Button x:Name="SaveBttn"
 				Background="{StaticResource HeaderBrushBlue}"
 				Click="SaveBtn"
 				Content="Save Changes"
 				Foreground="White"
-				Grid.Column="2" 
-				Grid.ColumnSpan="2"
+				Grid.Column="2"
 				Grid.Row="2"
 				HorizontalAlignment="Center"
+				IsEnabled="true"
 				TabIndex="6"
 				VerticalAlignment="Top"
-				Margin="28,54,7,0"
+				Margin="14,54,6,0"
 				Height="36"
 				Template="{StaticResource HorizontalGradientTemplateBlue}" 
 				Width="100"
@@ -438,6 +447,38 @@
 				Template="{StaticResource HorizontalGradientTemplateBlue}" 
 				TabIndex="7"
 				VerticalAlignment="Top"
-				Width="100" Margin="27,96,8,0" Grid.ColumnSpan="2" Grid.Column="2"/>
+				Width="100" Margin="13,96,7,0" Grid.Column="2"/>
+		<CheckBox x:Name="OntopChkbox"
+				Click="OntopChkbox_Click"
+				Content="Keep on Top"
+				Foreground="Black"
+				FontWeight="Medium"
+				Grid.Row="2" 
+				Grid.ColumnSpan="1" 
+				Grid.Column="2" 
+				Height="25"
+				HorizontalAlignment="Left"
+				IsChecked="true"
+				Margin="14,28,0,82"
+				VerticalAlignment="Center"
+				Width="100"  
+			     />
+		<TextBlock x:Name="Count" 
+				Background="DarkGray"	    
+				Foreground="Red"
+			     FontWeight="DemiBold"
+			     FontSize="14"
+				Grid.Column="2" 
+				HorizontalAlignment="Center" 
+				Padding="5,3,5,5"
+				Height="24" 
+				Grid.Row="2"
+				Text=" Counter"
+				TextAlignment="Center"
+				TextTrimming="WordEllipsis"
+				Margin="28,3,22,108" 
+				VerticalAlignment="Center" 
+				Width="70" 
+			     />
 	</Grid>
 </Window>

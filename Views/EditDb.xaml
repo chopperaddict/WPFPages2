@@ -6,6 +6,7 @@
         xmlns:data="clr-namespace:WPFPages.Views"
         mc:Ignorable="d"
 		Closing="Window_Closing"
+		Closed="Window_Closed"
 		GotFocus="Window_GotFocus"
 		Height="640" Width="700"
 		MinHeight="640" MinWidth="700"
@@ -249,8 +250,7 @@
 								HorizontalAlignment="Left"
 								 HorizontalContentAlignment="Center"
 								 VerticalContentAlignment="Center"
-								Text="{Binding AcType, UpdateSourceTrigger=
-								LostFocus, Mode=TwoWay}"
+								Text="{Binding AcType, UpdateSourceTrigger=LostFocus, Mode=TwoWay}"
 								TextChanged="Data_TextChanged"
 								LostFocus="ActypeEdit_LostFocus"
 								Width="35" />
@@ -1346,29 +1346,20 @@
 			         HorizontalContentAlignment="Center"
 				   IsEnabled="False"
 				   Margin="3"
-				   Style="{StaticResource GreenBtn}"
+				   Style="{StaticResource GreenGreenButton}"
 			         Width="120">
-				<!--Template="{StaticResource ButtonGradientGreen}"-->
-
-				<Border Name="_Border"
+				<Border Name="_Border1"
 							Padding="3"
 							HorizontalAlignment="Center">
 					<ContentPresenter  Content="Save Changes"/>
 				</Border>
+				<!--Template="{StaticResource ButtonGradientGreen}"-->
 
-				<!--<Button.Foreground>
-					<LinearGradientBrush StartPoint="1,0" EndPoint=".5,1">
-						<GradientStop Color="Green" Offset=".6" />
-						<GradientStop Color="White" Offset="1" />
-					</LinearGradientBrush>
-				</Button.Foreground>
-				<Button.Background>
-					--><!--create an elegant left to right light-> Dark gradient as a background--><!--
-					<LinearGradientBrush StartPoint=".8,0" EndPoint="0,.5">
-						<GradientStop Color="Green" Offset="1" />
-						<GradientStop Color="#ffffff" Offset="0" />
-					</LinearGradientBrush>
-				</Button.Background>-->
+				<!--<Border Name="_Border"
+							Padding="3"
+							HorizontalAlignment="Center">
+					<ContentPresenter  Content="Save Changes"/>
+				</Border>-->
 			</Button>
 
 			<!--Content ="Close Document"-->
@@ -1378,30 +1369,16 @@
 			         Height="45"
 			         HorizontalContentAlignment="Center"
 			         Margin="5"
-				   Template="{StaticResource ButtonGradientRed}"
+				   Style="{StaticResource RedButton}"
 			         Width="130">
 				<Border Name="_Border2"
 							Padding="3"
 							HorizontalAlignment="Center">
-					<ContentPresenter  Content="Discard/Exit"/>
+					<ContentPresenter  Content="Close Editor"/>
 				</Border>
 				<!--Style="{StaticResource ToggleButtonOnmouseover}"-->
 
-				<Button.Foreground>
-					<LinearGradientBrush StartPoint="1,0" EndPoint=".5,1">
-						<GradientStop Color="White" Offset=".6" />
-						<GradientStop Color="Black" Offset="1" />
-					</LinearGradientBrush>
-				</Button.Foreground>
-				<Button.Background>
-					<!--create an elegant left to right light-> Dark gradient as a background-->
-					<LinearGradientBrush StartPoint=".8,0" EndPoint="0,.5">
-						<GradientStop Color="White" Offset="1" />
-						<GradientStop Color="#ff0000" Offset="0" />
-					</LinearGradientBrush>
-				</Button.Background>
-
-
+	
 					<!--<MultiTrigger>
 						<MultiTrigger.Conditions>
 							<Condition Property="IsMouseOver" Value="true" />

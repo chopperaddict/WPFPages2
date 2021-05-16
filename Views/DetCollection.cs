@@ -16,62 +16,59 @@ namespace WPFPages . Views
 	public class DetCollection : ObservableCollection<DetailsViewModel>
 	{ 
 		//Declare a global pointer to Observable Details Collection
-		//		public  DetCollection DetcollectionStatic;
 		public static DetCollection Detcollection = new DetCollection();
+		public  static DetCollection DetViewerDbcollection=new DetCollection();
+		public  static DetCollection  EditDbDetcollection=new DetCollection();
+		public  static DetCollection MultiDetcollection=new DetCollection();
+		public  static DetCollection SqlViewerDetcollection=new DetCollection ();
+		public  static DetCollection  Detinternalcollection=new DetCollection  ();
 
 		public  static DataTable dtDetails = new DataTable();
 		public static Stopwatch  st;
-
-
-		#region DATA LOADED EVENT trigger method
-
-
-		//-------------------------------------------------------------------------------------------------------------------------------------------------//
-		//private static void OnDetDataLoaded ( DetCollection dtdata , int row )
-		//{
-		//	if ( DetDataLoaded != null )
-		//	{
-		//		Console . WriteLine ( $"DETAILS : Broadcasting DATA LOADED NOTIFICATION from OnDetDataLoaded" );
-		//		DetDataLoaded?.Invoke ( dtdata , new LoadedEventArgs ( ) { DataSource = dtdata , CallerDb = "DETAILS" , CurrSelection = row } );
-		//	}
-		//}
-
-		#endregion DATA LOADED EVENT trigger method
 
 		#region CONSTRUCTOR
 
 		public DetCollection ( )
 		{
-			//set the static pointer to this class
-			//			Detcollection = this;
-			Flags . DetailsCollection = this;
+//			Flags . DetCollection = this;
 		}
 
 		#endregion CONSTRUCTOR
 
-		public static DetCollection LoadDet ( DetCollection dc )
+		public static DetCollection LoadDet ( DetCollection dc , int ViewerType = 1)
 		{
 			// Called to Load/reload the One & Only Bankcollection data source
 			if ( dtDetails. Rows . Count > 0 )
 				dtDetails . Clear ( );
 
 			if ( dc != null )
-				Detcollection = dc;
+				Detinternalcollection = dc;
 			else
-				Detcollection = new DetCollection ( );
+				Detinternalcollection = new DetCollection ( );
 
-			if ( Detcollection . Count > 0 )
-				Detcollection . ClearItems ( );
+			if ( Detinternalcollection . Count > 0 )
+				Detinternalcollection . ClearItems ( );
 
 			DetCollection d = new DetCollection();
 			d.LoadDetailsDataSql ( );
 			if(dtDetails.Rows.Count > 0)
-				LoadDetTest ( Detcollection);
+				LoadDetTest ( Detinternalcollection );
 			// We now have the ONE AND ONLY pointer the the Bank data in variable Bankcollection
-			return Detcollection;
+			Flags . DetCollection = Detinternalcollection;
+			if ( Flags . IsMultiMode == false )
+			{
+				// Finally fill and return The global Dataset
+				SelectViewer ( ViewerType , Detinternalcollection );
+				return Detinternalcollection;
+			}
+			else
+			{
+				// return the "working  copy" pointer, it has  filled the relevant collection to match the viewer
+				return Detinternalcollection;
+			}
 		}
 
-		#region startup/load data / load collection (DetCollection)
+		#region startup/load data / load collection (Detinternalcollection)
 
 		// Entry point for all data load/Reload
 		CancellationTokenSource  cts = new CancellationTokenSource();
@@ -79,66 +76,67 @@ namespace WPFPages . Views
 		//**************************************************************************************************************************************************************//
 		public async Task<DetCollection> LoadDetailsTaskInSortOrderAsync ( bool b = false , int row = 0 )
 		{
-			if ( dtDetails . Rows . Count > 0 )
-				dtDetails . Clear ( );
+//			if ( dtDetails . Rows . Count > 0 )
+//				dtDetails . Clear ( );
 
-			if ( Detcollection . Items . Count > 0 )
-				Detcollection . ClearItems ( );
+//			if ( Detinternalcollection . Items . Count > 0 )
+//				Detinternalcollection . ClearItems ( );
 
-			// This all woks just fine, and DOES switch back to UI thread that is MANDATORY before doing the Collection load processing
-			// thanks to the use of TaskScheduler.FromCurrentSynchronizationContext() that performs the magic switch back to the UI thread
-			//			Console . WriteLine ( $"DETAILS : Entering Method to call Task.Run in DetCollection  : Thread = { Thread . CurrentThread . ManagedThreadId}" );
+//			// This all woks just fine, and DOES switch back to UI thread that is MANDATORY before doing the Collection load processing
+//			// thanks to the use of TaskScheduler.FromCurrentSynchronizationContext() that performs the magic switch back to the UI thread
+//			//			Console . WriteLine ( $"DETAILS : Entering Method to call Task.Run in DetCollection  : Thread = { Thread . CurrentThread . ManagedThreadId}" );
 
-			#region process code to load data
+//			#region process code to load data
 
-			Task t1 = Task . Run(
-					async ( ) =>
-						{
-//							Console . WriteLine ( $"Before starting initial Task.Run() : Thread = { Thread . CurrentThread . ManagedThreadId}" );
-							await LoadDetailsDataSql(b);
-//							Console . WriteLine ( $"After initial Task.Run() : Thread = { Thread . CurrentThread . ManagedThreadId}" );
-						}
-				);
-			t1 . ContinueWith
-			(
-				async ( Detcollection ) =>
-				{
-					Console . WriteLine ( $"Before starting second Task.Run() : Thread = { Thread . CurrentThread . ManagedThreadId}" );
-					await LoadDetCollection ( row , b );
-				} , TaskScheduler . FromCurrentSynchronizationContext ( )
-			 );
-			//			Console . WriteLine ( $"After second Task.Run() : Thread = { Thread . CurrentThread . ManagedThreadId}" );
+//			Task t1 = Task . Run(
+//					async ( ) =>
+//						{
+////							Console . WriteLine ( $"Before starting initial Task.Run() : Thread = { Thread . CurrentThread . ManagedThreadId}" );
+//							await LoadDetailsDataSql(b);
+////							Console . WriteLine ( $"After initial Task.Run() : Thread = { Thread . CurrentThread . ManagedThreadId}" );
+//						}
+//				);
+//			t1 . ContinueWith
+//			(
+//				async ( Detinternalcollection ) =>
+//				{
+//					Console . WriteLine ( $"Before starting second Task.Run() : Thread = { Thread . CurrentThread . ManagedThreadId}" );
+//					await LoadDetCollection ( row , b );
+//				} , TaskScheduler . FromCurrentSynchronizationContext ( )
+//			 );
+//			//			Console . WriteLine ( $"After second Task.Run() : Thread = { Thread . CurrentThread . ManagedThreadId}" );
 
-			#endregion process code to load data
+//			#endregion process code to load data
 
-			#region Success//Error reporting/handling
+//			#region Success//Error reporting/handling
 
-			// Now handle "post processing of errors etc"
-			//This will ONLY run if there were No Exceptions  and it ALL ran successfully!!
-			t1 . ContinueWith (
-				( Detcollection ) =>
-				{
-					Console . WriteLine ( $"DETAILS : Task.Run() Completed : Status was [ {Detcollection . Status} ]." );
-				} , CancellationToken . None , TaskContinuationOptions . OnlyOnRanToCompletion , TaskScheduler . FromCurrentSynchronizationContext ( )
-			);
-			//This will iterate through ALL of the Exceptions that may have occured in the previous Tasks
-			// but ONLY if there were any Exceptions !!
-			t1 . ContinueWith (
-				( Detcollection ) =>
-				{
-					AggregateException ae =  t1 . Exception . Flatten ( );
-					Console . WriteLine ( $"Exception in DetCollection data processing \n" );
-					foreach ( var item in ae . InnerExceptions )
-					{
-						Console . WriteLine ( $"DetCollection : Exception : {item . Message}, : {item . Data}" );
-					}
-				} , CancellationToken . None , TaskContinuationOptions . NotOnRanToCompletion , TaskScheduler . FromCurrentSynchronizationContext ( )
-			);
+//			// Now handle "post processing of errors etc"
+//			//This will ONLY run if there were No Exceptions  and it ALL ran successfully!!
+//			t1 . ContinueWith (
+//				( Detinternalcollection ) =>
+//				{
+//					Console . WriteLine ( $"DETAILS : Task.Run() Completed : Status was [ {Detinternalcollection . Status} ]." );
+//				} , CancellationToken . None , TaskContinuationOptions . OnlyOnRanToCompletion , TaskScheduler . FromCurrentSynchronizationContext ( )
+//			);
+//			//This will iterate through ALL of the Exceptions that may have occured in the previous Tasks
+//			// but ONLY if there were any Exceptions !!
+//			t1 . ContinueWith (
+//				( Detinternalcollection ) =>
+//				{
+//					AggregateException ae =  t1 . Exception . Flatten ( );
+//					Console . WriteLine ( $"Exception in DetCollection data processing \n" );
+//					foreach ( var item in ae . InnerExceptions )
+//					{
+//						Console . WriteLine ( $"DetCollection : Exception : {item . Message}, : {item . Data}" );
+//					}
+//				} , CancellationToken . None , TaskContinuationOptions . NotOnRanToCompletion , TaskScheduler . FromCurrentSynchronizationContext ( )
+//			);
 
-			//			Console . WriteLine ($"DETAILS : END OF PROCESSING & Error checking functionality\nDETAILS : *** Detcollection total = {Detcollection.Count} ***\n\n");
-			#endregion Success//Error reporting/handling
+//			//			Console . WriteLine ($"DETAILS : END OF PROCESSING & Error checking functionality\nDETAILS : *** Detcollection total = {Detcollection.Count} ***\n\n");
+//			#endregion Success//Error reporting/handling
 
-			return Detcollection;
+//			Flags . DetCollection = Detinternalcollection;
+			return Detinternalcollection;
 		}
 
 		/// Handles the actual conneciton ot SQL to load the Details Db data required
@@ -201,7 +199,7 @@ namespace WPFPages . Views
 			{
 				for ( int i = 0 ; i < dtDetails . Rows . Count ; i++ )
 				{
-					Detcollection . Add ( new DetailsViewModel
+					Detinternalcollection . Add ( new DetailsViewModel
 					{
 						Id = Convert . ToInt32 ( dtDetails . Rows [ i ] [ 0 ] ) ,
 						BankNo = dtDetails . Rows [ i ] [ 1 ] . ToString ( ) ,
@@ -222,11 +220,12 @@ namespace WPFPages . Views
 						new LoadedEventArgs
 						{
 							CallerDb = "DETAILS" ,
-							DataSource = Detcollection ,
-							RowCount = Detcollection . Count
+							DataSource = Detinternalcollection ,
+							RowCount = Detinternalcollection . Count
 						} );
                        }
-				return Detcollection;
+				Flags . DetCollection = Detinternalcollection;
+				return Detinternalcollection;
 			}
 			catch ( Exception ex )
 			{
@@ -236,14 +235,14 @@ namespace WPFPages . Views
 			}
 		}
 
-		public static async Task<DetCollection> LoadDetTest ( DetCollection Detcollection)
+		public static async Task<DetCollection> LoadDetTest ( DetCollection Detinternalcollection)
 		{
 			int count = 0;
 			try
 			{
 				for ( int i = 0 ; i < dtDetails . Rows . Count ; i++ )
 				{
-					Detcollection . Add ( new DetailsViewModel
+					Detinternalcollection . Add ( new DetailsViewModel
 					{
 						Id = Convert . ToInt32 ( dtDetails . Rows [ i ] [ 0 ] ) ,
 						BankNo = dtDetails . Rows [ i ] [ 1 ] . ToString ( ) ,
@@ -257,7 +256,8 @@ namespace WPFPages . Views
 					count = i;
 				}
 				Console . WriteLine ( $"DETAILS : Sql data loaded into Details ObservableCollection \"DetCollection\" [{count}] ...." );
-				return Detcollection;
+				Flags . DetCollection = Detinternalcollection;
+				return Detinternalcollection;
 			}
 			catch ( Exception ex )
 			{
@@ -268,45 +268,52 @@ namespace WPFPages . Views
 		}
 		//**************************************************************************************************************************************************************//
 
-		#endregion startup/load data / load collection (DetCollection)
+		#endregion startup/load data / load collection (Detinternalcollection)
+		public static bool SelectViewer ( int ViewerType , DetCollection tmp )
+		{
+			bool result = false;
+			switch ( ViewerType )
+			{
+				case 1:
+					SqlViewerDetcollection = tmp;
+					result = true;
+					break;
+				case 2:
+					EditDbDetcollection = tmp;
+					result = true;
+					break;
+				case 3:
+					MultiDetcollection = tmp;
+					result = true;
+					break;
+				case 4:
+					DetViewerDbcollection = tmp;
+					result = true;
+					break;
+				//case 5:
+				//	CustViewerDbcollection = tmp;
+				//	result = true;
+				//	break;
+				//case 6:
+				//	DetViewerDbcollection = tmp;
+				//	result = true;
+				//	break;
+				//case 7:
+				//	SqlViewerCustcollection = tmp;
+				//	result = true;
+				//	break;
+				//case 8:
+				//	SqlViewerDetcollection = tmp;
+				//	result = true;
+				//	break;
+				case 9:
+					//					= tmp;
+					result = true;
+					break;
+			}
+			return result;
+		}
 
-		#region Event Subscribing Hsndlers
-
-//		public static void SubscribeToLoadedEvent ( object o )
-//		{
-//			if ( o == Detcollection && DetDataLoaded == null )
-//			{
-////				if ( Flags . CurrentSqlViewer != null )
-////					DetDataLoaded += Flags . CurrentSqlViewer . SqlDbViewer_DataLoaded;
-//				if ( Flags . MultiViewer != null )
-//				{
-//					MultiViewer mv = new MultiViewer();
-//					DetDataLoaded += mv . MultiViewer_DataLoaded;
-//				}
-//			}
-//		}
-
-//		public static void UnSubscribeToLoadedEvent ( object o )
-//		{
-////			if ( o == Detcollection && DetDataLoaded == null )
-////				DetDataLoaded -= Flags . CurrentSqlViewer . SqlDbViewer_DataLoaded;
-//			if ( Flags . MultiViewer != null )
-//			{
-//				MultiViewer mv2 = new MultiViewer();
-//				DetDataLoaded -= mv2 . MultiViewer_DataLoaded;
-//			}
-//		}
-
-		#endregion Event Subscribing Hsndlers
-
-
-		#region INotifyCompletion Interface code
-		// INotifyCompletion Interface code
-
-		//public static TaskAwaiter GetAwaiter ( object o)
-		//{
-		//	return GetResult ( );
-		//}
 		public static bool IsCompleted ( )
 		{
 			return false;
@@ -316,33 +323,10 @@ namespace WPFPages . Views
 		{
 			return true;
 		}
-		#endregion INotifyCompletion Interface code
 		#region TEST CODE
 		//**************************************************************************************************************************************************************//
 		//Test codeonly
 		//**************************************************************************************************************************************************************//
-		public DataTable DoTask ( )
-		{
-			DataTable dt = new DataTable();
-			return dt;
-		}
-		public static async Task go ( )
-		{
-			DataTable dt = null ;
-			Task task  =  Task . Run ( async () =>
-			{
-				dt = Flags.DetailsCollection.DoTask();
-			} );
-
-
-			Console . WriteLine ( $"New dt = {dt . Rows}, {dt . Columns}" );
-
-		}
-
-		public void OnCompleted ( Action continuation )
-		{
-			throw new NotImplementedException ( );
-		}
 		#endregion TEST CODE
 	}
 }

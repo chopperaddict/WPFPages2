@@ -8,32 +8,6 @@ using WPFPages . ViewModels;
 
 namespace WPFPages . Views
 {
-	//First we have to define a delegate that acts as a signature for the
-	//function that is ultimately called when the event is triggered.
-	//You will notice that the second parameter is of MyEventArgs type.
-	//This object will contain information about the triggered event.
-	//	public delegate void SelectionChanged (object source, SelectedEventArgs e);
-
-	//#region KNOWN DELEGATES IN USE
-
-	//public delegate bool DbReloaded ( object sender , DataLoadedArgs args );
-
-	//public delegate void DbUpdated ( SqlDbViewer sender , DataGrid Grid , DataChangeArgs args );
-
-	//public delegate void EditDbGridSelectionChanged ( int ChangeType , int value , string caller );
-
-	//public delegate void EditDbDataChanged ( int EditDbChangeType , int row , string CurentDb );
-
-	//public delegate void NotifyViewer ( int status , string info , SqlDbViewer NewSqlViewer );
-
-	//public delegate void SQLViewerSelectionChanged ( int ChangeType , int row , string CurrentDb );
-
-	//public delegate void SqlSelectedRowChanged ( int ChangeType , int row , string CurentDb );
-
-	//public delegate void SqlViewerNotify ( int status , string info , SqlDbViewer NewSqlViewer );
-
-	//************************************************
-
 	#region chime
 	public delegate void ChimeEventHandler ( );
 
@@ -68,16 +42,13 @@ namespace WPFPages . Views
 	}
 	#endregion chime
 
-	// UNUSED			public delegate void SqlViewerRowChange ( int row, string CurentDb );
 
 	public class EventHandlers
 	{
 		#region DELEGATES IN USE
 
 		//Delegates I AM USING
-		public static NotifyViewer SendViewerCommand;
-
-		public static SqlSelectedRowChanged SqlViewerIndexChanged;
+//		public static NotifyViewer SendViewerCommand;
 
 		#endregion DELEGATES IN USE
 
@@ -124,12 +95,6 @@ namespace WPFPages . Views
 			// NotifyOfDataLoaded
 			dg = EventControl . GetEventCount3 ( );
 			if ( dg != null ) count3 = dg . Length;
-			// SqlHasChangedSelection
-			dg = EditDb . GetEventCount4 ( );
-			if ( dg != null ) count4 = dg . Length;
-			// SqlViewerIndexChanged
-			dg = EditDb . GetEventCount5 ( );
-			if ( dg != null ) count5 = dg . Length;
 			// DetCollection. BankDataLoaded
 			dg = EventControl . GetEventCount6 ( );
 			if ( dg != null ) count6 = dg . Length;
@@ -163,14 +128,6 @@ namespace WPFPages . Views
 				Console . WriteLine ( $"NotifyOfDataLoaded				= " );
 			else
 				Console . WriteLine ( $"NotifyOfDataLoaded				= {count3}" );
-			if ( count4 < 0 )
-				Console . WriteLine ( $"SqlHasChangedSelection			= " );
-			else
-				Console . WriteLine ( $"SqlHasChangedSelection			= {count4}" );
-			if ( count5 < 0 )
-				Console . WriteLine ( $"SqlViewerIndexChanged			= " );
-			else
-				Console . WriteLine ( $"SqlViewerIndexChanged			= { count5}" );
 			if ( count6 < 0 )
 				Console . WriteLine ( $"BankCollection. BankDataLoaded	= " );
 			else
@@ -246,36 +203,6 @@ namespace WPFPages . Views
 				{
 					if ( cnt > 0 ) Console . WriteLine ( );
 					Console . WriteLine ( $"Delegate : NOTIFYOFDATALOADED: \n >>> {item . Target . ToString ( )}\nMethod = {item . Method . ToString ( )}" );
-					cnt++;
-				}
-			}
-			dglist2 = EditDb . GetEventCount4 ( );
-			if ( dglist2 != null )
-			{
-				int cnt = 0;
-				Console . WriteLine ( $"=====================================================================================" );
-				first = true;
-				foreach ( var item in dglist2 )
-				{
-					if ( cnt > 0 ) Console . WriteLine ( );
-					Console . WriteLine ( $"Delegate : SQLHASCHANGEDSELECTION :\n >>> {item . Target . ToString ( )}\nMethod = {item . Method . ToString ( )}" );
-					cnt++;
-				}
-			}
-			dglist2 = EditDb . GetEventCount5 ( );
-			if ( dglist2 != null )
-			{
-				int cnt = 0;
-				if ( !first )
-				{
-					Console . WriteLine ( $"=====================================================================================" ); first = false;
-				}
-				Console . WriteLine ( $"=====================================================================================" );
-				first = true;
-				foreach ( var item in dglist2 )
-				{
-					if ( cnt > 0 ) Console . WriteLine ( );
-					Console . WriteLine ( $"Delegate : SQLVIEWERINDEXCHANGED :\n >>> {item . Target . ToString ( )}\nMethod = {item . Method . ToString ( )}" );
 					cnt++;
 				}
 			}

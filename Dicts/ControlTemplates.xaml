@@ -63,7 +63,16 @@
 						</Trigger>
 						<Trigger Property="IsMouseOver" Value="true">
 							<Setter Property="Background" TargetName="border" Value="{StaticResource Button.MouseOver.Background}"/>
-							<Setter Property="BorderBrush" TargetName="border" Value="{StaticResource Button.MouseOver.Border}"/>
+							<!--<Setter Property="BorderBrush" TargetName="border" Value="{StaticResource Button.MouseOver.Border}"/>-->
+							<Setter Property="BorderBrush" TargetName="border" >
+								<Setter.Value>
+									<LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+										<GradientStop Color="Gray" Offset="0.0" />
+										<GradientStop Color="Yellow" Offset="0.5" />
+										<GradientStop Color="Blue" Offset="1" />
+									</LinearGradientBrush>
+								</Setter.Value>
+							</Setter>
 							<!--<Setter Property="BorderBrush" TargetName="border" Value="{StaticResource Button.MouseOver.Border}"/>-->
 						</Trigger>
 						<Trigger Property="IsPressed" Value="true">

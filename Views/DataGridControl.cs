@@ -28,16 +28,6 @@ namespace WPFPages.Views
 
 		#region INotifyPropertyChanged Members
 
-		//public event PropertyChangedEventHandler PropertyChanged;
-
-		//protected void OnPropertyChanged (string PropertyName)
-		//{
-		//	if (null != PropertyChanged)
-		//	{
-		//		PropertyChanged (this,
-		//			new PropertyChangedEventArgs (PropertyName));
-		//	}
-		//}
 		#endregion
 
 	}

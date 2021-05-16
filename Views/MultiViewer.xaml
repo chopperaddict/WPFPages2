@@ -16,7 +16,6 @@
 	WindowStyle="ThreeDBorderWindow">
 	
 	<Window.Resources>
-
 			
 		<!--<local:DateOnlyConverter x:Key="dateOnlyConverter"/>-->
 		<Style x:Key="HeaderStyleBlue" TargetType="DataGridColumnHeader">
@@ -35,7 +34,6 @@
 				</Trigger>
 			</Style.Triggers>
 		</Style>
-
 		<Style x:Key="HeaderStyleGreen" TargetType="DataGridColumnHeader">
 			<Setter Property="Background" Value="{StaticResource HeaderBrushGreen}" />
 			<Setter Property="Foreground" Value="White" />
@@ -68,7 +66,6 @@
 				</Trigger>
 			</Style.Triggers>
 		</Style>
-
 
 	</Window.Resources>
 	
@@ -108,7 +105,7 @@
 				 Grid.ColumnSpan="3"
 				 Grid.RowSpan="2"
 				HorizontalAlignment="Left"
-				DataContext="CustomerGrid.SelectedItem"
+				DataContext="CustomerGrid"
 				>
 				<!--#region DataFields Grid setup-->
 				
@@ -155,7 +152,7 @@
 					     Height="18"
 					     TextAlignment="Left"
 				     />
-			<TextBox Text="{Binding BankNo, FallbackValue=123456}"
+			<TextBox Text="{Binding BankNo, FallbackValue=Bank A/c }"
    					     Grid.Column="3"
 					     Grid.Row="0"
 					     Height="18"

@@ -18,14 +18,15 @@ namespace WPFPages
 
 	public static class Flags
 	{
-
-		// Viewer Handle and Grid pointers for each Type of grid that is open somewhere
-		/// Used as  Pairs so we can access window and grid
-
+	
 		public static DataGrid SqlBankGrid = null;
 		public static SqlDbViewer SqlBankViewer = null;
 		public static  DataGrid CurrentEditDbViewerBankGrid = null;
-		public static DetCollection DetailsCollection = null;
+
+		// Pointers to our data colections
+		public static DetCollection DetCollection = null;
+		public static CustCollection CustCollection = null;
+		public static BankCollection BankCollection = null;
 
 		private struct AllFlags
 		{
@@ -287,7 +288,7 @@ namespace WPFPages
 				Flags . SqlBankViewer = null;
 				Flags . SqlCustViewer = null;
 				Flags . SqlDetViewer = null;
-				Flags . CurrentSqlViewer = null;
+//				Flags . CurrentSqlViewer = null;
 
 				// ALL entries in our GridView structure are now cleared  ** totally **
 				return true;
@@ -467,58 +468,13 @@ namespace WPFPages
 			$"BANK     SqlBankViewer:- [ {SqlBankViewer?.Tag} ]\n" +
 			$"CUST     SqlCustViewer:- [ {SqlCustViewer?.Tag} ]\n" +
 			$"DETS     SqlDetViewer:-  [ {SqlDetViewer?.Tag} ]\n" +
+			$"\nFLAGS : CurrentSqlViewer :-  [ {Flags.CurrentSqlViewer?.Tag} ]\n" +
 			"=================================================================\n"
 			);
 		}
 
 		public static void ShowAllFlags ( )
 		{
-			//			ActiveEditGrid = Flags . ActiveEditGrid;
-			//			ActiveSqlViewer = Flags . ActiveSqlViewer;
-			//			ActiveSqlGrid = Flags . ActiveSqlGrid;
-
-			//			CurrentEditDbViewer = Flags . CurrentEditDbViewer;
-			//			CurrentEditDbViewerBankGridList = Flags . CurrentEditDbViewerBankGridList;
-			//			CurrentEditDbViewerCustomerGridList = Flags . CurrentEditDbViewerCustomerGridList;
-			//			CurrentEditDbViewerDetailsGridList = Flags . CurrentEditDbViewerDetailsGridList;
-			//			CurrentSqlViewer = Flags . CurrentSqlViewer;
-
-			//			CurrentEditDbViewerBankGrid = Flags . CurrentEditDbViewerBankGrid;
-			//			CurrentEditDbViewerCustomerGrid = Flags . CurrentEditDbViewerCustomerGrid;
-			//			CurrentEditDbViewerDetailsGrid = Flags . CurrentEditDbViewerDetailsGrid;
-
-			//			BankEditDb = Flags . BankEditDb;
-			//			CustEditDb = Flags . CustEditDb;
-			//			DetEditDb = Flags . DetEditDb;
-
-			//			SqlBankGrid = Flags. SqlBankGrid;
-			//			SqlCustGrid = Flags . SqlCustGrid;
-			//			SqlDetGrid = Flags . SqlDetGrid;
-
-			//			SqlBankViewer = Flags.SqlBankViewer ;
-			//			SqlCustViewer = Flags .SqlCustViewer ;
-			//			SqlDetViewer = Flags .SqlDetViewer ;
-
-			//			SqlBankCurrentIndex = Flags . SqlBankCurrentIndex;
-			//			SqlCustCurrentIndex = Flags . SqlCustCurrentIndex;
-			//			SqlDetCurrentIndex = Flags . SqlDetCurrentIndex;
-
-			////			SqlUpdateOriginatorViewer = Flags . SqlUpdateOriginatorViewer;
-			//			SqlViewerIsLoading = Flags . SqlViewerIsLoading;
-			//			 SqlViewerIndexIsChanging = Flags .  SqlViewerIndexIsChanging;
-
-			//			DbSelectorOpen = Flags . DbSelectorOpen;
-			//			EditDbChangeHandled = Flags . EditDbChangeHandled;
-			//			EditDbDataChanged = Flags . EditDbDataChanged;
-			//			EventHandlerDebug = Flags . EventHandlerDebug;
-			//			FilterCommand = Flags . FilterCommand;
-			//			isEditDbCaller = Flags .isEditDbCaller ;
-			//			IsFiltered = Flags . IsFiltered;
-			//			IsMultiMode = Flags . IsMultiMode;
-			//			MultiAccountCommandString = Flags . MultiAccountCommandString;
-			//			SqlDataChanged = Flags .SqlDataChanged ;
-			BankCollection bc = new BankCollection ( );
-
 			Console . WriteLine (
 			$"\nbool EditDbDataChanged						: { Flags . EditDbDataChanged}" +
 			$"\nbool EditDbChangeHandled					: { Flags . EditDbChangeHandled}" +
@@ -550,10 +506,6 @@ namespace WPFPages
 			$"\nint SqlCustCurrentIndex						: { Flags . SqlCustCurrentIndex}" +
 			$"\nint SqlDetCurrentIndex						: { Flags . SqlDetCurrentIndex}" +
 			"\n" +
-			//$"\nList< DataGrid > CurrentEditDbViewerBankGridList		: { Flags .CurrentEditDbViewerBankGridList}" +
-			//$"\nList< DataGrid > CurrentEditDbViewerCustomerGridList	: { Flags .CurrentEditDbViewerCustomerGridList}" +
-			//$"\nList< DataGrid > CurrentEditDbViewerDetailsGridList		: { Flags .CurrentEditDbViewerDetailsGridList}" +
-			//"\n" +
 			$"\nSqlDbViewer ActiveSqlViewer					: { Flags . ActiveSqlViewer?.CurrentDb}" +
 			$"\nSqlDbViewer CurrentSqlViewer				: { Flags . CurrentSqlViewer?.CurrentDb}" +
 			$"\nSqlDbViewer SqlBankViewer					: { Flags . SqlBankViewer} + {Flags . SqlBankViewer?.BankGrid?.Name}" +
@@ -562,12 +514,27 @@ namespace WPFPages
 			//			$"\nSqlDbViewer SqlUpdateOriginatorViewer					: { Flags .SqlUpdateOriginatorViewer?.Name}" +
 			"\n" +
 			$"\nstring FilterCommand						: { Flags . FilterCommand}" +
-			$"\nstring MultiAccountCommandString			: { Flags . MultiAccountCommandString}\n" +
-			$"dtBank = {BankCollection . dtBank?.Rows?.Count}, Collection = {BankCollection. Bankcollection?.Count}\n" +
-			$"dtCust = {CustCollection . dtCust?.Rows?.Count}, Collection = {CustCollection . Custcollection?.Count}\n" +
-			$"dtDet = {DetCollection . dtDetails?.Rows?.Count}, Collection = {DetCollection . Detcollection?.Count}\n" +
-			$"CurrentThread								: {Thread . CurrentThread . ManagedThreadId}"
-					); ;
+			$"\nstring MultiAccountCommandString			: { Flags . MultiAccountCommandString}" +
+			$"\nCurrentThread								: {Thread . CurrentThread . ManagedThreadId}\n" +
+			$"\nSQL Database pointers\n" +
+			$"Bank : Bankinternalcollection				: { BankCollection . Bankinternalcollection . Count}\n" +
+			$"Bank : SqlViewerBankcollection				: { BankCollection . SqlViewerBankcollection . Count}\n" +
+			$"Bank : EditDbViewercollection 				: { BankCollection . EditDbBankcollection . Count}\n" +
+			$"Bank : MultiBankcollection					: { BankCollection . MultiBankcollection . Count}\n" +
+			$"Bank : BankViewerDbcollection				: { BankCollection . BankViewerDbcollection . Count}\n" +
+
+			$"\nCustcollection								: { CustCollection . Custcollection . Count}\n" +
+			$"CustViewerDbcollection						: { CustCollection.CustViewerDbcollection . Count}\n" +
+			$"SqlViewerCustcollection	  					: { CustCollection . SqlViewerCustcollection . Count}\n" +
+			$"EditDbCustcollection 						: { CustCollection . EditDbCustcollection . Count}\n" +
+			$"MultiCustcollection							: { CustCollection . MultiCustcollection . Count}\n" +
+
+			$"\nDetcollection								: { DetCollection . Detcollection . Count}\n" +
+			$"DetViewerDbcollection						: { DetCollection . DetViewerDbcollection . Count}\n" +
+			$"SqlViewerDetcollection	  					: { DetCollection . SqlViewerDetcollection . Count}\n" +
+			$"EditDbDetcollection 						: { DetCollection . EditDbDetcollection . Count}\n" +
+			$"MultiDetcollection							: { DetCollection . MultiDetcollection . Count}\n\n" 
+			);
 		}
 		public static void PrintSundryVariables (string comment ="")
 		{
@@ -626,6 +593,9 @@ namespace WPFPages
 				Console . WriteLine ( buffer );
 				Console . WriteLine ( "\n" );
 			}
+//			Console . WriteLine ( $" Flags . BankCollection			= { Flags . BankCollection.Count}" );
+//			Console . WriteLine ( $" Flags . CustCollection			= { Flags . CustCollection . Count}" );
+//			Console . WriteLine ( $" Flags . DetCollection			= { Flags . DetCollection . Count}" );
 		}
 	}
 }

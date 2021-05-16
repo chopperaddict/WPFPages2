@@ -25,9 +25,9 @@ namespace WPFPages
 	public partial class MainWindow : INotifyPropertyChanged
 	{
 
-		public  BankCollection Bankcollection= new BankCollection();
-		public  CustCollection Custcollection= new CustCollection();
-		public  DetCollection Detcollection= new DetCollection ();
+		//public  BankCollection Bankcollection= new BankCollection();
+		//public  CustCollection Custcollection= new CustCollection();
+		//public  DetCollection Detcollection= new DetCollection ();
 
 		// Global pointers to Viewmodel classes
 		public static BankAccountViewModel bvm = null;
@@ -77,16 +77,17 @@ namespace WPFPages
 
 			//----------------------------------------------------------------------------------------//
 			// Load the Bank account Observable collection (Bankcollection)
-			BankCollection.LoadBank ( Bankcollection );
-			Console . WriteLine ($"bc.Count = {Bankcollection.Count}");
-			//----------------------------------------------------------------------------------------//
-			// Load the Customer account Observable collection (Custcollection)
-			CustCollection . LoadCust ( Custcollection );
-			Console . WriteLine ( $"bc.Count = {Custcollection . Count}" );
-			//----------------------------------------------------------------------------------------//
-			// Load the Details  account Observable collection (Detcollection)
-			Detcollection = DetCollection . LoadDet ( Detcollection );
-			Console . WriteLine ( $"bc.Count = {Detcollection . Count}" );
+			//			BankCollection.LoadBank ( BankCollection .Bankcollection );
+			//BankCollection . LoadBank ( );
+			//Console . WriteLine ($"bc.Count = {BankCollection . Bankcollection . Count}");
+			////----------------------------------------------------------------------------------------//
+			//// Load the Customer account Observable collection (Custcollection)
+			//CustCollection . LoadCust ( CustCollection . Custcollection );
+			//Console . WriteLine ( $"bc.Count = {CustCollection . Custcollection . Count}" );
+			////----------------------------------------------------------------------------------------//
+			//// Load the Details  account Observable collection (Detcollection)
+			//DetCollection .Detcollection = DetCollection . LoadDet ( DetCollection . Detcollection );
+			//Console . WriteLine ( $"bc.Count = {DetCollection . Detcollection . Count}" );
 			//----------------------------------------------------------------------------------------//
 		}
 

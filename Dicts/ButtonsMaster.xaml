@@ -464,10 +464,8 @@
 			</Trigger>
 			<Trigger Property="IsEnabled" Value="False">
 				<!--Handles disabled status-->
-				<Setter Property="Background" TargetName="border" Value="Gray"/>
-				<Setter Property="BorderBrush" TargetName="border" Value="{StaticResource Black0}"/>
-				<!--<Setter Property="BorderThickness" TargetName="border" Value="{StaticResource Black0}"/>-->
-				<!--<Setter Property="Control.Foreground" TargetName="border" Value="{StaticResource Gray1}"/>-->
+				<Setter Property="Background" TargetName="border" Value="DarkGray"/>
+				<Setter Property="BorderBrush" TargetName="border" Value="{StaticResource White0}"/>
 			</Trigger>
 		</ControlTemplate.Triggers>
 	</ControlTemplate>

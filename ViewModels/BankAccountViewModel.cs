@@ -16,12 +16,6 @@ namespace WPFPages . ViewModels
 {
 	public partial class BankAccountViewModel : Observable
 	{
-		//Declare a global pointer to Observable Details Collection
-
-//		private static bool IsSubscribedToObsNotifications = false;
-
-		/// </summary>
-		/// Also declared in SqlDbViewer
 
 		#region CONSTRUCTORS
 
@@ -43,8 +37,8 @@ namespace WPFPages . ViewModels
 		private decimal intrate;
 		private DateTime odate;
 		private DateTime cdate;
-		private int selectedItem;
-		private int selectedIndex;
+		//private int selectedItem;
+		//private int selectedIndex;
 
 		//		private Timer timer = new Timer ();
 		//		public static DataTable dtBank = null;
@@ -101,17 +95,17 @@ namespace WPFPages . ViewModels
 			set { cdate = value; OnPropertyChanged ( CDate . ToString ( ) ); }
 		}
 
-		public int SelectedItem
-		{
-			get { return selectedItem; }
-			set { selectedItem = value; OnPropertyChanged ( SelectedItem . ToString ( ) ); }
-		}
+		//public int SelectedItem
+		//{
+		//	get { return selectedItem; }
+		//	set { selectedItem = value; OnPropertyChanged ( SelectedItem . ToString ( ) ); }
+		//}
 
-		public int SelectedIndex
-		{
-			get { return selectedIndex; }
-			set { selectedIndex = value; OnPropertyChanged ( SelectedIndex . ToString ( ) ); }
-		}
+		//public int SelectedIndex
+		//{
+		//	get { return selectedIndex; }
+		//	set { selectedIndex = value; OnPropertyChanged ( SelectedIndex . ToString ( ) ); }
+		//}
 
 		#endregion STANDARD CLASS PROPERTIES SETUP
 

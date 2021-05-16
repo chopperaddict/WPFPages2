@@ -20,9 +20,15 @@ namespace WPFPages . Views
 		//BankCollection bc = new BankCollection ( );
 		//public BankCollection Bankcollection;// = bc.Bankcollection;
 
-		public BankCollection Bankcollection = BankCollection .Bankcollection;
-		public CustCollection Custcollection = CustCollection . Custcollection;
-		public DetCollection Detcollection = DetCollection.Detcollection;
+		//		public BankCollection Bankcollection = BankCollection .Bankcollection;
+		//		public CustCollection Custcollection = CustCollection . Custcollection;
+		//		public DetCollection Detcollection = DetCollection.Detcollection;
+		public  static BankCollection BankViewercollection=new BankCollection();
+		public  static BankCollection CustViewercollection=new BankCollection();
+		public  static BankCollection DetViewercollection=new BankCollection();
+		public  static BankCollection SqlViewerBankcollection=new BankCollection();
+		public  static BankCollection EditDbBankcollection=new BankCollection();
+		public  static BankCollection MultiBankcollection=new BankCollection();
 
 		// THIS IS  HOW  TO HANDLE EVENTS RIGHT NOW //
 		//Event CallBack for when Asynchronous data loading has been completed in the Various ViewModel classes
@@ -422,7 +428,8 @@ namespace WPFPages . Views
 							Console . WriteLine ( $"SQL UpdateDbRow(126) Invalid Interest Rate of {sa . IntRate} > 100% in grid Data" );
 							MessageBox . Show ( $"Invalid Interest rate ({sa . IntRate}) > 100 entered in the Grid !!!!\r\nPlease correct this entry!" );
 							return false;
-						}
+						}													
+
 						DateTime dtm = Convert.ToDateTime (sa.ODate);
 						dtm = Convert . ToDateTime ( sa . CDate );
 					}
@@ -633,9 +640,9 @@ namespace WPFPages . Views
 			}
 			return true;
 		}
-		public void UpdateAllDb ( string CurrentDb , DataGridRowEditEndingEventArgs e , int caller )
+		public void UpdateAllDb ( string CurrentDb , DataGridRowEditEndingEventArgs e , int caller = -1)
 		{
-			BankCollection bss = BankCollection.Bankcollection;
+			BankCollection bss = BankViewercollection;
 			CustCollection ccs = CustCollection .Custcollection;
 			DetCollection dsa = DetCollection .Detcollection ;
 			BankAccountViewModel ss= new BankAccountViewModel();

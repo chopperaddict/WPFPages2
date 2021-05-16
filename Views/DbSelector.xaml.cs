@@ -124,9 +124,9 @@ namespace WPFPages . Views
 			sqlSelector . SelectedIndex = 2;
 			sqlSelector . Focus ( );
 			// Assign Handler to delegate SqlViewerNotify
-			SqlViewerNotify notifier = DbSelectorMessage;
+//			SqlViewerNotify notifier = DbSelectorMessage;
 
-			EventHandlers . SendViewerCommand = SqlDbViewer . DbSelectorMessage;
+//			EventHandlers . SendViewerCommand = SqlDbViewer . DbSelectorMessage;
 			this . MouseDown += delegate { DoDragMove ( ); };
 			//This DOES send a message to SqlDbViewer !!
 //			EventHandlers . SendViewerCommand ( 103 , "<<< Completed DbSelector basic Constructor" , null );
@@ -249,7 +249,7 @@ namespace WPFPages . Views
 			if ( Command == "NEW" )
 			{
 				selectedItem = listbox . SelectedItem . ToString ( );
-				BankCollection Bankcollection = new BankCollection    ();
+//				BankCollection Bankcollection = new BankCollection    ();
 				CustCollection Custcollection = new CustCollection    ();
 				DetCollection Detcollection = new DetCollection    ();
 				if ( selectedItem . ToUpper ( ) . Contains ( "MULTI BANK ACCOUNTS" ) )
@@ -759,7 +759,7 @@ namespace WPFPages . Views
 		{
 #pragma LOADING  now in HandleSelection()
 
-			EventHandlers . SendViewerCommand ( 102 , ">>> Starting OnWindowLoaded()" , Flags . CurrentSqlViewer );
+//			EventHandlers . SendViewerCommand ( 102 , ">>> Starting OnWindowLoaded()" , Flags . CurrentSqlViewer );
 			int counter = 0;
 
 			{
@@ -1296,365 +1296,7 @@ namespace WPFPages . Views
 		//			}
 		//		}
 
-		#region UNUSED FUNCTIONS
-
-		#region Trigger Task for loading for each Grid type
-
-		private async Task TriggeBankDataLoad ( SqlDbViewer NewSqlViewer )
-		{
-			// When this gets hre, all data will have been loaded, and we get a notifiication from SqlDbViewer
-			// so we should Functionalise this lot so we can have the viewer window shown fuly painted.
-			//and we need to do the same in SqlDbViewer
-			EventHandlers . SendViewerCommand ( 102 , ">>> Starting TriggerBankDataLoad()" , Flags . CurrentSqlViewer );
-			// The Fn handles the Task.Run()
-			BankCollection bc = new BankCollection();
-			await bc. LoadBankTaskInSortOrderasync ( true , -1 );
-			EventHandlers . SendViewerCommand ( 103 , "<<< Ended TriggerBankDataLoad()" , Flags . CurrentSqlViewer );
-		}
-
-		private async Task TriggerCustomerDataLoad ( SqlDbViewer NewSqlViewer )
-		{
-			// When this gets hre, all data will have been loaded, and we get a notifiication from SqlDbViewer
-			// so we should Functionalise this lot so we can have the viewer window shown fuly painted.
-			//and we need to do the same in SqlDbViewer
-			EventHandlers . SendViewerCommand ( 102 , ">>> Starting TriggerCustomerDataLoad()" , Flags . CurrentSqlViewer );
-			//This calls  LoadcustomerTask for us after sorting out the command line sort order requested
-			try
-			{
-				CustCollection cc = new CustCollection ();
-				List<Task<CustCollection>> tasks = new List<Task<CustCollection>> ( );
-				tasks . Add ( cc. LoadCustomerTaskInSortOrderAsync ( true , 0 ) );
-				var Results = await Task . WhenAll ( tasks );
-			}
-			catch ( Exception ex )
-			{ Console . WriteLine ( $"Error occured in LoadBankTaskSortOrder Task\n{ex . Message}\n{ex . Data}" ); }
-			EventHandlers . SendViewerCommand ( 103 , "<<< Ended TriggerCustomerDataLoad()" , Flags . CurrentSqlViewer );
-		}
-
-		private async Task TriggerDetailsDataLoad ( SqlDbViewer NewSqlViewer )
-		{
-			// When this gets hre, all data will have been loaded, and we get a notifiication from SqlDbViewer
-			// so we should Functionalise this lot so we can have the viewer window shown fuly painted.
-			//and we need to do the same in SqlDbViewer
-			EventHandlers . SendViewerCommand ( 102 , ">>> Starting TriggerDetailsDataLoad()" , Flags . CurrentSqlViewer );
-			//This calls  LoadDetailsTask for us after sorting out the command line sort order requested
-			try
-			{
-				DetCollection dc = new DetCollection();
-				await dc. LoadDetailsTaskInSortOrderAsync ( true , 0);
-				//				await dvm . LoadDetailsTaskInSortOrderAsync ( true, 0 );
-				//List<Task<bool>> tasks = new List<Task<bool>> ( );
-				//tasks . Add ( dvm . LoadDetailsTaskInSortOrderAsync ( true, 0 ) );
-				//var Results = await Task . WhenAll ( tasks );
-			}
-			catch ( Exception ex )
-			{ Console . WriteLine ( $"Error occured in LoadBankTaskSortOrder Task\n{ex . Message}\n{ex . Data}" ); }
-			EventHandlers . SendViewerCommand ( 102 , ">>> Ended  TriggerDetailsDataLoad()" , Flags . CurrentSqlViewer );
-		}
-
-		#endregion Trigger Task for loading for each Grid type
-
-		/// <summary>
-		///  not in use right now 16/4/21
-		/// </summary>
-		/// <param name="selecteditem"></param>
-		/// <param name="Command"></param>
-		private async void InitialLoad ( int selecteditem , string Command )//ListBox listbox, int selected, string Command)
-													  // NOT IN USE
-		{
-			//			string selectedItem = "";
-			//			if (listbox == sqlSelector)
-			//			{
-			//upper listbox - NEW command
-			ListBox listbox = this . sqlSelector;
-
-			if ( Command == "NEW" )
-			{
-				//if (selectedItem == 0)
-				//	selected = 0;
-				//else if (selectedItem == 1)
-				//	selected = 1;
-				//else if (selectedItem == 2)
-				//	selected = 2;
-				Mouse . OverrideCursor = Cursors . Wait;
-
-				////*****************************************************//
-				//// Load and display a new viewer for the selected Db Type
-				//// (returned in the selected var from dbSelector window)
-				////*****************************************************//
-				//*****************************************************//
-				DataGridController dg = new DataGridController ( );
-				//*****************************************************************************//
-				//This actually loads the SQLDbViewer windows and populates it
-				// and it is fully displayed on screen, but with no data in the grid
-				//Set pointer to our current Viewer Window
-#pragma WRONG
-				dg . CurrentEditDbViewer = Flags . CurrentSqlViewer;
-				//*****************************************************************************//
-				Mouse . OverrideCursor = Cursors . Wait;
-				Flags . CurrentSqlViewer . WaitMessage . Visibility = Visibility . Visible;
-				Flags . CurrentSqlViewer . Show ( );
-				// This is MAGIC code (from a Forum)
-				//This class forces a refresh for whatever object you pass into it.
-//				ExtensionMethods . Refresh ( Flags . CurrentSqlViewer );
-
-				if ( ViewersList . Items . Count > 10 )
-				{
-					Mouse . OverrideCursor = Cursors . Arrow;
-					MessageBox . Show ( "Sorry, but there is a limit of TEN Viewers open at any one time.\r\nPlease close one or more Viewers if you want to open a new one." , "Maximum Viewers Open !" );
-					return;
-				}
-				// find first blank entry of the 5 available slots we have
-				// and save our details into it
-				for ( int x = 0 ; x < MainWindow . gv . MaxViewers ; x++ )
-				{
-					if ( MainWindow . gv . window [ x ] == null )
-					{
-						string currentRowText = "";
-						MainWindow . gv . ViewerSelectiontype = -1;  // reset flag field for next time
-#pragma  WRONG ???
-						//Set pointer to our current Viewer Window
-						dg . CurrentEditDbViewer = Flags . CurrentSqlViewer;
-						//*****************************************************************************//
-						Mouse . OverrideCursor = Cursors . Wait;
-						Flags . CurrentSqlViewer . WaitMessage . Visibility = Visibility . Visible;
-						Flags . CurrentSqlViewer . WaitMessage . BringIntoView ( );
-						Mouse . OverrideCursor = Cursors . Arrow;
-						EventHandlers . SendViewerCommand ( 102 , ">>> Start Data Loading for viewer" , Flags . CurrentSqlViewer );
-
-						if ( selecteditem == 0 )
-						{
-							await TriggeBankDataLoad ( Flags . CurrentSqlViewer );
-							Flags . SqlBankGrid . SelectedIndex = 0;
-//							EventHandlers . SendViewerCommand ( 103 , $"<<< Completed Data Loading for BankAccount [{Flags . SqlBankGrid . Items . Count}]" , Flags . CurrentSqlViewer );
-							Flags . SqlBankGrid . Visibility = Visibility . Visible;
-							Flags . CurrentSqlViewer . Focus ( );
-							//Tell SQLDbViewer to load SQL data
-							EventHandlers . SendViewerCommand ( 100 , "BANKACCOUNT" , Flags . CurrentSqlViewer );
-						}
-						else if ( selecteditem == 1 )
-						{
-							await TriggerCustomerDataLoad ( Flags . CurrentSqlViewer );
-							// This triggers a selectionChanged event in SQLDbViewer
-							Flags . SqlCustGrid . SelectedIndex = 0;
-//							EventHandlers . SendViewerCommand ( 103 , $"Completed Data Loading for Customer  [{Flags . SqlCustGrid . Items . Count}]" , Flags . CurrentSqlViewer );
-							Flags . SqlCustGrid . Visibility = Visibility . Visible;
-							Flags . CurrentSqlViewer . Focus ( );
-							EventHandlers . SendViewerCommand ( 100 , "CUSTOMER" , Flags . CurrentSqlViewer );
-						}
-						else if ( selecteditem == 2 )
-						{
-							await TriggerDetailsDataLoad ( Flags . CurrentSqlViewer );
-							Flags . SqlDetGrid . SelectedIndex = 0;
-//							EventHandlers . SendViewerCommand ( 103 , $"<<< Completed Data Loading for Details  [{Flags . SqlDetGrid . Items . Count}]" , Flags . CurrentSqlViewer );
-							Flags . SqlDetGrid . Visibility = Visibility . Visible;
-							Flags . CurrentSqlViewer . Focus ( );
-							EventHandlers . SendViewerCommand ( 100 , "DETAILS" , Flags . CurrentSqlViewer );
-						}
-						//Now we can Get the data from the current row
-						currentRowText = MainWindow . gv . CurrentDb [ x ];
-
-						// add new entry to the list of open viewers
-						Flags . SqlViewerIsLoading = true;
-						AddViewerToList ( MainWindow . gv . PrettyDetails , Flags . CurrentSqlViewer , selecteditem );
-						Flags . SqlViewerIsLoading = false;
-
-						//Create/Add new viewer entry (ListBoxItem) to Selection viewer Listbox
-						EventHandlers . SendViewerCommand ( 103 , "<<< DbSelector has Completed Window Loading" , Flags . CurrentSqlViewer );
-						int mx = 0;
-						if ( mx == 1 )
-						{
-							ListBoxItem lbi = new ListBoxItem ( );
-							{
-								// Set Tag of this LB Item to the DbViewer Window
-								lbi . Tag = Flags . CurrentSqlViewer . Tag;
-								{
-									//Bind the new lbItem to our Data source
-									//							lbi.SetBinding (lbi.ItemSourceProperty, new Binding { Source = Items});
-									//							lbi.SetBinding (ContentProperty, ViewersList);
-
-									//update our DependencyProperty ListBoxItemText - in DbSelector.cs
-									//							Flags.DbSelectorOpen.ListBoxItemText = currentRowText;
-									//This is the normal way to update the lists data
-									//							lbi.Content = Flags.DbSelectorOpen.ListBoxItemText;
-								}
-								lbi . Content = MainWindow . gv . PrettyDetails;
-								lbi . Foreground = new SolidColorBrush ( Colors . Black );
-
-								int indx = ViewersList . Items . Add ( lbi );
-								ViewersList . SelectedIndex = indx;
-								ViewersList . Items . Refresh ( );
-//								ExtensionMethods . Refresh ( this . ViewersList );
-
-								if ( ViewersList . Items . Count > 1 )
-								{
-									ViewerDeleteAll . IsEnabled = true;
-									ViewerDelete . IsEnabled = true;
-									SelectViewerBtn . IsEnabled = true;
-								}
-								Flags . CurrentSqlViewer . WaitMessage . Visibility = Visibility . Collapsed;
-								if ( selecteditem == 0 )
-								{       //Bank
-									Flags . SqlBankGrid . Visibility = Visibility . Visible;
-								}
-								else if ( selecteditem == 1 )
-								{
-									{ // Customer
-										Flags . SqlCustGrid . Visibility = Visibility . Visible;
-										Flags . SqlCustGrid . SelectedIndex = 1;
-									}
-								}
-								else if ( selecteditem == 2 )
-								{
-									//Details
-									Flags . SqlDetGrid . Visibility = Visibility . Visible;
-								}
-							}
-							if ( Bankcollection != null )
-								Flags . ActiveSqlGrid . ItemsSource = Bankcollection;
-							//							if ( bvm . BankAccountObs != null )
-							//								Flags . ActiveSqlGrid . ItemsSource = bvm . BankAccountObs;
-
-							// This WORKS for details 2/4/21
-							//							Debug.WriteLine ($" *** Current Active...3 =  {Flags.ActiveSqlGridStr}\r\n");
-							if ( Flags . ActiveSqlGrid?.ItemsSource != null )
-								CollectionViewSource . GetDefaultView ( Flags . ActiveSqlGrid . ItemsSource ) . Refresh ( );
-
-							Mouse . OverrideCursor = Cursors . Arrow;
-
-							Flags . CurrentSqlViewer . Focus ( );
-							break;
-						}
-
-						break;
-					}
-				}
-				//					Mouse.OverrideCursor = Cursors.Arrow;
-				Console . WriteLine ( $"DbSelector InitialLoad() completed" );
-				Utils . GetWindowHandles ( );
-			}
-			//			}
-			else if ( listbox == ViewersList )
-			{
-				if ( Command == "SELECT" )
-				{
-					//
-					// This works = 22 March 2021
-					//
-					int selindex = -1;
-					selindex = ViewersList . SelectedIndex;
-					ListBoxItem lbi = new ListBoxItem ( );
-					lbi = ViewersList . Items [ selindex ] as ListBoxItem;
-
-					Guid SelectedId = MainWindow . gv . ListBoxId [ selindex - 1 ];
-					Window w = MainWindow . gv . window [ selindex - 1 ];
-					w . Show ( );
-					//					w . Topmost = true;
-					w . Focus ( );
-					//					w . Topmost = false;
-					return;
-				}
-				else if ( Command == "DELETE" )
-				{       //
-					  // This also works = 22 March 2021
-					  //
-					int selindex = -1;
-					selindex = ViewersList . SelectedIndex;
-					ListBoxItem lbi = new ListBoxItem ( );
-					lbi = ViewersList . Items [ selindex ] as ListBoxItem;
-
-					// THIS IS ALL WRONG - INDEXING DOES NOT MATCH BETWEEN VIEWER AND GV[]
-					for ( int x = 0 ; x < MainWindow . gv . MaxViewers ; x++ )
-					{
-						try
-						{
-							if ( ViewersList . SelectedItem != null )
-							{
-								if ( MainWindow . gv . ListBoxId [ x ] == ( Guid ) lbi . Tag )
-								{
-									//Remove a SINGLE Viewer Windows data from Flags & gv[]
-									Flags . DeleteViewerAndFlags ( x );
-									// found the match - so just close viewer and remove from Viewers list
-									CloseviewerWindow ( x );
-									//									ViewersList.Items.RemoveAt (selindex);
-#pragma TODO
-									// Need to remove #lbi as well !!!!!!
-									break;
-								}
-							}
-						}
-						catch
-						{
-						}
-					}
-					if ( ViewersList . Items . Count >= 1 )
-						ViewersList . SelectedIndex = selindex;
-					ViewersList . Items . Refresh ( );
-					return;
-				}
-				else if ( Command == "DELETEALL" )
-				{
-					//
-					// This also works = 22 March 2021
-					//
-					// Close/Delete ALL open viewers
-					for ( int x = 0 ; x < MainWindow . gv . MaxViewers ; x++ )
-					{
-						//Close the viewer
-						if ( MainWindow . gv . window [ x ] != null )
-						{
-							MainWindow . gv . window [ x ] . Close ( );
-							Flags . CurrentSqlViewer = null;
-							MainWindow . gv . SqlViewerWindow = null;
-						}
-						//remove all record of it's very existence
-						MainWindow . gv . window [ x ] = null;
-						MainWindow . gv . CurrentDb [ x ] = "";
-						MainWindow . gv . ListBoxId [ x ] = Guid . Empty;
-						MainWindow . gv . SqlViewerWindow = null;
-						MainWindow . gv . ViewerSelectiontype = -1;  // reset flag field for next time
-					}
-					MainWindow . gv . ViewerCount = 0;
-					for ( int x = MainWindow . gv . MaxViewers ; x > 0 ; x-- )
-					{
-						if ( ViewersList . Items . Count == x + 1 )
-						{
-							ViewersList . Items . RemoveAt ( x );
-#pragma TODO
-							// Need to remove #lbi as well !!!!!!
-
-							//							break;
-						}
-					}
-				}
-			}
-		}
-
-		#endregion UNUSED FUNCTIONS
-
-		private void sqlSelector_SelectionChanged ( object sender , SelectionChangedEventArgs e )
-		{
-			//ListBoxItem lbi = new ListBoxItem ( );
-			//var v = e . Source;
-			//Guid tag = Guid . Empty;
-			//ListBox listbox = sqlSelector;
-			//lbi = listbox . SelectedItem as ListBoxItem;
-			//if ( lbi == null ) return;
-			//if ( lbi . Tag == null ) return;
-			//tag = ( Guid ) lbi . Tag;
-			//for ( int x = 0 ; x < ViewersList . Items . Count ; x++ )
-			//{
-			//	if ( MainWindow . gv . ListBoxId [ x ] == tag )
-			//	{
-			//		MainWindow . gv . window [ x ] . Focus ( );
-			//		MainWindow . gv . SqlViewerWindow = MainWindow . gv . window [ x ] as SqlDbViewer;
-			//		//Ensure our global viewer pointer is set to last viewer selected
-			//		Flags . CurrentSqlViewer = MainWindow . gv . window [ x ] as SqlDbViewer;
-			//		break;
-			//	}
-			//}
-		}
-
+	
 		private void OntopChkbox_Click ( object sender , RoutedEventArgs e )
 		{
 			if ( OntopChkbox . IsChecked == true )
@@ -1662,16 +1304,15 @@ namespace WPFPages . Views
 			else
 				this . Topmost = false;
 		}
-
-		private void Multi_Click ( object sender , RoutedEventArgs e )
-		{
-
-		}
-
 		private void Bankedit_Click ( object sender , RoutedEventArgs e )
 		{
 			BankDbView cdbv = new BankDbView();
 			cdbv . Show ( );
+		}
+
+		private void Closeapp_Click ( object sender , RoutedEventArgs e )
+		{
+			Application . Current . Shutdown ( );
 		}
 	}
 }
